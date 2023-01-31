@@ -263,7 +263,7 @@ library(icesVocab)
   table2Save      <-  table2Save%>%filter(MetierL5 %in% m5_ices$Key)
 
 
-### 3.5.10 Check VMSEnabled categories are accepted =====================
+### 3.5.11 Check VMSEnabled categories are accepted =====================
 
 
   yn <- getCodeList("YesNoFields")
@@ -277,7 +277,7 @@ library(icesVocab)
   table2Save      <-  table2Save%>%filter(VMSEnabled %in% yn$Key)
   
   
-### 3.5.11 Check country codes =====================
+### 3.5.12 Check country codes =====================
   
   cntrcode <- getCodeList("ISO_3166")
   table (table2Save$CountryCode %in%cntrcode$Key )   # TRUE records accepted in DATSU, FALSE aren't
