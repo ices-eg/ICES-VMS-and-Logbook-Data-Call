@@ -262,6 +262,18 @@ library(icesVocab)
   # Correct them if any not valid and filter only valid ones
   table2Save      <-  table2Save%>%filter(MetierL5 %in% m5_ices$Key)
 
+### 3.5.10 Check Metier L6 (Fishing Activity) categories are accepted =====================
+
+m6_ices         <-  getCodeList("Metier6_FishingActivity")
+
+table (table2Save$MetierL6 %in%m6_ices$Key )   # TRUE records accepted in DATSU, FALSE aren't
+
+# Get summary  of   DATSU valid/not valid records
+table2Save [ !table2Save$MetierL6 %in%m6_ices$Key,]%>%group_by(MetierL6)%>%select(MetierL6)%>%tally()
+
+# Correct them if any not valid and filter only valid ones
+table2Save      <-  table2Save%>%filter(MetierL6 %in% m6_ices$Key)
+
 
 ### 3.5.11 Check VMSEnabled categories are accepted =====================
 
