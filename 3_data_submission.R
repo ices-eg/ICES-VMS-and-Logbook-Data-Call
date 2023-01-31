@@ -193,8 +193,19 @@ library(icesVocab)
   # Correct them if any not valid and filter only valid ones
   table1Save      <-  table1Save%>%filter(MetierL5 %in% m5_ices$Key)
 
-  
-### 3.5.5 Check country codes =====================
+### 3.5.5 Check Metier L6 (Fishing Activity) categories are accepted =====================
+
+  m6_ices         <-  getCodeList("Metier6_FishingActivity")
+
+  table (table1Save$MetierL6 %in%m6_ices$Key )   # TRUE records accepted in DATSU, FALSE aren't
+
+  # Get summary  of   DATSU valid/not valid records
+  table1Save [ !table1Save$MetierL6 %in%m6_ices$Key,]%>%group_by(MetierL6)%>%select(MetierL6)%>%tally()
+
+  # Correct them if any not valid and filter only valid ones
+  table1Save      <-  table1Save%>%filter(MetierL6 %in% m6_ices$Key)
+
+### 3.5.6 Check country codes =====================
   
   cntrcode <- getCodeList("ISO_3166")
   table (table1Save$CountryCode %in%cntrcode$Key )   # TRUE records accepted in DATSU, FALSE aren't
