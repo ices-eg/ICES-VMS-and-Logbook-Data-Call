@@ -191,17 +191,17 @@ At this point you need to replace the paths shown in the code with your own ones
 
 The thresholds here defined will be used later in different processes throughout the code. These will include, data cleaning or definition of vessel state (i.e. fishing/not fishing). The values set for the thresholds are considered to be reasonable and unless there are particularities in your data there shouldn't be a need to change these values.
 
-# - Re-run all years as we have new field for no. vessels and anonymization of less than three vessels
+#- Re-run all years as we have new field for no. vessels and anonymization of less than three vessels
 
-# - Set the gear names for which automatic fishing activity is wanted
+#- Set the gear names for which automatic fishing activity is wanted
 
-# - It is important to fill out the gears you want to apply auto detection for
+#- It is important to fill out the gears you want to apply auto detection for
 
-# - Decide if you want to visually analyse speed-histograms to identify fishing activity
+#- Decide if you want to visually analyse speed-histograms to identify fishing activity
 
-# - peaks or have prior knowledge and use the template provided 
+#- peaks or have prior knowledge and use the template provided 
 
-# - Specify how landings should be distributed over the VMS pings: By day, ICES rectangle, trip basis or otherwise
+#- Specify how landings should be distributed over the VMS pings: By day, ICES rectangle, trip basis or otherwise
 
 
 
