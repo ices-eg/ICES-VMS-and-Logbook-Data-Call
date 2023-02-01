@@ -127,12 +127,14 @@ That's it; you now have all you need to process your data.
 
 ## Step 4: Installing ICES R packages 
 
+To install the libraries required to upload the data to the ICES servers, paste the following code into the R console.
+
 ```r 
 # R packages required to be installed:
 # install.packages(c("icesVMS", "icesConnect"), repos = "https://ices-tools-prod.r-universe.dev")  
 
 library(icesVMS)
-
+library(icesConnect)
 
 ##Get vocabulary for mandatory and fields with associated vocabulary using the DATSU API
 # install.packages("icesVocab", repos = "https://ices-tools-prod.r-universe.dev")
