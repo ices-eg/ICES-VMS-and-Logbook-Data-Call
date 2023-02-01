@@ -5,7 +5,7 @@
 ### [1.1 Step 1 Installation of R](#step-1-installation-of-r)
 ### [1.2 Step 2 Installation of RStudio](#step-2-installation-of-rstudio)
 ### [1.3 Step 3 Installing VMSTOOLS R package](#step-3-installing-vmstools)
-### [1.4 Step 4: Installing ICES R packages](#step-4-installing-ICES R packages)
+### [1.4 Step 4: Installing ICES R packages](#step-4-installing-ICES-R-packages)
 
 ##  [2 Proposed workflow R code](#part-2-proposed-workflow-r-code)
 
