@@ -125,7 +125,7 @@ To install vmstools click on the Tools tab on the main menu in RStudio. Then sel
 
 That's it; you now have all you need to process your data.
 
-## Step 3 Installing ICES R packages 
+## Step 4 Installing ICES R packages 
 
 # R packages required to be installed:
 # install.packages(c("icesVMS", "icesConnect"), repos = "https://ices-tools-prod.r-universe.dev")  
