@@ -17,7 +17,7 @@
 ## [4  Changelog](#4-changelog) 
 
 
-# Part1. Installation of required software 
+# Part 1. Installation of required software 
 
 This document is designed to aid analysts streamline the process of extracting VMS data in accordance with requirements of the ICES VMS data call.
 
@@ -127,6 +127,7 @@ That's it; you now have all you need to process your data.
 
 ## Step 4: Installing ICES R packages 
 
+```r 
 # R packages required to be installed:
 # install.packages(c("icesVMS", "icesConnect"), repos = "https://ices-tools-prod.r-universe.dev")  
 
@@ -137,7 +138,7 @@ library(icesVMS)
 # install.packages("icesVocab", repos = "https://ices-tools-prod.r-universe.dev")
 
 library(icesVocab)
-
+```
 
 # Part 2. Proposed workflow R code 
 
