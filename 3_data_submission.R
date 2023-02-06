@@ -70,6 +70,7 @@ table1Save <-
     summarise(
       mean_si_sp       = mean(SI_SP),
       sum_intv         = sum(INTV, na.rm=TRUE),
+      mean_intv        = mean(INTV, na.rm=TRUE),
       mean_ve_len      = mean(VE_LEN, na.rm = TRUE),
       mean_ve_kf       = mean(VE_KW, na.rm = TRUE),
       sum_kwHour       = sum(kwHour, na.rm=TRUE),
@@ -89,7 +90,7 @@ colnames(table1Save) <-
   c(
     "RecordType", "CountryCode", "Year", "Month", "NoDistinctVessels", "AnonymizedVesselID",
     "C-square","MetierL4", "MetierL5",  "MetierL6",  "VesselLengthRange",
-    "AverageFishingSpeed", "FishingHour", "AverageVesselLength", "AveragekW",
+    "AverageFishingSpeed", "FishingHour", "AverageInterval", "AverageVesselLength", "AveragekW",
     "kWFishingHour", "TotWeight", "TotValue" , "AverageGearWidth"
   )
 
