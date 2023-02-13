@@ -160,7 +160,7 @@ Many of the specific functions that this workflow uses to extract and process VM
 
 Before initiating the workflow, it is first necessary that you have all VMS and landings data in the tacsat2 and eflalo2 format srespectively. If you need more information about either format you can download a document with the detailed specifications for both in the linkbelow.
 
-[https://github.com/nielshintzen/VMStools/releases/download/0.0/Exchange\_EFLALO](https://github.com/nielshintzen/VMStools/releases/download/0.0/Exchange_EFLALO2_v2-1.doc)[2\_v2-1.doc](https://github.com/nielshintzen/VMStools/releases/download/0.0/Exchange_EFLALO2_v2-1.doc)
+[https://github.com/nielshintzen/VMStools/releases/tag/0.0/Exchange_EFLALO2_v2-1.doc](https://github.com/nielshintzen/VMStools/releases/tag/0.0/Exchange_EFLALO2_v2-1.doc)
 
 If you are experiencing difficulties and your data is not yet in the tacsat and/or eflalo format please get in touch with one of the contacts at the bottom of these guidelines. Someone will get back to you and help you to rearrange your data into the specified formats allowing you to move on with the analysis.
 
