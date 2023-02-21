@@ -39,6 +39,8 @@ vlen_ices <- getCodeList("VesselLengthClass") ### Get DATSU Vocabulary list for 
 
 # Filter values that aren't deprecated, overlapped  or not accepted by data call requirements
 
+vlen_ices <- filter(vlen_ices, Deprecated == FALSE)
+
 vlen_icesc <-  vlen_ices%>%slice(2, 4, 6, 7, 8, 10, 11, 12, 13 )%>%select(Key)
 
 # TABLE 1. Add the vessel length category using  LENGTHCAT field
