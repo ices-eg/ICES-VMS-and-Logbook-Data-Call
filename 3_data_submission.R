@@ -37,14 +37,14 @@ library(icesVocab)
 vlen_ices <- getCodeList("VesselLengthClass") ### Get DATSU Vocabulary list for selected dataset
 
 
-# Filter values that aren't deprecated, overlapped  or not accepted by data call requirements
+# Filter the vessel length categories required  by  ICES VMS& Logbook datacall 
 
-vlen_ices <- filter(vlen_ices, Deprecated == FALSE)
+vlen_icesc =  vlen_ices%>%
+  filter ( Key %in% c("VL0006", "VL0608", "VL0810", "VL1012", "VL1215" ,"VL1518", "VL1824" ,"VL2440" ,"VL40XX"))%>%
+  select(Key)%>%
+  arrange(Key)
 
-vlen_icesc <-  vlen_ices%>%slice(2, 4, 6, 7, 8, 10, 11, 12, 13 )%>%select(Key)
-
-# TABLE 1. Add the vessel length category using  LENGTHCAT field
-
+# TABLE 1. Add the vessel length category using  LENGTHCAT field, aligned with VESSEL LENGTH categories selected from ICES Vocabulary 
 
 
 table1$LENGTHCAT <-  table1$VE_LEN%>%cut(    breaks=c(0, 6, 8, 10, 12, 15, 18, 24, 40, 'inf' ), 
