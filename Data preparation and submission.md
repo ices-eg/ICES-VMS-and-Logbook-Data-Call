@@ -506,15 +506,16 @@ and icesConnect:([https://cran.r-project.org/web/packages/icesConnect/index.html
 
 # 4 Contacts
 
-Lara Salvany:[lara.salvany@ices.dk](mailto:lara.salvany@ices.dk)
-
-Roi Martinez:[roi.martinez@cefas.co.uk](mailto:roi.martinez@cefas.co.uk)
-
-Colin Millar:[colin.millar@ices.dk](mailto:colin.millar@ices.dk)
+Patrik Jonsson:[patrik.jonsson@slus.se](mailto:patrik.jonsson@slu.se)
 
 Josefine Egekvist:[jsv@aqua.dtu.dk](mailto:jsv@aqua.dtu.dk)
 
-Niels Hintzen:[niels.hintzen@wur.nl](mailto:niels.hintzen@wur.nl)
+Roi Martinez:[roi.martinez@cefas.co.uk](mailto:roi.martinez@cefas.co.uk)
+
+Neil Campbell:[neil.campbell@ices.dk](mailto:neil.campbell@ices.dk)
+
+Josefine Egekvist:[jsv@aqua.dtu.dk](mailto:jsv@aqua.dtu.dk)
+
 
 
 
