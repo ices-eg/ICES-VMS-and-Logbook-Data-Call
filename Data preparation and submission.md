@@ -528,6 +528,6 @@ Josefine Egekvist:[jsv@aqua.dtu.dk](mailto:jsv@aqua.dtu.dk)
 | 1 February 2019   | Update                 | Lara Salvany, ICES      |
 | 1 February 2021   | Update                 | Lara Salvany, ICES      |
 | 15 February 2022  | Update                 | Roi Martinez, UK        |
-| 22 Fbruary 2022   | Update                 | Lara Salvany, ICES      |
-| 13 Fbruary 2023   | Update                 | Cecilia Kvaavik, ICES      
+| 22 February 2022   | Update                 | Lara Salvany, ICES      |
+| 13 February 2023   | Update                 | Cecilia Kvaavik, ICES      
 
