@@ -5,7 +5,7 @@
 ### [1.1 Step 1 Installation of R](#step-1-installation-of-r)
 ### [1.2 Step 2 Installation of RStudio](#step-2-installation-of-rstudio)
 ### [1.3 Step 3 Installing VMSTOOLS R package](#step-3-installing-vmstools)
-### [1.4 Step 4: Installing ICES R packages](#step-4-installing-ICES-R-packages)
+### [1.4 Step 4: Installing ICES R packages](#step-4-installing-ices-r-packages)
 
 ##  [2 Proposed workflow R code](#part-2-proposed-workflow-r-code)
 
@@ -16,6 +16,8 @@
 ## [3  Contacts](#3-contacts) 
 ## [4  Changelog](#4-changelog) 
 
+## [Annex 1 Format specification for VMS data (VE)](#ve-table-format)
+## [Annex 2 Format specification for Logbook data (LE)](#le-table-format)
 
 # Part 1. Installation of required software 
 
@@ -125,7 +127,8 @@ To install vmstools click on the Tools tab on the main menu in RStudio. Then sel
 
 That's it; you now have all you need to process your data.
 
-## Step 4: Installing ICES R packages 
+
+## Step 4: Installing ICES R packages
 
 To install the libraries required to upload the data to the ICES servers, paste the following code into the R console.
 
@@ -528,6 +531,71 @@ Josefine Egekvist:[jsv@aqua.dtu.dk](mailto:jsv@aqua.dtu.dk)
 | 1 February 2019   | Update                 | Lara Salvany, ICES      |
 | 1 February 2021   | Update                 | Lara Salvany, ICES      |
 | 15 February 2022  | Update                 | Roi Martinez, UK        |
-| 22 February 2022   | Update                 | Lara Salvany, ICES      |
-| 13 February 2023   | Update                 | Cecilia Kvaavik, ICES      
+| 22 February 2022  | Update                 | Lara Salvany, ICES      |
+| 13 February 2023  | Update                 | Cecilia Kvaavik, ICES   |  
+| 24 February 2023  | Update                 | Neil Campbell, ICES     |
+
+
+# Annex 1. Format specification of VMS data (VE)
+The specification of the format for VMS can be found here: [datsu.ices.dk/web/selRep.aspx?Dataset=145](https://datsu.ices.dk/web/selRep.aspx?Dataset=145)
+and in the table below
+
+
+## VE table format
+
+| **Start**|**FieldCode**           | **Datatype**      | **Code List**                                                 | **Mandatory** | **Description**                                                                                                                                     |
+|-------|---------------------|---------------|-----------------------------------------------------------|-----------|-------------------------------------------------------------------------------------------------------------------------------------------------|
+| 1     | RecordType          | char(2)       |                                                           | M         | RecordType field consists of a 2-character code,  which defines the record type and thus the layout of the data fields included on that record. |
+| 2     | CountryCode         | char(3)       | [ISO_3166](http://vocab.ices.dk/?ref=337)                 | M         | ISO 3166-1 alpha-3 codes. The flag country  of the vessel.                                                                                      |
+| 3     | Year                | char(4)       | [Year](http://vocab.ices.dk/?ref=362)                     | M         | Year                                                                                                                                            |
+| 4     | Month               | int(2)        |                                                           | M         | Month                                                                                                                                           |
+| 5     | NoDistinctVessels   | int(5)        |                                                           | M         | Number of distinct vessels                                                                                                                      |
+| 6     | AnonymizedVesselID  | nvarchar(500) |                                                           | M         | Anonymized vessel ID: Country code + 3 digits and semicolon separated.  For example: ESP001; ESP003;                                            |
+| 7     | C-square            | nvarchar(15)  |                                                           | M         | 0.05x0.05 degree,  C-square reference XXXX:XXX:XXX:X                                                                                            |
+| 8     | MetierL4            | char(25)      | [GearTypeL4](http://vocab.ices.dk/?ref=1498)              | M         | Metier level 4                                                                                                                                  |
+| 9     | MetierL5            | char(50)      | [TargetAssemblage](http://vocab.ices.dk/?ref=1499)        | M         | Metier level 5                                                                                                                                         |
+| 10    | MetierL6            | char(40)      | [Metier6_FishingActivity](http://vocab.ices.dk/?ref=1647) | M         | Metier level 6                                                                                                                                  |
+| 11    | VesselLengthRange   | char(20)      | [VesselLengthClass](http://vocab.ices.dk/?ref=1725)       | M         | Length class for vessels used in data sampling                                                                                                  |
+| 12    | AverageFishingSpeed | float(15)     |                                                           | M         | Average fishing speed within the aggregation: year, month, c-square, vessel length category, gear code and DCF métier                           |
+| 13    | FishingHour         | float(15)     |                                                           | M         | Fishing hour calculated from VMS data (excluding non-fishing activity)                                                                          |
+| 14    | AverageInterval     | float(10)     |                                                           | M         | Average polling frequency calculated from VMS data                                                                                              |
+| 15    | AverageVesselLength | float(15)     |                                                           | M         | Average vessel length within the aggregation: year,  month, c-square, gear code and DCF metier                                                  |
+| 16    | AveragekW           | float(15)     |                                                           | M         | Average vessel power( kW) within the aggregation: year,  month, c-square, gear code and DCF metier                                              |
+| 17    | kWFishingHour       | float(15)     |                                                           | M         | kW\*Fishing hours                                                                                                                               |
+| 18    | TotWeight           | float(15)     |                                                           | M         | Total landings of all species caught in **kg**                                                                                                  |
+| 19    | TotValue            | float(15)     |                                                           |           | Total Value of all species caught in **Euro**                                                                                                   |
+| 20    | AverageGearWidth    | float(15)     |                                                           | M         | Average Gear width                                                                                                                              |
+
+M = mandatory
+
+
+# Annex 2. Format specification of Logbook data (LE)
+The specification of the format for VMS can be found here: [datsu.ices.dk/web/selRep.aspx?Dataset=145](https://datsu.ices.dk/web/selRep.aspx?Dataset=145)
+and in the table below
+
+
+## LE table format
+
+| **Start** | **FieldCode**      | **Datatype**  | **Code List**                                             | **Mandatory** | **Description**                                                                                                                                         |
+|-----------|--------------------|---------------|-----------------------------------------------------------|---------------|---------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 1         | RecordType         | char(2)       |                                                           | M             | RecordType field consists of a 2-character code,  which defines the record type and thus the layout of the data fields included on that record.         |
+| 2         | CountryCode        | char(3)       | [ISO_3166](http://vocab.ices.dk/?ref=337)                 | M             | ISO 3166-1 alpha-3 codes. The flag country  of the vessel.                                                                                              |
+| 3         | Year               | char(4)       | [Year](http://vocab.ices.dk/?ref=362)                     | M             | Year                                                                                                                                                    |
+| 4         | Month              | int(2)        |                                                           | M             | Month                                                                                                                                                   |
+| 5         | NoDistinctVessels  | int(5)        |                                                           | M             | Number of distinct vessels                                                                                                                              |
+| 6         | AnonymizedVesselID | nvarchar(500) |                                                           | M             | Anonimyzed vessel ID: Country code + 3 digits and semicolon separated.  For example: ESP001; ESP003;                                                    |
+| 7         | ICESrectangle      | char(4)       | [StatRec](http://vocab.ices.dk/?ref=107)                  | M             | ICES Statistical Rectangle                                                                                                                              |
+| 8         | MetierL4           | char(25)      | [GearTypeL4](http://vocab.ices.dk/?ref=1498)              | M             | Metier level 4                                                                                                                                          |
+| 9         | MetierL5           | char(50)      | [TargetAssemblage](http://vocab.ices.dk/?ref=1499)        | M             | Metier level 5                                                                                                                                          |
+| 10        | MetierL6           | char(40)      | [Metier6_FishingActivity](http://vocab.ices.dk/?ref=1647) | M             | Metier level 6                                                                                                                                          |
+| 11        | VesselLengthRange  | char(20)      | [VesselLengthClass](http://vocab.ices.dk/?ref=1725)       | M             | Length class for vessels used in data sampling                                                                                                          |
+| 12        | VMSEnabled         |               | [YesNoFields](http://vocab.ices.dk/?ref=316)              |               | Yes/No                                                                                                                                                  |
+| 13        | FishingDays        | float(15)     |                                                           | M             | Number of fishing days by ICES rectangle. If a  vessel fished in several ICES squares one day, the day will be divided by the number of ICES rectangles |
+| 14        | kWFishingDays      |               |                                                           |               | kW\*FishingDays                                                                                                                                         |
+| 15        | TotWeight          | float(15)     |                                                           | M             | Total landings of all species caught in **kg**                                                                                                          |
+| 16        | TotValue           | float(15)     |                                                           |               | Total value of all species caught in **Euro**                                                                                                           |
+
+M = mandatory
+
+
 
