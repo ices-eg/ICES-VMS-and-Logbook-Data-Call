@@ -1,4 +1,4 @@
-TACSAT2 Format
+**TACSAT2 Format**
 
 | **Type** | **Variable**          | **Code** | **Description**          |
 |----------|-----------------------|----------|--------------------------|
@@ -10,7 +10,7 @@ TACSAT2 Format
 |          | Instantaneous speed   | SI_SP    | Knots                    |
 |          | Instantaneous heading | SI_HE    | Degrees                  |
 
-EFLALO2 Format
+**EFLALO2 Format**
 
 | Type          | Variable                                                    | Code             | Format/Unit                                     |
 |---------------|-------------------------------------------------------------|------------------|-------------------------------------------------|
