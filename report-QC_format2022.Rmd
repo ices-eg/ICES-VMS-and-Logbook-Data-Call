@@ -12,6 +12,7 @@ output:
 
 <!-- QCTEMPLATE: header -->
 
+
 ```{r setup, echo = FALSE}
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE,
                       comment = NA)
@@ -22,7 +23,16 @@ library(tidyverse)
 library(knitr)
 library(icesVocab)
 library(DT)
+
 options(digits = 4)
+
+#Specify data path
+veDataPath <- "C:/Work/VMS/230405_ICES_data_call/table1Save.csv"
+
+leDataPath <- "C:/Work/VMS/230405_ICES_data_call/table2Save.csv"
+
+
+
 # Functions --------------------------------------------------------------------
 grade <-function (x, dx) {
   if (dx > 1) 
@@ -32,13 +42,19 @@ grade <-function (x, dx) {
   x <- (brks[ints] + brks[ints + 1])/2
   return(x)
 }
+
+`an` <-
+function(x){return(as.numeric(x))}
+
 csq2pos <- function(d, dx = 0.05) {
   bind_cols(d,
-            vmstools::CSquare2LonLat(d$csq, degrees = dx) %>% 
+            CSquare2LonLat(d$csq, degrees = dx) %>% 
               select(lon = SI_LONG,
                      lat = SI_LATI)) %>% 
     as_tibble()
 }
+
+
 # borrowed from the geo-package
 d2ir <- function (lon, lat = NULL, useI = FALSE) {
   
@@ -79,6 +95,56 @@ ir2d <- function (ir, useI = FALSE) {
                   lon2 + 0.5)
   data.frame(lat = lat, lon = lon)
 }
+
+CSquare2LonLat <- function(csqr,degrees){
+
+  ra          <- 1e-6 #Artificial number to add for rounding of 5'ves (round(0.5) = 0, but in Excel (where onversion comes from, it is 1)onversion comes from, it is 1)  
+  chars       <- an(nchar(csqr))
+  tensqd      <- an(substr(csqr,1,1))+ra;      gqlat     <- (round(abs(tensqd-4)*2/10)*10/5)-1
+  tenslatd    <- an(substr(csqr,2,2))+ra;      gqlon     <- (2*round(tensqd/10)-1)*-1
+  tenslond    <- an(substr(csqr,3,4))+ra
+  unitsqd     <- an(substr(csqr,6,6))+ra;      iqulat    <- round(unitsqd*2/10)
+  unitslatd   <- an(substr(csqr,7,7))+ra;      iqulon    <- (round((unitsqd-1)/2,1) - floor((unitsqd-1)/2))*2
+  unitslond   <- an(substr(csqr,8,8))+ra
+  tenthsqd    <- an(substr(csqr,10,10))+ra;    iqtlat    <- round(tenthsqd*2/10)
+  tenthslatd  <- an(substr(csqr,11,11))+ra;    iqtlon    <- (round((tenthsqd-1)/2,1) - floor((tenthsqd-1)/2))*2
+  tenthslond  <- an(substr(csqr,12,12))+ra
+  hundqd      <- an(substr(csqr,14,14))+ra;    iqhlat    <- round(hundqd*2/10)
+  hundlatd    <- an(substr(csqr,15,15))+ra;    iqhlon    <- (round((hundqd-1)/2,1) - floor((hundqd-1)/2))*2
+  hundlond    <- an(substr(csqr,16,16))+ra
+  reso        <- 10^(1-floor((chars-4)/4))-((round((chars-4)/4,1)-floor((chars-4)/4))*10^(1-floor((chars-4)/4)))
+
+  if(degrees < reso[1]) stop("Returning degrees is smaller than format of C-square")
+  if(degrees == 10){   
+    lat <- ((tenslatd*10)+5)*gqlat-ra                              
+    lon <- ((tenslond*10)+5)*gqlon-ra              
+  }
+  if(degrees == 5){    
+    lat <- ((tenslatd*10)+(iqulat*5)+2.5)*gqlat-ra
+    lon <- ((tenslond*10)+(iqulon*5)+2.5)*gqlon-ra 
+  }
+  if(degrees == 1){    
+    lat <- ((tenslatd*10)+ unitslatd+0.5)*gqlat-ra
+    lon <- ((tenslond*10)+ unitslond+0.5)*gqlon-ra 
+  }
+  if(degrees == 0.5){  
+    lat <- ((tenslatd*10)+ unitslatd + (iqtlat*0.5)+0.25)*gqlat-ra
+    lon <- ((tenslond*10)+ unitslond + (iqtlon*0.5)+0.25)*gqlon-ra
+  }         
+  if(degrees == 0.1){  
+    lat <- ((tenslatd*10)+ unitslatd + (tenthslatd*0.1)+0.05)*gqlat-ra
+    lon <- ((tenslond*10)+ unitslond + (tenthslond*0.1)+0.05)*gqlon-ra
+  }
+  if(degrees == 0.05){ 
+    lat <- ((tenslatd*10)+ unitslatd + (tenthslatd*0.1)+(iqhlat*0.05)+0.025)*gqlat-ra
+    lon <- ((tenslond*10)+ unitslond + (tenthslond*0.1)+(iqhlon*0.05)+0.025)*gqlon-ra
+  }
+  if(degrees == 0.01){ 
+    lat <- ((tenslatd*10)+ unitslatd + (tenthslatd*0.1)+(hundlatd*0.01)+0.005)*gqlat-ra
+    lon <- ((tenslond*10)+ unitslond + (tenthslond*0.1)+(hundlond*0.01)+0.005)*gqlon-ra
+}
+return(data.frame(SI_LATI=lat,SI_LONG=lon))}
+
 read_le <- function(file) {
   read.csv(file,
            header = FALSE,
@@ -99,16 +165,14 @@ read_le <- function(file) {
                   effort = 13,
                   kwd = 14,
                   catch = 15,
-                  value = 16)  %>% 
+                  value = 16) %>% 
     dplyr::mutate(value = as.numeric(value),
                   lon = ir2d(isq)$lon,
-                  lat = ir2d(isq)$lat,
-                  vids = as.character(vids)
-                  )
+                  lat = ir2d(isq)$lat)
 }
 read_ve <- function(file) {
   
-  read.csv(file,
+ read.csv(file,
            header = FALSE,
            na.strings = "NULL") %>% 
     tidyr::as_tibble() %>% 
@@ -125,15 +189,15 @@ read_ve <- function(file) {
                   lclass = 11,
                   speed = 12,
                   effort = 13,             # units in hours
-                  length = 14,             # average vessel length
-                  kw = 15,                 # average kw
-                  kwh = 16,                # kw x effort
-                  catch = 17,
-                  value = 18,
-                  spread = 19) %>% 
-    dplyr::mutate(value = as.numeric(value),
-                  csq = as.character(csq)
-                  )
+                  int = 14,                # average interval
+                  length = 15,             # average vessel length
+                  kw = 16,                 # average kw
+                  kwh = 17,                # kw x effort
+                  catch = 18,
+                  value = 19,
+                  gearwidth = 20) %>%
+#                  spread = 21) %>% 
+    dplyr::mutate(value = as.numeric(value))
 }
 
 # support tables ---------------------------------------------------------------
@@ -146,17 +210,20 @@ lclass <-
           "E", ">= 15")
 
 # Get data ---------------------------------------------------------------------
-ve <- 
-  read_ve("/YOUR_PATH/table1Save.csv") %>% 
-  csq2pos() %>% 
-  # NEED TO CHECK THIS UPSTREAM
+ve <- read_ve(veDataPath) 
+ve <- bind_cols(ve,
+            CSquare2LonLat(ve$csq, degrees = 0.05) %>% 
+              select(lon = SI_LONG,
+                     lat = SI_LATI)) %>% 
+    as_tibble()
+
+ve <- ve %>% 
   filter(!is.na(lon)) %>% 
   mutate(isq = d2ir(lat, lon))
-  #mutate(isq = geo::d2ir(lat, lon))
-le <- 
-  read_le("/YOUR_PATH/table2Save.csv")
 
+le <- read_le(leDataPath)
 
+#file <- veDataPath 
 # some bounds ------------------------------------------------------------------
 country <- unique(ve$country)
 spatBound <- list(xrange = range(ve$lon, na.rm = TRUE),
@@ -189,63 +256,71 @@ spatBoundLog <- list(xrange = range(le$lon, na.rm = TRUE),
 tempBoundLog <- range(le$year, na.rm = TRUE)
 ```
 
-#### Countries in table 1 (vms, ve):  `r as.character(unique(ve$country))`
-#### Countries in table 2 (log, le):  `r as.character(unique(le$country))`
-
 # VMS
 
-## Counts {.tabset}
+## Overall checks (fishing hours) {.tabset}
 
 
-### By time
+### By month
 
 
-```{r by_time}
+```{r by_month}
 ve %>% 
-  count(year, month) %>% 
-  mutate(month = as.character(str_pad(month, width = 2, pad = "0"))) %>% 
-  add_row(ve %>% 
-            count(year) %>% 
-            mutate(month = "Total")) %>% 
-  spread(year, n) %>% 
-  kable(caption = "Number of vms records by year & months")
+  group_by(year, month) %>% 
+  summarise(FH = sum(effort),
+            .groups = "drop") %>% 
+  spread(year, FH) %>% 
+  kable(caption = "Effort(fishing hours)")
+
 ve %>% 
-  count(year) %>% 
-  ggplot(aes(year, n)) +
-  geom_point() +
-  scale_x_continuous(breaks = 2000:2030) +
-  labs(x = NULL, y = NULL, title = "Number of records by year") 
+  group_by(year) %>% 
+  summarise(FH = sum(effort)) %>% 
+  ggplot(aes(year, FH)) +
+  geom_line(lwd = 1) +
+  labs(x = NULL, y = "Fishing hours",
+       title = "Effort (fishing hours) by year")
+
+ 
 ```
 
 
 ```{r pings-by-month}
 ve %>% 
-  count(year, month) %>% 
-  complete(year, month, fill = list(n = 0)) %>% 
-  ggplot(aes(year, n)) +
+  group_by(year, month) %>% 
+  summarise(FH=sum(effort)) %>%
+  ggplot(aes(year, FH)) +
   geom_point() +
   geom_line() +
   facet_wrap(~ month) +
-  labs(x = NULL, y = NULL, title = "Number of vms records by year & month")
+  labs(x = NULL, y = NULL, title = "Fishing hours by year & month")
+
+#  complete(year, month, fill = list(n = 0)) %>% 
+
 ```
 
 ### By length class
 
 ```{r by_lclass}
+
 ve %>% 
-  count(year, lclass) %>% 
-  spread(year, n) %>% 
-  kable(caption = "Number of vms records by length class and year")
+  group_by(year, lclass) %>% 
+  summarise(FH = sum(effort),
+            .groups = "drop") %>% 
+  spread(year, FH) %>% 
+  kable(caption = "Effort(fishing hours) by length class and year")
+
 ve %>% 
-  count(year, lclass) %>% 
-  complete(year, lclass, fill = list(n = 0)) %>% 
+  group_by(year, lclass) %>% 
+  summarise(FH=sum(effort)) %>%
   left_join(lclass) %>% 
   unite(lclass, length_class, col = "lclass", sep = ": ") %>% 
-  ggplot(aes(year, n)) +
+  ggplot(aes(year, FH)) +
   geom_point() +
   geom_line() +
   facet_wrap(~ lclass, scales = "free_y") +
-  labs(x = NULL, y = NULL, title = "Number of vms records by month")
+  labs(x = NULL, y = NULL, title = "Fishing hours by year & length class")
+
+#complete(year, lclass, fill = list(n = 0)) %>% 
 ```
 
 ### By DCF4
@@ -430,12 +505,12 @@ bind_rows(ve %>%
             group_by(year, dcf4) %>% 
             summarise(catch = sum(catch) / 1000,
                       .groups = "drop") %>% 
-            mutate(source = "ais"),
+            mutate(source = "vms"),
           le %>% 
             group_by(year, dcf4) %>% 
             summarise(catch = sum(catch) / 1000,
                       .groups = "drop") %>% 
-            mutate(source = "lgs")) %>% 
+            mutate(source = "logbook")) %>% 
   ggplot(aes(year, catch, colour = source)) +
   geom_line(lwd = 1) +
   facet_wrap(~ dcf4, scales = "free_y") +
@@ -478,7 +553,7 @@ bind_rows(ve %>%
             group_by(year, dcf4) %>% 
             summarise(effort = sum(effort),
                       .groups = "drop") %>% 
-            mutate(source = "lgs")) %>% 
+            mutate(source = "logbooks")) %>% 
   ggplot(aes(year, effort, colour = source)) +
   geom_line(lwd = 1) +
   facet_wrap(~ dcf4, scales = "free_y") +
@@ -557,13 +632,13 @@ ve %>%
 ```{r mean-value-by-KWhours-year}
 ve %>% 
   group_by(year, dcf4) %>% 
-  summarise(vpkwh = median(value/kwh),
+  summarise(vpkwh = median(value/kwh, na.rm=T),
             .groups = "drop") %>% 
   spread(year, vpkwh) %>% 
   kable(caption = "Median value [EUR] per kilowhathour")
 ve %>% 
   group_by(year, dcf4) %>% 
-  summarise(vpkwh = median(value/kwh),
+  summarise(vpkwh = median(value/kwh, na.rm=T),
             .groups = "drop") %>% 
   ggplot(aes(year, vpkwh)) +
   geom_line() +
@@ -769,10 +844,17 @@ base <- dplyr::rename(base, fishing_hours = x)
 recent <- base[base$year == tempBound[2],]
 
 # calculate median of the total fishing hours per square for historical years
-base <- with(base[base$year < tempBound[2],],
+#Josefine: only one year so doesnt work.
+#base <- with(base[base$year < tempBound[2],],
+#             aggregate(fishing_hours,
+#                       by = list(c_square = c_square),
+#                       FUN = median, na.rm = TRUE))
+
+base <- with(base,
              aggregate(fishing_hours,
                        by = list(c_square = c_square),
                        FUN = median, na.rm = TRUE))
+
 base <- dplyr::rename(base, fishing_hours_median = x)
 
 # join
@@ -788,7 +870,7 @@ dat2plot$ratio <- 1/with(dat2plot, pmax(fishing_hours, 1e-9) / pmax(fishing_hour
 
 # add back in lat and long
 dat2plot <- cbind(dat2plot,
-                  vmstools::CSquare2LonLat(dat2plot$c_square, degrees = 0.05))
+                  CSquare2LonLat(dat2plot$c_square, degrees = 0.05))
 
 breaks <- c(-Inf, 1/2, 1/1.5, 1/1.25, 1/1.05, 1, 1.05, 1.25, 1.5, 2, Inf)
 legval <- c("historic >>","historic> +100%","historic> +50%","historic> +25%",
@@ -847,7 +929,7 @@ dat2plot$ratio <- 1/with(dat2plot, pmax(fishing_hours, 1e-9) / pmax(fishing_hour
 
 # add back in lat and long
 dat2plot <- cbind(dat2plot,
-                  vmstools::CSquare2LonLat(dat2plot$c_square, degrees = 0.05))
+                  CSquare2LonLat(dat2plot$c_square, degrees = 0.05))
 
 breaks <- c(-Inf, 1/2, 1/1.5, 1/1.25, 1/1.05, 1, 1.05, 1.25, 1.5, 2, Inf)
 legval <- c("historic >>","historic> +100%","historic> +50%","historic> +25%",
@@ -1252,13 +1334,13 @@ le %>%
 ```{r price2}
 le %>% 
   group_by(year, dcf4) %>% 
-  summarise(ppkg = median(value/catch),
+  summarise(ppkg = median(value/catch, na.rm=T),
             .groups = "drop") %>% 
   spread(year, ppkg) %>% 
   kable(caption = "Median value per kg")
 le %>% 
   group_by(year, dcf4) %>% 
-  summarise(ppkg = median(value/catch),
+  summarise(ppkg = median(value/catch, na.rm=T),
             .groups = "drop") %>% 
   ggplot(aes(year, ppkg)) +
   geom_line() +
@@ -1442,10 +1524,17 @@ base <- dplyr::rename(base, fishing_hours = x)
 recent <- base[base$year == tempBound[2],]
 
 # calculate median of the total fishing hours per square for historical years
-base <- with(base[base$year < tempBound[2],],
+#Josefine: Only one year
+#base <- with(base[base$year < tempBound[2],],
+#             aggregate(fishing_hours,
+#                       by = list(c_square = c_square),
+#                       FUN = median, na.rm = TRUE))
+base <- with(base,
              aggregate(fishing_hours,
                        by = list(c_square = c_square),
                        FUN = median, na.rm = TRUE))
+
+
 base <- dplyr::rename(base, fishing_hours_median = x)
 
 # join
@@ -1654,7 +1743,7 @@ ___
 
 
 ```{r}
-le %>% count(year, dcf6, name = "records") %>% 
-  full_join(ve %>% count(year, dcf6, name = "pings")) %>% 
-  kable(caption = "Comparison of Metier level 6 reporting between logbook (records) and VMS (pings)")
+le %>% count(year, dcf6, name = "logbook records") %>% 
+  full_join(ve %>% count(year, dcf6, name = "vms records")) %>% 
+  kable(caption = "Comparison of Metier level 6 reporting between logbook records and VMS records")
 ```
