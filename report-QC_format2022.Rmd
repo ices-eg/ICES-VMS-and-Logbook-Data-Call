@@ -438,6 +438,28 @@ ggplot(ve, aes(x = effort)) +
 ```
 
 
+### Fishing hours
+
+```{r table-fishing-hours, results='asis'}
+kable(do.call(rbind, tapply(ve$int, ve$year, summary)), booktabs = TRUE,
+      caption = "Summary statistics of average ping interval")
+```
+
+
+```{r ping-interval, fig.height = 6}
+#d <- 
+#  ve %>% 
+#  group_by(year) %>% 
+#  summarise(effort = max(effort))
+ggplot(ve, aes(x = int)) +
+  geom_histogram() +
+  scale_x_log10() +
+  #geom_vline(data = d, aes(xintercept = effort)) +
+  labs(x = "Average ping interval", y = "Count") +
+  facet_wrap( ~ year, ncol = 2)
+```
+
+
 ### Vessel length
 
 ```{r by_length, , fig.height = 6}
