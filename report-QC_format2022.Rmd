@@ -440,7 +440,7 @@ ggplot(ve, aes(x = effort)) +
 
 ### VMS Intervals
 
-```{r table-fishing-hours, results='asis'}
+```{r table-ping-interval, results='asis'}
 kable(do.call(rbind, tapply(ve$int, ve$year, summary)), booktabs = TRUE,
       caption = "Summary statistics of average ping interval")
 ```
