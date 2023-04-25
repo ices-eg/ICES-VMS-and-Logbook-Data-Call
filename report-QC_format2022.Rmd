@@ -438,7 +438,7 @@ ggplot(ve, aes(x = effort)) +
 ```
 
 
-### Fishing hours
+### VMS Intervals
 
 ```{r table-fishing-hours, results='asis'}
 kable(do.call(rbind, tapply(ve$int, ve$year, summary)), booktabs = TRUE,
