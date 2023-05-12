@@ -817,7 +817,7 @@ for (gear in top4) {
 
 ### Effort difference `r tempBound[1]`:`r (tempBound[2]-1)` vs `r tempBound[2]`
 
-```{r, eval = FALSE, fig.height = 9}
+```{r, fig.height = 9}
 base <-
   ve %>% 
   group_by(year, csq, lon, lat) %>% 
