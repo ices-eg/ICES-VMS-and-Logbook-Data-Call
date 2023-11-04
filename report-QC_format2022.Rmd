@@ -26,9 +26,9 @@ library(DT)
 options(digits = 4)
 
 #Specify data path
-veDataPath <- "C:/Work/VMS/230405_ICES_data_call/table1Save.csv"
+veDataPath <- "~/prj2/vms/ices_vms_data_call/delivery/iceland_annex1_2009_2022_2023-08-14.csv"
 
-leDataPath <- "C:/Work/VMS/230405_ICES_data_call/table2Save.csv"
+leDataPath <- "~/prj2/vms/ices_vms_data_call/delivery/iceland_annex2_2009_2022_2023-08-14.csv"
 
 
 
@@ -156,9 +156,9 @@ read_le <- function(file) {
                   n_vessel = 5,
                   vids = 6,
                   isq = 7,
-                  dcf4 = 8,
-                  gear = 9,
-                  dcf6 = 10,
+                  gear = 8,
+                  target = 9,
+                  metier6 = 10,
                   lclass = 11,
                   vms = 12,
                   effort = 13,
@@ -182,9 +182,9 @@ read_ve <- function(file) {
                   n_vessel = 5,
                   vids = 6,
                   csq = 7,
-                  dcf4 = 8,
-                  gear = 9,
-                  dcf6 = 10,
+                  gear = 8,
+                  target = 9,
+                  metier6 = 10,
                   lclass = 11,
                   speed = 12,
                   effort = 13,             # units in hours
@@ -322,72 +322,72 @@ ve %>%
 #complete(year, lclass, fill = list(n = 0)) %>% 
 ```
 
-### By DCF4
+### By Gear
 
 ```{r by_dcf4}
 ve %>% 
   group_by(year) %>% 
-  summarise(dcf4 = n_distinct(dcf4)) %>% 
-  spread(year, dcf4) %>% 
-  kable(caption = "Number of unique vms DCF4 by year")
-ve %>% 
-  count(year, dcf4) %>% 
-  spread(year, n) %>% 
-  kable(caption = "Number of vms records by DCF4")
-ve %>% 
-  count(year, dcf4) %>% 
-  ggplot(aes(year, n)) +
-  geom_point() +
-  geom_line() +
-  facet_wrap(~ dcf4, scales = "free_y") +
-  labs(x = NULL, y = NULL, title = "Number of vms records by DCF4") 
-```
-
-
-### By DCF5
-
-```{r by_dcf5}
-ve %>% 
-  group_by(year) %>% 
   summarise(gear = n_distinct(gear)) %>% 
   spread(year, gear) %>% 
-  kable(caption = "Number of unique vms DCF5 by year")
+  kable(caption = "Number of unique vms Gear by year")
 ve %>% 
   count(year, gear) %>% 
   spread(year, n) %>% 
-  kable(caption = "Number of vms records by DCF5")
-
+  kable(caption = "Number of vms records by Gear")
 ve %>% 
   count(year, gear) %>% 
   ggplot(aes(year, n)) +
   geom_point() +
   geom_line() +
   facet_wrap(~ gear, scales = "free_y") +
-  labs(x = NULL, y = NULL, title = "Number of vms records by DCF5") 
+  labs(x = NULL, y = NULL, title = "Number of vms records by Gear") 
 ```
 
 
-### By DCF6
+### By Target
+
+```{r by_dcf5}
+ve %>% 
+  group_by(year) %>% 
+  summarise(target = n_distinct(target)) %>% 
+  spread(year, target) %>% 
+  kable(caption = "Number of unique vms Target by year")
+ve %>% 
+  count(year, target) %>% 
+  spread(year, n) %>% 
+  kable(caption = "Number of vms records by Target")
+
+ve %>% 
+  count(year, target) %>% 
+  ggplot(aes(year, n)) +
+  geom_point() +
+  geom_line() +
+  facet_wrap(~ target, scales = "free_y") +
+  labs(x = NULL, y = NULL, title = "Number of vms records by Target") 
+```
+
+
+### By Metier6
 
 ```{r by_dcf6, fig.height = 6}
 ve %>% 
   group_by(year) %>% 
-  summarise(dcf6 = n_distinct(dcf6)) %>% 
-  spread(year, dcf6) %>% 
-  kable(caption = "Number of unique vms DCF6 by year")
+  summarise(metier6 = n_distinct(metier6)) %>% 
+  spread(year, metier6) %>% 
+  kable(caption = "Number of unique vms Metier6 by year")
 ve %>% 
-  count(dcf6, year) %>% 
+  count(metier6, year) %>% 
   spread(year, n) %>% 
-  kable(caption = "Number of vms records by DCF6 by year")
-# add here labels on the dcf6 level
+  kable(caption = "Number of vms records by Metier6 by year")
+# add here labels on the metier6 level
 ve %>% 
-  count(year, dcf4, gear, dcf6) %>% 
-  ggplot(aes(year, n, colour = gear, group = dcf6)) +
+  count(year, gear, target, metier6) %>% 
+  ggplot(aes(year, n, colour = target, group = metier6)) +
   geom_point() +
   geom_line() +
-  facet_wrap(~ dcf4, scales = "free_y") +
+  facet_wrap(~ gear, scales = "free_y") +
   labs(x = NULL, y = NULL,
-       title = "Number of vms records by DCF6",
+       title = "Number of vms records by Metier6",
        subtitle = "needs further work")
 ```
 
@@ -403,14 +403,14 @@ kable(do.call(rbind, tapply(ve$speed, ve$year, summary)), booktabs = TRUE)
 ```{r average-fishing-speed, fig.height = 6}
 ve %>% 
   mutate(speed = grade(speed, 0.2)) %>% 
-  count(year, dcf4, speed) %>% 
-  group_by(year, dcf4) %>% 
+  count(year, gear, speed) %>% 
+  group_by(year, gear) %>% 
   mutate(p = n / sum(n)) %>% 
-  ggplot(aes(speed, p, colour = dcf4)) +
+  ggplot(aes(speed, p, colour = gear)) +
   geom_line(lwd = 1) +
   labs(x = NULL,
        y = "Proportion",
-       title = "Average fishing speed by DCF4") +
+       title = "Average fishing speed by Gear") +
   facet_wrap( ~ year, ncol = 2) +
   scale_colour_viridis_d()
 ```
@@ -498,53 +498,53 @@ ggplot(ve, aes(x = kwh))+
 
 ## Sums and medians {.tabset}
 
-### Landings by DCF4
+### Landings by Gear
 
-```{r landings-by-gear-year}
+```{r landings-by-target-year}
 ve %>% 
-  group_by(year, dcf4) %>% 
+  group_by(year, gear) %>% 
   summarise(catch = sum(catch) / 1000,
             .groups = "drop") %>% 
   spread(year, catch) %>% 
   kable(caption = "Landings [kt]")
 
 ve %>% 
-  group_by(year, dcf4) %>% 
+  group_by(year, gear) %>% 
   summarise(catch = sum(catch) / 1000,
             .groups = "drop") %>% 
   ggplot(aes(year, catch)) +
   geom_line(lwd = 1) +
-  facet_wrap(~ dcf4, scales = "free_y") +
+  facet_wrap(~ gear, scales = "free_y") +
   labs(x = NULL, y = "Landings [kt]",
-       title = "Catch by gear")
+       title = "Catch by target")
 ```
 
-### Landings by DCF4 - comparison with logbooks
+### Landings by Gear - comparison with logbooks
 
-```{r landings-by-gear-year_lgs-comparision}
+```{r landings-by-target-year_lgs-comparision}
 bind_rows(ve %>% 
-            group_by(year, dcf4) %>% 
+            group_by(year, gear) %>% 
             summarise(catch = sum(catch) / 1000,
                       .groups = "drop") %>% 
             mutate(source = "vms"),
           le %>% 
-            group_by(year, dcf4) %>% 
+            group_by(year, gear) %>% 
             summarise(catch = sum(catch) / 1000,
                       .groups = "drop") %>% 
             mutate(source = "logbook")) %>% 
   ggplot(aes(year, catch, colour = source)) +
   geom_line(lwd = 1) +
-  facet_wrap(~ dcf4, scales = "free_y") +
+  facet_wrap(~ gear, scales = "free_y") +
   labs(x = NULL, y = "Landings [kt]",
-       title = "Catch by gear - comparison with logbooks") +
+       title = "Catch by target - comparison with logbooks") +
   expand_limits(y = 0)
 ```
 
-### Effort by DCF4
+### Effort by Gear
 
-```{r effort-by-gear-year}
+```{r effort-by-target-year}
 ve %>% 
-  group_by(year, dcf4) %>% 
+  group_by(year, gear) %>% 
   # NOTE: EFFORT SHOULD NOT BE NA, FIX UPSTREAM
   summarise(effort = sum(effort) / 24,
             .groups = "drop") %>% 
@@ -552,34 +552,34 @@ ve %>%
   kable(caption = "Effort [days]")
 
 ve %>% 
-  group_by(year, dcf4) %>% 
+  group_by(year, gear) %>% 
   summarise(effort = sum(effort) / 24,
             .groups = "drop") %>% 
   ggplot(aes(year, effort)) +
   geom_line(lwd = 1) +
-  facet_wrap(~ dcf4, scales = "free_y") +
+  facet_wrap(~ gear, scales = "free_y") +
   labs(x = NULL, y = "Effort [days]",
-       title = "Effort by gear")
+       title = "Effort by target")
 ```
 
-### Effort by DCF4 - comparison with logbooks
+### Effort by Gear - comparison with logbooks
 
-```{r effort-by-gear-year_lgs-comparision}
+```{r effort-by-target-year_lgs-comparision}
 bind_rows(ve %>% 
-            group_by(year, dcf4) %>% 
+            group_by(year, gear) %>% 
             summarise(effort = sum(effort) / 24,
                       .groups = "drop") %>% 
             mutate(source = "vms"),
           le %>% 
-            group_by(year, dcf4) %>% 
+            group_by(year, gear) %>% 
             summarise(effort = sum(effort),
                       .groups = "drop") %>% 
             mutate(source = "logbooks")) %>% 
   ggplot(aes(year, effort, colour = source)) +
   geom_line(lwd = 1) +
-  facet_wrap(~ dcf4, scales = "free_y") +
+  facet_wrap(~ gear, scales = "free_y") +
   labs(x = NULL, y = "Effort [days]",
-       title = "Effort [days] by gear - comparison with logbooks",
+       title = "Effort [days] by target - comparison with logbooks",
        caption = "vms: Fishing activity in days, lgs: Days at sea") +
   expand_limits(y = 0) +
   scale_colour_brewer(palette = "Set1")
@@ -591,60 +591,60 @@ NOTE: The logbook (lgs) efforts is effectively days at sea (in the Icelandic cas
 
 ```{r landings-by-gear0}
 ve %>% 
-  group_by(year, dcf4) %>% 
+  group_by(year, gear) %>% 
   summarise(cph = median(catch/effort),
             .groups = "drop") %>% 
   spread(year, cph) %>% 
   kable(caption = "Median landing in per hour")
 ve %>% 
-  group_by(year, dcf4) %>% 
+  group_by(year, gear) %>% 
   summarise(cph = median(catch/effort),
             .groups = "drop") %>% 
   ggplot(aes(year, cph)) +
   geom_line() +
-  facet_wrap(~ dcf4, scales = "free_y") +
+  facet_wrap(~ gear, scales = "free_y") +
   labs(x = NULL, y = NULL,
        title = "Median landing [kg] per hour")
 ```
 
 ### Median landing per kWh
 
-```{r landings-by-gear}
+```{r landings-by-target}
 ve %>% 
-  group_by(year, dcf4) %>% 
+  group_by(year, gear) %>% 
   summarise(cpkwh = median(catch/kwh),
             .groups = "drop") %>% 
   spread(year, cpkwh) %>% 
   kable(caption = "Median landing in kilograms per kilowhathour")
 ve %>% 
-  group_by(year, dcf4) %>% 
+  group_by(year, gear) %>% 
   summarise(cpkwh = median(catch/kwh),
             .groups = "drop") %>% 
   ggplot(aes(year, cpkwh)) +
   geom_line() +
-  facet_wrap(~ dcf4, scales = "free_y") +
+  facet_wrap(~ gear, scales = "free_y") +
   labs(x = NULL, y = NULL,
        title = "Median landing [kg] per kilowhathour")
 ```
 
 ### Value
 
-```{r value-by-gear-year}
+```{r value-by-target-year}
 ve %>% 
-  group_by(year, dcf4) %>% 
+  group_by(year, gear) %>% 
   summarise(value = sum(value),
             .groups = "drop") %>% 
   spread(year, value) %>% 
   kable(caption = "Value [EUR]")
 ve %>% 
-  group_by(year, dcf4) %>% 
+  group_by(year, gear) %>% 
   summarise(value = sum(value),
             .groups = "drop") %>% 
   ggplot(aes(year, value)) +
   geom_line(lwd = 1) +
-  facet_wrap(~ dcf4, scales = "free_y") +
+  facet_wrap(~ gear, scales = "free_y") +
   labs(x = NULL, y = "[EUR]",
-       title = "Value by gear")
+       title = "Value by target")
 ```
 
 
@@ -652,18 +652,18 @@ ve %>%
 
 ```{r mean-value-by-KWhours-year}
 ve %>% 
-  group_by(year, dcf4) %>% 
+  group_by(year, gear) %>% 
   summarise(vpkwh = median(value/kwh, na.rm=T),
             .groups = "drop") %>% 
   spread(year, vpkwh) %>% 
   kable(caption = "Median value [EUR] per kilowhathour")
 ve %>% 
-  group_by(year, dcf4) %>% 
+  group_by(year, gear) %>% 
   summarise(vpkwh = median(value/kwh, na.rm=T),
             .groups = "drop") %>% 
   ggplot(aes(year, vpkwh)) +
   geom_line() +
-  facet_wrap(~ dcf4, scales = "free_y") +
+  facet_wrap(~ gear, scales = "free_y") +
   labs(x = NULL, y = NULL,
        title = "Median value [EUR] per kilowhathour")
 ```
@@ -672,18 +672,18 @@ ve %>%
 
 ```{r price}
 ve %>% 
-  group_by(year, dcf4) %>% 
+  group_by(year, gear) %>% 
   summarise(ppkg = median(value/catch),
             .groups = "drop") %>% 
   spread(year, ppkg) %>% 
   kable(caption = "Median value per kg")
 ve %>% 
-  group_by(year, dcf4) %>% 
+  group_by(year, gear) %>% 
   summarise(ppkg = median(value/catch),
             .groups = "drop") %>% 
   ggplot(aes(year, ppkg)) +
   geom_line() +
-  facet_wrap(~ dcf4, scales = "free_y") +
+  facet_wrap(~ gear, scales = "free_y") +
   labs(x = NULL, y = NULL,
        title = "Median value per kg")
 ```
@@ -776,32 +776,32 @@ map0 +
   labs(title = paste("Days@Sea"))
 ```
 
-### Effort by DCF5
+### Effort by Target
 
 ```{r spatial-extent-dominant-gears, fig.height = 9}
 top4 <- 
   ve %>% 
-  group_by(gear) %>% 
+  group_by(target) %>% 
   summarise(effort = sum(effort)) %>% 
   arrange(-effort) %>% 
   slice(1:6) %>% 
-  pull(gear) 
+  pull(target) 
 d <- 
   ve %>% 
-  filter(gear %in% top4) %>% 
-  group_by(gear, year, lon, lat) %>% 
+  filter(target %in% top4) %>% 
+  group_by(target, year, lon, lat) %>% 
   summarise(fishing_days = sum(effort) / 24,
             .groups = "drop")
 # do plots
-for (gear in top4) {
+for (target in top4) {
   
-  tmp <- d %>% filter(gear == gear)
+  tmp <- d %>% filter(target == target)
   core  <- list(xlim = quantile(tmp$lon, c(0.025, 0.975)),
                 ylim = quantile(tmp$lat, c(0.025, 0.975)))
   
   p <-
     map0 +
-    geom_tile(data = d %>% filter(gear == gear),
+    geom_tile(data = d %>% filter(target == target),
               aes(lon, lat, fill = fishing_days)) +
     facet_wrap(~ year, ncol = 2) +
     coord_quickmap(xlim = core$xlim, ylim = core$ylim) +
@@ -809,7 +809,7 @@ for (gear in top4) {
                          direction = -1,
                          breaks = c(10000, 2000, 500, 100,50, 10, 1, 0.5,0.1,0),
                          labels = c(10000, 2000, 500, 100,50, 10, 1, 0.5,0.1,0)) +
-    labs(title = paste("Days@Sea: ", gear))
+    labs(title = paste("Days@Sea: ", target))
   print(p)
 }
 ```
@@ -1002,8 +1002,8 @@ Check VMS GearType with ICES vocabulary //vocab.ices.dk/?ref=1498
 GearType <- getCodeList("GearTypeL4")
 GearType$VocabGear <- GearType$Key
 
-VEGear <- left_join(ve, GearType, by = c("dcf4" = "Key"))%>%
-  select(dcf4, VocabGear) %>%
+VEGear <- left_join(ve, GearType, by = c("gear" = "Key"))%>%
+  select(gear, VocabGear) %>%
   distinct()
 
 VEGearErr <- VEGear[is.na(VEGear$VocabGear),]
@@ -1018,8 +1018,8 @@ Check VMS TargetAssemblage with ICES vocabulary //vocab.ices.dk/?ref=1499
 TargetAssemblage <- getCodeList("TargetAssemblage")
 TargetAssemblage$VocabTargetAssemblage <- TargetAssemblage$Key
 
-VETargetAssemblage <- left_join(ve, TargetAssemblage, by = c("gear" = "Key"))%>%
-  select(gear, VocabTargetAssemblage) %>%
+VETargetAssemblage <- left_join(ve, TargetAssemblage, by = c("target" = "Key"))%>%
+  select(target, VocabTargetAssemblage) %>%
   distinct()
 
 VETargetAssemblageErr <- VETargetAssemblage[is.na(VETargetAssemblage$VocabTargetAssemblage),]
@@ -1098,70 +1098,70 @@ le %>%
   labs(x = NULL, y = NULL, title = "Number of logbook records by vessel length class")
 ```
 
-### By DCF4
+### By Gear
 
 ```{r by_dcf42}
 le %>% 
   group_by(year) %>% 
-  summarise(dcf4 = n_distinct(dcf4)) %>% 
-  spread(year, dcf4) %>% 
-  kable(caption = "Number of unique logbook DCF4 by year")
-le %>% 
-  count(year, dcf4) %>% 
-  spread(year, n) %>% 
-  kable(caption = "Number of logbook records by DCF4")
-le %>% 
-  count(year, dcf4) %>% 
-  ggplot(aes(year, n)) +
-  geom_point() +
-  geom_line() +
-  facet_wrap(~ dcf4, scales = "free_y") +
-  labs(x = NULL, y = NULL, title = "Number of logbook records by DCF4") 
-```
-
-### By DCF5
-
-```{r by_dcf52}
-le %>% 
-  group_by(year) %>% 
   summarise(gear = n_distinct(gear)) %>% 
   spread(year, gear) %>% 
-  kable(caption = "Number of unique logbooks DCF5 by year")
+  kable(caption = "Number of unique logbook Gear by year")
 le %>% 
   count(year, gear) %>% 
   spread(year, n) %>% 
-  kable(caption = "Number of logbooks records by DCF5")
+  kable(caption = "Number of logbook records by Gear")
 le %>% 
   count(year, gear) %>% 
   ggplot(aes(year, n)) +
   geom_point() +
   geom_line() +
   facet_wrap(~ gear, scales = "free_y") +
-  labs(x = NULL, y = NULL, title = "Number of logbook records by DCF5") 
+  labs(x = NULL, y = NULL, title = "Number of logbook records by Gear") 
+```
+
+### By Target
+
+```{r by_dcf52}
+le %>% 
+  group_by(year) %>% 
+  summarise(target = n_distinct(target)) %>% 
+  spread(year, target) %>% 
+  kable(caption = "Number of unique logbooks Target by year")
+le %>% 
+  count(year, target) %>% 
+  spread(year, n) %>% 
+  kable(caption = "Number of logbooks records by Target")
+le %>% 
+  count(year, target) %>% 
+  ggplot(aes(year, n)) +
+  geom_point() +
+  geom_line() +
+  facet_wrap(~ target, scales = "free_y") +
+  labs(x = NULL, y = NULL, title = "Number of logbook records by Target") 
 ```
 
 
-### By DCF6
+### By Metier6
 
 ```{r by_dcf62, fig.height = 6}
 le %>% 
   group_by(year) %>% 
-  summarise(dcf6 = n_distinct(dcf6)) %>% 
-  spread(year, dcf6) %>% 
-  kable(caption = "Number of unique logbook DCF6 by year")
+  summarise(metier6 = n_distinct(metier6)) %>% 
+  spread(year, metier6) %>% 
+  kable(caption = "Number of unique logbook Metier6 by year")
 le %>% 
-  count(dcf6, year) %>% 
+  count(metier6, year) %>% 
   spread(year, n) %>% 
-  kable(caption = "Number of logbook records by DCF6 by month and year")
-# add here labels on the dcf6 level
+  kable(caption = "Number of logbook records by Metier6 by month and year")
+# add here labels on the metier6 level
 le %>% 
-  count(year, dcf4, gear, dcf6) %>% 
-  ggplot(aes(year, n, colour = gear, group = dcf6)) +
+  count(year, gear, target, metier6) %>% 
+  ggplot(aes(year, n, colour = target, group = metier6)) +
   geom_point() +
   geom_line() +
-  facet_wrap(~ dcf4, scales = "free_y") +
+  facet_wrap(~ gear, scales = "free_y") +
   labs(x = NULL, y = NULL,
-       title = "Number of logbook records by DCF6",
+       title = "Number of logbook records by Metier6",
        subtitle = "needs further work")
 ```
 
@@ -1268,83 +1268,83 @@ ggplot(le, aes(x = kwd))+
 
 ## Sums and medians {.tabset}
 
-### Landings by DCF4
+### Landings by Gear
 
-```{r landings-by-gear-year2}
+```{r landings-by-target-year2}
 le %>% 
-  group_by(year, dcf4) %>% 
+  group_by(year, gear) %>% 
   summarise(catch = sum(catch) / 1000,
             .groups = "drop") %>% 
   spread(year, catch) %>% 
   kable(caption = "Landings [kt]")
 
 le %>% 
-  group_by(year, dcf4) %>% 
+  group_by(year, gear) %>% 
   summarise(catch = sum(catch) / 1000,
             .groups = "drop") %>% 
   ggplot(aes(year, catch)) +
   geom_line(lwd = 1) +
-  facet_wrap(~ dcf4, scales = "free_y") +
+  facet_wrap(~ gear, scales = "free_y") +
   labs(x = NULL, y = "[kt]",
-       title = "Landings by gear")
+       title = "Landings by target")
 ```
 
 ### Median landing per kW-days
 
 ```{r landings-by-gear2}
 le %>% 
-  group_by(year, dcf4) %>% 
+  group_by(year, gear) %>% 
   summarise(cpkwh = median(catch/kwd),
             .groups = "drop") %>% 
   spread(year, cpkwh) %>% 
   kable(caption = "Median landing in kilograms per kilowhathour")
 le %>% 
-  group_by(year, dcf4) %>% 
+  group_by(year, gear) %>% 
   summarise(cpkwh = median(catch/kwd),
             .groups = "drop") %>% 
   ggplot(aes(year, cpkwh)) +
   geom_line() +
-  facet_wrap(~ dcf4, scales = "free_y") +
+  facet_wrap(~ gear, scales = "free_y") +
   labs(x = NULL, y = NULL,
        title = "Median landing [kg] per kilowattdays")
 ```
 
 ### Value
 
-```{r value-by-gear-year2}
+```{r value-by-target-year2}
 le %>% 
-  group_by(year, dcf4) %>% 
+  group_by(year, gear) %>% 
   summarise(value = sum(value),
             .groups = "drop") %>% 
   spread(year, value) %>% 
   kable(caption = "Value [EUR]")
 le %>% 
-  group_by(year, dcf4) %>% 
+  group_by(year, gear) %>% 
   summarise(value = sum(value),
             .groups = "drop") %>% 
   ggplot(aes(year, value)) +
   geom_line(lwd = 1) +
-  facet_wrap(~ dcf4, scales = "free_y") +
+  facet_wrap(~ gear, scales = "free_y") +
   labs(x = NULL, y = "[EUR]",
-       title = "Value by gear")
+       title = "Value by target")
 ```
 
 ### Median value per kW-days
 
 ```{r mean-value-by-KWhours-year2}
 le %>% 
-  group_by(year, dcf4) %>% 
+  group_by(year, gear) %>% 
   summarise(vpkwh = median(value/kwd),
             .groups = "drop") %>% 
   spread(year, vpkwh) %>% 
   kable(caption = "Median value [EUR] per kilowatt-days")
 le %>% 
-  group_by(year, dcf4) %>% 
+  group_by(year, gear) %>% 
   summarise(vpkwh = median(value/kwd),
             .groups = "drop") %>% 
   ggplot(aes(year, vpkwh)) +
   geom_line() +
-  facet_wrap(~ dcf4, scales = "free_y") +
+  facet_wrap(~ gear, scales = "free_y") +
   labs(x = NULL, y = NULL,
        title = "Median value [EUR] per kilowatt-days")
 ```
@@ -1354,18 +1354,18 @@ le %>%
 
 ```{r price2}
 le %>% 
-  group_by(year, dcf4) %>% 
+  group_by(year, gear) %>% 
   summarise(ppkg = median(value/catch, na.rm=T),
             .groups = "drop") %>% 
   spread(year, ppkg) %>% 
   kable(caption = "Median value per kg")
 le %>% 
-  group_by(year, dcf4) %>% 
+  group_by(year, gear) %>% 
   summarise(ppkg = median(value/catch, na.rm=T),
             .groups = "drop") %>% 
   ggplot(aes(year, ppkg)) +
   geom_line() +
-  facet_wrap(~ dcf4, scales = "free_y") +
+  facet_wrap(~ gear, scales = "free_y") +
   labs(x = NULL, y = NULL,
        title = "Median value per kg")
 ```
@@ -1456,32 +1456,32 @@ map0 +
   labs(title = paste("Days@Sea"))
 ```
 
-### Effort by DCF5
+### Effort by Target
 
 ```{r spatial-extent-dominant-gears2, fig.height = 9}
 top4 <- 
   le %>% 
-  group_by(gear) %>% 
+  group_by(target) %>% 
   summarise(time = sum(effort)) %>% 
   arrange(-time) %>% 
   slice(1:6) %>% 
-  pull(gear) 
+  pull(target) 
 d <- 
   le %>% 
-  filter(gear %in% top4) %>% 
-  group_by(gear, year, lon, lat) %>% 
+  filter(target %in% top4) %>% 
+  group_by(target, year, lon, lat) %>% 
   summarise(fishing_days = sum(effort),
             .groups = "drop")
 # do plots
-for (gear in top4) {
+for (target in top4) {
   
-  tmp <- d %>% filter(gear == gear)
+  tmp <- d %>% filter(target == target)
   core  <- list(xlim = quantile(tmp$lon, c(0.025, 0.975)),
                 ylim = quantile(tmp$lat, c(0.025, 0.975)))
   
   p <-
     map0 +
-    geom_tile(data = d %>% filter(gear == gear),
+    geom_tile(data = d %>% filter(target == target),
               aes(lon, lat, fill = fishing_days)) +
     facet_wrap(~ year, ncol = 2) +
     coord_quickmap(xlim = core$xlim, ylim = core$ylim) +
@@ -1489,7 +1489,7 @@ for (gear in top4) {
                          direction = -1,
                          breaks = c(10000, 2000, 500, 100,50, 10, 1, 0.5,0.1,0),
                          labels = c(10000, 2000, 500, 100,50, 10, 1, 0.5,0.1,0)) +
-    labs(title = paste("Days@Sea: ", gear))
+    labs(title = paste("Days@Sea: ", target))
   print(p)
 }
 ```
@@ -1702,8 +1702,8 @@ Check Logbook GearType with ICES vocabulary //vocab.ices.dk/?ref=1498
 GearType <- getCodeList("GearTypeL4")
 GearType$VocabGear <- GearType$Key
 
-LEGear <- left_join(le, GearType, by = c("dcf4" = "Key"))%>%
-  select(dcf4, VocabGear) %>%
+LEGear <- left_join(le, GearType, by = c("gear" = "Key"))%>%
+  select(gear, VocabGear) %>%
   distinct()
 
 LEGearErr <- LEGear[is.na(LEGear$VocabGear),]
@@ -1718,8 +1718,8 @@ Check Logbook TargetAssemblage with ICES vocabulary //vocab.ices.dk/?ref=1499
 TargetAssemblage <- getCodeList("TargetAssemblage")
 TargetAssemblage$VocabTargetAssemblage <- TargetAssemblage$Key
 
-LETargetAssemblage <- left_join(le, TargetAssemblage, by = c("gear" = "Key"))%>%
-  select(gear, VocabTargetAssemblage) %>%
+LETargetAssemblage <- left_join(le, TargetAssemblage, by = c("target" = "Key"))%>%
+  select(target, VocabTargetAssemblage) %>%
   distinct()
 
 LETargetAssemblageErr <- LETargetAssemblage[is.na(LETargetAssemblage$VocabTargetAssemblage),]
@@ -1764,7 +1764,7 @@ ___
 
 
 ```{r}
-le %>% count(year, dcf6, name = "logbook records") %>% 
-  full_join(ve %>% count(year, dcf6, name = "vms records")) %>% 
+le %>% count(year, metier6, name = "logbook records") %>% 
+  full_join(ve %>% count(year, metier6, name = "vms records")) %>% 
   kable(caption = "Comparison of Metier level 6 reporting between logbook records and VMS records")
 ```
