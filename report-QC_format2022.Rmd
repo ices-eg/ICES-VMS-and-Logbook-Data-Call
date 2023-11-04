@@ -1,4 +1,3 @@
-
 ---
 title: "ICES VMS datacall quality check report"
 date: "`r lubridate::now()`"
@@ -158,7 +157,7 @@ read_le <- function(file) {
                   vids = 6,
                   isq = 7,
                   dcf4 = 8,
-                  dcf5 = 9,
+                  gear = 9,
                   dcf6 = 10,
                   lclass = 11,
                   vms = 12,
@@ -184,7 +183,7 @@ read_ve <- function(file) {
                   vids = 6,
                   csq = 7,
                   dcf4 = 8,
-                  dcf5 = 9,
+                  gear = 9,
                   dcf6 = 10,
                   lclass = 11,
                   speed = 12,
@@ -350,20 +349,20 @@ ve %>%
 ```{r by_dcf5}
 ve %>% 
   group_by(year) %>% 
-  summarise(dcf5 = n_distinct(dcf5)) %>% 
-  spread(year, dcf5) %>% 
+  summarise(gear = n_distinct(gear)) %>% 
+  spread(year, gear) %>% 
   kable(caption = "Number of unique vms DCF5 by year")
 ve %>% 
-  count(year, dcf5) %>% 
+  count(year, gear) %>% 
   spread(year, n) %>% 
   kable(caption = "Number of vms records by DCF5")
 
 ve %>% 
-  count(year, dcf5) %>% 
+  count(year, gear) %>% 
   ggplot(aes(year, n)) +
   geom_point() +
   geom_line() +
-  facet_wrap(~ dcf5, scales = "free_y") +
+  facet_wrap(~ gear, scales = "free_y") +
   labs(x = NULL, y = NULL, title = "Number of vms records by DCF5") 
 ```
 
@@ -382,8 +381,8 @@ ve %>%
   kable(caption = "Number of vms records by DCF6 by year")
 # add here labels on the dcf6 level
 ve %>% 
-  count(year, dcf4, dcf5, dcf6) %>% 
-  ggplot(aes(year, n, colour = dcf5, group = dcf6)) +
+  count(year, dcf4, gear, dcf6) %>% 
+  ggplot(aes(year, n, colour = gear, group = dcf6)) +
   geom_point() +
   geom_line() +
   facet_wrap(~ dcf4, scales = "free_y") +
@@ -782,27 +781,27 @@ map0 +
 ```{r spatial-extent-dominant-gears, fig.height = 9}
 top4 <- 
   ve %>% 
-  group_by(dcf5) %>% 
+  group_by(gear) %>% 
   summarise(effort = sum(effort)) %>% 
   arrange(-effort) %>% 
   slice(1:6) %>% 
-  pull(dcf5) 
+  pull(gear) 
 d <- 
   ve %>% 
-  filter(dcf5 %in% top4) %>% 
-  group_by(dcf5, year, lon, lat) %>% 
+  filter(gear %in% top4) %>% 
+  group_by(gear, year, lon, lat) %>% 
   summarise(fishing_days = sum(effort) / 24,
             .groups = "drop")
 # do plots
 for (gear in top4) {
   
-  tmp <- d %>% filter(dcf5 == gear)
+  tmp <- d %>% filter(gear == gear)
   core  <- list(xlim = quantile(tmp$lon, c(0.025, 0.975)),
                 ylim = quantile(tmp$lat, c(0.025, 0.975)))
   
   p <-
     map0 +
-    geom_tile(data = d %>% filter(dcf5 == gear),
+    geom_tile(data = d %>% filter(gear == gear),
               aes(lon, lat, fill = fishing_days)) +
     facet_wrap(~ year, ncol = 2) +
     coord_quickmap(xlim = core$xlim, ylim = core$ylim) +
@@ -1019,8 +1018,8 @@ Check VMS TargetAssemblage with ICES vocabulary //vocab.ices.dk/?ref=1499
 TargetAssemblage <- getCodeList("TargetAssemblage")
 TargetAssemblage$VocabTargetAssemblage <- TargetAssemblage$Key
 
-VETargetAssemblage <- left_join(ve, TargetAssemblage, by = c("dcf5" = "Key"))%>%
-  select(dcf5, VocabTargetAssemblage) %>%
+VETargetAssemblage <- left_join(ve, TargetAssemblage, by = c("gear" = "Key"))%>%
+  select(gear, VocabTargetAssemblage) %>%
   distinct()
 
 VETargetAssemblageErr <- VETargetAssemblage[is.na(VETargetAssemblage$VocabTargetAssemblage),]
@@ -1125,19 +1124,19 @@ le %>%
 ```{r by_dcf52}
 le %>% 
   group_by(year) %>% 
-  summarise(dcf5 = n_distinct(dcf5)) %>% 
-  spread(year, dcf5) %>% 
+  summarise(gear = n_distinct(gear)) %>% 
+  spread(year, gear) %>% 
   kable(caption = "Number of unique logbooks DCF5 by year")
 le %>% 
-  count(year, dcf5) %>% 
+  count(year, gear) %>% 
   spread(year, n) %>% 
   kable(caption = "Number of logbooks records by DCF5")
 le %>% 
-  count(year, dcf5) %>% 
+  count(year, gear) %>% 
   ggplot(aes(year, n)) +
   geom_point() +
   geom_line() +
-  facet_wrap(~ dcf5, scales = "free_y") +
+  facet_wrap(~ gear, scales = "free_y") +
   labs(x = NULL, y = NULL, title = "Number of logbook records by DCF5") 
 ```
 
@@ -1156,8 +1155,8 @@ le %>%
   kable(caption = "Number of logbook records by DCF6 by month and year")
 # add here labels on the dcf6 level
 le %>% 
-  count(year, dcf4, dcf5, dcf6) %>% 
-  ggplot(aes(year, n, colour = dcf5, group = dcf6)) +
+  count(year, dcf4, gear, dcf6) %>% 
+  ggplot(aes(year, n, colour = gear, group = dcf6)) +
   geom_point() +
   geom_line() +
   facet_wrap(~ dcf4, scales = "free_y") +
@@ -1462,27 +1461,27 @@ map0 +
 ```{r spatial-extent-dominant-gears2, fig.height = 9}
 top4 <- 
   le %>% 
-  group_by(dcf5) %>% 
+  group_by(gear) %>% 
   summarise(time = sum(effort)) %>% 
   arrange(-time) %>% 
   slice(1:6) %>% 
-  pull(dcf5) 
+  pull(gear) 
 d <- 
   le %>% 
-  filter(dcf5 %in% top4) %>% 
-  group_by(dcf5, year, lon, lat) %>% 
+  filter(gear %in% top4) %>% 
+  group_by(gear, year, lon, lat) %>% 
   summarise(fishing_days = sum(effort),
             .groups = "drop")
 # do plots
 for (gear in top4) {
   
-  tmp <- d %>% filter(dcf5 == gear)
+  tmp <- d %>% filter(gear == gear)
   core  <- list(xlim = quantile(tmp$lon, c(0.025, 0.975)),
                 ylim = quantile(tmp$lat, c(0.025, 0.975)))
   
   p <-
     map0 +
-    geom_tile(data = d %>% filter(dcf5 == gear),
+    geom_tile(data = d %>% filter(gear == gear),
               aes(lon, lat, fill = fishing_days)) +
     facet_wrap(~ year, ncol = 2) +
     coord_quickmap(xlim = core$xlim, ylim = core$ylim) +
@@ -1719,8 +1718,8 @@ Check Logbook TargetAssemblage with ICES vocabulary //vocab.ices.dk/?ref=1499
 TargetAssemblage <- getCodeList("TargetAssemblage")
 TargetAssemblage$VocabTargetAssemblage <- TargetAssemblage$Key
 
-LETargetAssemblage <- left_join(le, TargetAssemblage, by = c("dcf5" = "Key"))%>%
-  select(dcf5, VocabTargetAssemblage) %>%
+LETargetAssemblage <- left_join(le, TargetAssemblage, by = c("gear" = "Key"))%>%
+  select(gear, VocabTargetAssemblage) %>%
   distinct()
 
 LETargetAssemblageErr <- LETargetAssemblage[is.na(LETargetAssemblage$VocabTargetAssemblage),]
