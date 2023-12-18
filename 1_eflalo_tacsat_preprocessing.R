@@ -79,19 +79,20 @@ for(year in yearsToSubmit){
     )
   coordsEflalo$SI_LONG <- as.numeric(coordsEflalo$SI_LONG)
   coordsEflalo$SI_LATI <- as.numeric(coordsEflalo$SI_LATI)
-  idxI <-
-    over(
-      SpatialPoints(
-        coordsEflalo[, c("SI_LONG", "SI_LATI")],
-        CRS(proj4string(ICESareas))),
-      ICESareas
-    )
+
+  sp_pts <- coordsEflalo[, c("SI_LONG", "SI_LATI")]
+  coordinates(sp_pts) <- c("SI_LONG", "SI_LATI")
+  sp_pts <- st_as_sf(sp_pts)
+  st_crs(sp_pts) <- 4326
+  
+  sp_pt_over <- st_over(sp_pts, ICESareas)
+  
   eflalo <-
     subset(
       eflalo,
-      LE_RECT %in% unique(coordsEflalo[which(idxI > 0), "LE_RECT"])
-    )
-  
+      LE_RECT %in% unique(coordsEflalo[!is.na(sp_pt_over), "LE_RECT"]))
+      
+
 #   2.2 Clean the tacsat data  ============================================================================
   
   
