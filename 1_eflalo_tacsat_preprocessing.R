@@ -7,12 +7,6 @@ data(harbours)
 data(ICESareas)
 data(europa)
 
-eorpa <- NULL
-for(d in 1:1991){
-  eorpa <- rbind(eorpa, europa@polygons[[d]]@Polygons[[1]]@coords, c(NA, NA))
-}
-
-
 # 2 Clean the TACSAT and EFLALO data  ----------------------------------------------------------------------------------
  
 #  Looping through the data years
