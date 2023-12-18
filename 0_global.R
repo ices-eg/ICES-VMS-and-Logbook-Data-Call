@@ -28,7 +28,6 @@ library(vmstools) #- download from www.vmstools.org
 library(Matrix)   #- available on CRAN
 library(ggplot2)  #- available on CRAN
 library(dplyr)    #- available on CRAN
-library(sp)
 library(doBy)
 library(mixtools)
 library(tidyr)
