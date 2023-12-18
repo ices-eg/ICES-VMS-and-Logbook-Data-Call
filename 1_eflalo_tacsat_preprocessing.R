@@ -199,26 +199,34 @@ for(year in yearsToSubmit){
  
 # 2.2.6 Remove points on land -----------------------------------------------------------------------------
   
-  idx <- point.in.polygon(
-    point.x = tacsat$SI_LONG, point.y = tacsat$SI_LATI,
-    pol.x = eorpa[, 1], pol.y = eorpa[, 2]
-  )
-  pol <- tacsat[idx > 0, ]
+  sp_pts <- tacsat[, c("SI_LONG", "SI_LATI")]
+  coordinates(sp_pts) <- c("SI_LONG", "SI_LATI")
+  sp_pts <- st_as_sf(sp_pts)
+  st_crs(sp_pts) <- 4326
+  
+  sp_pt_over <- st_over(sp_pts, europa)
+  
+  pol <- tacsat[!is.na(sp_pt_over), ]
   save(
     pol,
     file = file.path(outPath, paste0("pointOnLand", year, ".RData"))
   )
-  tacsat <- tacsat[which(idx == 0), ]
-  remrecsTacsat["land", ] <-
-    c(
-      nrow(tacsat),
-      100 +
-        round(
-          (nrow(tacsat) - as.numeric(remrecsTacsat["total", 1])) /
-            as.numeric(remrecsTacsat["total",1]) * 100,
-          2)
-    )
   
+  tacsat <-
+    subset(
+      tacsat,
+      is.na(sp_pt_over))
+
+ #remrecsTacsat["land", ] <-
+ #   c(
+ #     nrow(tacsat),
+ #     100 +
+ #       round(
+ #         (nrow(tacsat) - as.numeric(remrecsTacsat["total", 1])) /
+ #           as.numeric(remrecsTacsat["total",1]) * 100,
+ #         2)
+ #   )
+ # I HAVE NOT UPDATED THE REMRECS CODE HERE YET
  
 #  Save the remrecsTacsat file
  
