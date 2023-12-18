@@ -456,45 +456,33 @@ for(year in yearsToSubmit){
  
 # 2.3.7 Remove trip with overlap with another trip --------------------------------------------------------------------------- 
   
-  eflalo <- orderBy(~ VE_COU + VE_REF + FT_DDATIM + FT_LDATIM, data = eflalo)
+    eflalo <- orderBy(~ VE_COU + VE_REF + FT_DDATIM + FT_LDATIM, data = eflalo)
   
-  overlaps <-
-    lapply(
-      split(eflalo, as.factor(eflalo$VE_REF)),
-      function(x)
-      {
-        x  <- x[!duplicated( paste(x$VE_REF, x$FT_REF)), ]
-        idx <-
-          apply(
-            tril(
-              matrix(
-                as.numeric(
-                  outer(x$FT_DDATIM, x$FT_LDATIM, "-")
-                ),
-                nrow = nrow(x), ncol = nrow(x)
-              ),-1),
-            2,
-            function(y) {
-              which(y < 0, arr.ind = TRUE)
-            }
-          )
-        
-        rows <- which(unlist(lapply(idx, length)) > 0) # first part of the overlapping trips
-        if(length(rows)>0){
-          cols = c()
-          
-          for(k in 1:length(rows)){
-            cols <-c(cols, idx[[rows[k]]] ) # second part of the overlapping trips
-          }
-          
-          x[unique(c(rows, cols)),1:15] # returns all the overlapping trips for the given VE_REF
-          #rownames(x[unique(c(rows, cols)),]) # either the line above or this one, not sure which is better
-          
-        }else{
-          data.frame()
-        }
-        
-      })
+  dt1  <- data.table(ID =eflalo$VE_REF, FT = eflalo$FT_REF,
+                    startdate=eflalo$FT_DDATIM,
+                    enddate=eflalo$FT_LDATIM)
+
+  dt1 <- dt1[!duplicated(paste(dt1$ID, dt1$FT)), ]
+  dt2 <- dt1
+  
+  setkey(dt1, ID, startdate, enddate)
+  setkey(dt2, ID, startdate, enddate)
+  
+  result <- foverlaps(dt1, dt2, by.x=c("ID", "startdate", "enddate"),
+                      by.y=c("ID", "startdate", "enddate"))
+  
+  overlapping.trips <- subset(result, startdate < i.enddate & enddate > i.startdate & FT != i.FT)
+  
+  if(nrow(overlapping.trips>0)){
+
+    eflalo <- eflalo[eflalo$FT_REF %in% overlapping.trips$FT == FALSE,]
+    
+    print("THERE ARE OVERLAPPING TRIPS IN THE DATASET -> SEE THE FILE overlappingTrip SAVED IN THE RESULTS FOLDER")
+    
+    save(
+      overlapping.trips,
+      file = file.path(outPath, paste0("overlappingTrips", year, ".RData"))
+    )      })
   
   overlappingTrips = data.frame()
   for (iOver in 1:length(overlaps)) {
