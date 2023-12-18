@@ -52,7 +52,7 @@ yearsToSubmit <- sort(2009:2020)
 
 #- Set the gear names for which automatic fishing activity is wanted
 #  It is important to fill out the gears you want to apply auto detection for
-autoDetectionGears        <- c("TBB","OTB","OTT","SSC","SDN","DRB","PTB","HMD")
+autoDetectionGears        <- c("TBB","OTB","OTT","SSC","SDN","DRB","PTB","HMD") ## ADD SOME CODE TO DOCUMENT AND REPORT WHICH GEARS HAVE BEEN USED HERE VS MANUAL
 
 #- Decide if you want to visualy analyse speed-histograms to identify fishing activity
 #  peaks or have prior knowledge and use the template provided around lines 380 below
