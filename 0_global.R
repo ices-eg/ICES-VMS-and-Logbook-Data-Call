@@ -34,7 +34,9 @@ library(mixtools)
 library(tidyr)
 library(glue)
 library(gt)
-
+library(raster)
+library(sf)
+library(data.table)
  
 #- Settings paths
 codePath  <- "VMSdatacall/R"          #Location where you store R scripts
