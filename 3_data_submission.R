@@ -60,73 +60,76 @@ table2$LENGTHCAT <-  table2$VE_LEN%>%cut(   breaks=c(0, 6, 8, 10, 12, 15, 18, 24
                                             labels =  vlen_icesc$Key 
 )
 
+# 3.4 Aggregate and summarise TABLE 1 and TABLE2
+# ----------------------------------------------
 
-# 3.4 Aggregate and summarise TABLE 1 and TABLE2   ----------------------
+# Define the columns to be included in the table
+cols <- c(
+  "RecordType", "CountryCode", "Year", "Month", "NoDistinctVessels", "AnonymizedVesselID",
+  "C-square","MetierL4", "MetierL5",  "MetierL6",  "VesselLengthRange",
+  "AverageFishingSpeed", "FishingHour", "AverageInterval", "AverageVesselLength", "AveragekW",
+  "kWFishingHour", "TotWeight", "TotValue" , "AverageGearWidth"
+)
 
 # Table 1
+table1Save <- table1 %>%
+  # Separate LE_MET into met4 and met5
+  separate(col = LE_MET, c("met4", "met5"), sep = '_', remove = FALSE) %>%
+  # Group by several variables
+  group_by(RT, VE_COU, Year, Month, Csquare, LE_GEAR, met5, LE_MET, LENGTHCAT) %>%
+  # Summarise the grouped data
+  summarise(
+    mean_si_sp = mean(SI_SP),
+    sum_intv = sum(INTV, na.rm = TRUE),
+    mean_intv = mean(INTV, na.rm = TRUE),
+    mean_ve_len = mean(VE_LEN, na.rm = TRUE),
+    mean_ve_kf = mean(VE_KW, na.rm = TRUE),
+    sum_kwHour = sum(kwHour, na.rm = TRUE),
+    sum_le_kg_tot = sum(LE_KG_TOT, na.rm = TRUE),
+    sum_le_euro_tot = sum(LE_EURO_TOT, na.rm = TRUE),
+    n_vessels = n_distinct(VE_ID, na.rm = TRUE),
+    vessel_ids = ifelse(n_distinct(VE_ID) < 3, paste(unique(VE_ID), collapse = ";"), 'not_required')
+  ) %>%
+  # Relocate n_vessels and vessel_ids before Csquare
+  relocate(n_vessels, vessel_ids, .before = Csquare) %>%
+  # Add a new column AverageGearWidth with NA values
+  mutate(AverageGearWidth = NA %>% as.numeric()) %>%
+  # Convert to data frame
+  as.data.frame()
 
-table1Save <-
-  table1 %>%
-  separate(col = LE_MET ,   c("met4", "met5" ), sep = '_', remove = FALSE)%>%
-    group_by(RT,VE_COU,Year,Month,Csquare,LE_GEAR, met5,  LE_MET,LENGTHCAT) %>%
-    summarise(
-      mean_si_sp       = mean(SI_SP),
-      sum_intv         = sum(INTV, na.rm=TRUE),
-      mean_intv        = mean(INTV, na.rm=TRUE),
-      mean_ve_len      = mean(VE_LEN, na.rm = TRUE),
-      mean_ve_kf       = mean(VE_KW, na.rm = TRUE),
-      sum_kwHour       = sum(kwHour, na.rm=TRUE),
-      sum_le_kg_tot    = sum(LE_KG_TOT, na.rm = TRUE),
-      sum_le_euro_tot  = sum(LE_EURO_TOT, na.rm = TRUE),
-      n_vessels        = n_distinct(VE_ID, na.rm = TRUE),
-      vessel_ids       = ifelse (
-                            n_distinct(VE_ID) < 3,
-                            paste(unique(VE_ID), collapse = ";"),
-                            'not_required'
-                          )
-      ) %>%  relocate( n_vessels,vessel_ids, .before = Csquare)%>%
-      mutate (AverageGearWidth = NA%>%as.numeric()  )%>% ## If this information is available modify this line of the script. By default is assumed not existing gear width information
-      as.data.frame()
-
-colnames(table1Save) <-
-  c(
-    "RecordType", "CountryCode", "Year", "Month", "NoDistinctVessels", "AnonymizedVesselID",
-    "C-square","MetierL4", "MetierL5",  "MetierL6",  "VesselLengthRange",
-    "AverageFishingSpeed", "FishingHour", "AverageInterval", "AverageVesselLength", "AveragekW",
-    "kWFishingHour", "TotWeight", "TotValue" , "AverageGearWidth"
-  )
-
-
-
+# Rename the columns of table1Save
+colnames(table1Save) <- cols
 
 # Table 2
 
-table2Save <-
-  table2 %>%
-  separate( col = LE_MET ,   c("met4", "met5"  ), sep = '_', remove = FALSE)%>%
-  group_by( RT, VE_COU, Year, Month, LE_RECT,LE_GEAR, met5,  LE_MET,LENGTHCAT, tripInTacsat ) %>%
+# Define the columns to be included in the table
+cols <- c(
+  "RecordType", "CountryCode", "Year", "Month", "NoDistinctVessels", "AnonymizedVesselID", "ICESrectangle",
+  "MetierL4", "MetierL5",   "MetierL6", "VesselLengthRange", "VMSEnabled", "FishingDays",
+  "kWFishingDays", "TotWeight", "TotValue"
+)
+
+table2Save <- table2 %>%
+  # Separate LE_MET into met4 and met5
+  separate(col = LE_MET, c("met4", "met5"), sep = '_', remove = FALSE) %>%
+  # Group by several variables
+  group_by(RT, VE_COU, Year, Month, LE_RECT, LE_GEAR, met5, LE_MET, LENGTHCAT, tripInTacsat) %>%
+  # Summarise the grouped data
   summarise(
-    sum_intv        = sum(INTV, na.rm = TRUE),
-    sum_kwDays      = sum(kwDays, na.rm = TRUE),
-    sum_le_kg_tot   = sum(LE_KG_TOT, na.rm = TRUE),
+    sum_intv = sum(INTV, na.rm = TRUE),
+    sum_kwDays = sum(kwDays, na.rm = TRUE),
+    sum_le_kg_tot = sum(LE_KG_TOT, na.rm = TRUE),
     sum_le_euro_tot = sum(LE_EURO_TOT, na.rm = TRUE),
-    n_vessels       = n_distinct(VE_ID, na.rm = TRUE),
-    vessel_ids      = ifelse (
-                          n_distinct(VE_ID) < 3,
-                          paste(
-                          unique(VE_ID), collapse = ";"),
-                          'not_required'
-                        )
-  ) %>%  relocate( n_vessels,vessel_ids, .before = LE_RECT)%>%
+    n_vessels = n_distinct(VE_ID, na.rm = TRUE),
+    vessel_ids = ifelse(n_distinct(VE_ID) < 3, paste(unique(VE_ID), collapse = ";"), 'not_required')
+  ) %>%
+  # Relocate n_vessels and vessel_ids before LE_RECT
+  relocate(n_vessels, vessel_ids, .before = LE_RECT) %>%
+  # Convert to data frame
   as.data.frame()
 
-colnames(table2Save) <-
-  c(
-    "RecordType", "CountryCode", "Year", "Month", "NoDistinctVessels", "AnonymizedVesselID", "ICESrectangle",
-    "MetierL4", "MetierL5",   "MetierL6", "VesselLengthRange", "VMSEnabled", "FishingDays",
-    "kWFishingDays", "TotWeight", "TotValue"
-  )
-
+# Rename the columns of table2Save
+colnames(table2Save) <- cols
 
 
 
