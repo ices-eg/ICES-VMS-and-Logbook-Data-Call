@@ -103,50 +103,21 @@ library(vmstools)
 ```
 Please note that the install_github function might not work if you’re behind a firewall that blocks connections to GitHub.
 
-List of current workflow libraries required: 
+Next, we will install the other required libraries, which are available on CRAN. Paste the following code into your console:
 
 ```r 
-# Clear workspace
-rm(list=ls())
+# Get the list of required packages
+packages <- c("data.table", "doBy", "dplyr", "geosphere", "ggplot2",
+  "glue", "gt", "icesConnect", "icesVMS", "icesVocab",
+  "mixtools", "progressr","purrr", "raster", "sf",
+  "tidyr","tidyverse", "units")
 
-library(vmstools) #- download from www.vmstools.org
-library(Matrix)   #- available on CRAN
-library(ggplot2)  #- available on CRAN
-library(dplyr)    #- available on CRAN
-library(sp)
-library(doBy)
-library(mixtools)
-library(tidyr)
-library (glue)
-library(gt)
-
+# Install them from CRAN
+install.packages(packages)
 ```
-
-![](RackMultipart20220215-4-1krebzr_html_87cc747119b9d5b6.jpg)
-
-To install vmstools click on the Tools tab on the main menu in RStudio. Then select Install Packages.This will trigger a pop up menu like the one below. Click on the down arrow in the 'Install from:'dialogue box and select the second option 'PackageArchive File(Zip;tar.gz)'; then browse to the vmstools zip file that you just downloaded and pressInstall.
-
-![](RackMultipart20220215-4-1krebzr_html_4cba68b437cc424b.png)
 
 That's it; you now have all you need to process your data.
 
-
-## Step 4: Installing ICES R packages
-
-To install the libraries required to upload the data to the ICES servers, paste the following code into the R console.
-
-```r 
-# R packages required to be installed:
-# install.packages(c("icesVMS", "icesConnect"), repos = "https://ices-tools-prod.r-universe.dev")  
-
-library(icesVMS)
-library(icesConnect)
-
-##Get vocabulary for mandatory and fields with associated vocabulary using the DATSU API
-# install.packages("icesVocab", repos = "https://ices-tools-prod.r-universe.dev")
-
-library(icesVocab)
-```
 
 # Part 2. Proposed workflow R code 
 
