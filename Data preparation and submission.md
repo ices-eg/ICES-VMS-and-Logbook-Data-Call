@@ -131,7 +131,7 @@ The key things to note are that using the workflow blocks 0, 1 and 2 to process 
 
 VMS and logbook data are highly resolved data which carry a lot of information about the behaviours and incomes of individuals. As we are using this data for scientific purposes, and in an international context, we obviously want to protect individual anonymity as much as possible. To this end, we combine VMS data (spatio-temporal information on individual vessels) and logbook records (landed weights and values by fishing operation) and then aggregate them by metier over a 0.05-degree grid, using the "c-squares" notation system. 
 
-We will assume that you are starting with files of VMS and logbook data, formatted into the tacsat and eflalo formats.
+We will assume that you are starting with files of VMS and logbook data, formatted into the [tacsat and eflalo formats](https://github.com/ices-eg/ICES-VMS-and-Logbook-Data-Call/blob/main/EFLALO%20%26%20TACSAT%20Formats.md).
 
 The aim is to get your data converted into the format specified in ICES DATSU: [http://datsu.ices.dk/web/selRep.aspx?Dataset=145](http://datsu.ices.dk/web/selRep.aspx?Dataset=145)
 
