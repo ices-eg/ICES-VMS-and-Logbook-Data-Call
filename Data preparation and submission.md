@@ -23,27 +23,23 @@
 
 This document is designed to aid analysts streamline the process of extracting VMS data in accordance with requirements of the ICES VMS data call.
 
-Part 1 of the document provides guidelines for installing all the software necessary for data manipulation and aggregation into the requested format. The software used, R and RStudio, are available as freeware.
+Part 1 of the document provides guidelines for installing all the software necessary for data manipulation and aggregation into the requested format. The software used, R and RStudio, are freely available.
 
-The document is designed to aid all users, regardless of their experience using R. The steps listed cover the installation of R and RStudio and detailed information will be provided to cover all stages of the installation process to ensure success. Depending on your skills you might want to jump some of the steps. To ensure consistency across all users we advise installing VMStoolsversion 0.76. Following these steps should enable quick and simple processing of all data.
+The document is designed to aid all users, regardless of their experience using R. The steps listed cover the installation of R and RStudio and detailed information will be provided to cover all stages of the installation process to ensure success. Depending on your skills you might want to jump some of the steps. To ensure consistency across all users we advise installing VMStools version 0.78. Following these steps should enable quick and simple processing of all data.
 
 All the instructions and code below were tested in windows versions newest than 7 and 8. However, if for any reason something is not working you can contact one of the members of our support team (emails at the end of the document).
-
-Please note that you need administration rights on your computer system to install an encryption software on which icesConnect depends on (Libsodium). You might need to contact your systems administrator in advance to install this software in case you do not have administrator rights.
-
   
 ## Step 1: Installation of R
 
-(Where R is already installed (at least 4.1.0 32 bits version) move to step 2)
+Where R is already installed (at least 4.1.0 32-bit version) move to step 2
 
 Completion of the first two steps of these guidelines is dependent on the users computer security setting. In instances where administrator privilege is required then please ask a member of your IT/computer support team to run the first two steps for you.
  
 So let's start by instaling R; click on the link below to download R version 4.3.2.
 
-[https://cran.r-project.org/](https://cran.r-project.org/)
+[https://cran.r-project.org](https://cran.r-project.org The Comprehensive R Archive)
 
-Once it is downloaded, double click on the file (.exe). Depending on your security settings you might get a pop up security warning asking if you want to Run or Cancel the installation, Click **Run**.
-
+Once it is downloaded, double click on the file (.exe). Depending on your security settings you might get a pop up security warning asking if you want to Run or Cancel the installation, Click **Run**.-
 - Select a language (when you select the language, bear in mind that these instructions are in English)
 
 - At this point you should be on the R installation Wizard menu.Just click **Next**
