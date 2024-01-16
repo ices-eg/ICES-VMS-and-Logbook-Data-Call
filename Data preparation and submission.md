@@ -34,12 +34,12 @@ Please note that you need administration rights on your computer system to insta
   
 ## Step 1: Installation of R
 
-(Where R is already installed (any 3.x.x 32 bits version) move to step 2)
+(Where R is already installed (at least 4.1.0 32 bits version) move to step 2)
 
 Completion of the first two steps of these guidelines is dependent on the users computer security setting. In instances where administrator privilege is required then please ask a member of your IT/computer support team to run the first two steps for you.
  
 
-So let's start by instaling R; click on the link below to download R version 4.1.2.
+So let's start by instaling R; click on the link below to download R version 4.3.2.
 
 [https://cran.r-project.org/](https://cran.r-project.org/)
 
@@ -74,31 +74,47 @@ If you don't have administrator privilege on your computer you will need to call
 
 [https://posit.co/download/rstudio-desktop/](https://posit.co/download/rstudio-desktop/)
 
-For Window 10 (64-bit):
+For Window 11 (64-bit):
 
-[https://download1.rstudio.org/electron/windows/RStudio-2022.12.0-353.exe](https://download1.rstudio.org/electron/windows/RStudio-2022.12.0-353.exe)
+[[https://download1.rstudio.org/electron/windows/RStudio-2022.12.0-353.exe](https://download1.rstudio.org/electron/windows/RStudio-2023.12.0-369.exe)]([https://download1.rstudio.org/electron/windows/RStudio-2022.12.0-353.exe](https://download1.rstudio.org/electron/windows/RStudio-2023.12.0-369.exe))
 
 Once downloaded, double click on it. Depending on your security settings you might get a popup security warning asking if you want to Run or Cancel the installation, Click on **Run**. At this point you should be on the RStudio installation Wizard menu. RStudio is very easy to install so just accept all defaults and click **Next** in all the menus until the end.
 
 That's it. Step 2 is complete, RStudio is now installed.
 
+Now start Rstudio to install all the necessary R packages that vmstools depends on. Copy the following text 
+( referenced in the workflow file [0_global.R] (https://github.com/ices-eg/wg_WGSFD/blob/test-workflow/VMS-datacall/0_global.R ) )
+
   
 ## Step 3: Installing vmstools
 
-Next, download a compiled version of vmstools 0.76 by clicking the link below. Make sure you click save rather than open...
+Next, we need to download and install the vmstools library. To do this, we will need the **Devtools** library. Devtools provides functions that allow you to install packages from GitHub. If you haven’t installed it yet, you can do so by running the following command in your R console:
 
-[https://github.com/nielshintzen/vmstools/releases/download/0.76/vmstools\_0.76.zip](https://github.com/nielshintzen/vmstools/releases/download/0.76/vmstools_0.76.zip)
-
-Now start Rstudio to install all the necessary R packages that vmstools depends on. Copy the following text 
-( referenced in the workflow file [0_global.R] (https://github.com/ices-eg/wg_WGSFD/blob/test-workflow/VMS-datacall/0_global.R ) )
-```r 
-
-  install.packages(c("cluster","data.table","doBy","maps","mapdata","ma ptools","PBSmapping","sp","Matrix","ggplot2"))
+Paste:
   
+
+```r 
+install.packages("devtools")
 ```
 
-into the console and press enter. It should start installing all the packages needed This might take two or three minutes and your console should look like this once it has finished. Please contact your system administrator if you have issues installing these packages.
+into the console and press enter. It should start installing the Devtools package. This might take two or three minutes. Please contact your system administrator if you have issues installing these packages.
 
+Once installed, you need to load the devtools package. You can do this with the library function:
+
+```r
+library(devtools)
+```
+Now you can install the specific version of the package from GitHub using the **install_github** function. You need to provide the repository name in the format username/repo@version. In your case, the repository is *nielshintzen/vmstools* and the version is 0.78. Here’s how you can install it:
+
+```r
+install_github("nielshintzen/vmstools@0.78")
+```
+After the package is installed, you can load it using the library function:
+
+```r
+library(vmstools)
+```
+Please note that the install_github function might not work if you’re behind a firewall that blocks connections to GitHub.
 
 List of current workflow libraries required: 
 
