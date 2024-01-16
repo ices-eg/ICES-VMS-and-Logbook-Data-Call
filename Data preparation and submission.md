@@ -38,14 +38,13 @@ Please note that you need administration rights on your computer system to insta
 
 Completion of the first two steps of these guidelines is dependent on the users computer security setting. In instances where administrator privilege is required then please ask a member of your IT/computer support team to run the first two steps for you.
  
-
 So let's start by instaling R; click on the link below to download R version 4.3.2.
 
 [https://cran.r-project.org/](https://cran.r-project.org/)
 
 Once it is downloaded, double click on the file (.exe). Depending on your security settings you might get a pop up security warning asking if you want to Run or Cancel the installation, Click **Run**.
 
-- Select a language (when you select the language, bear in mind that these instructions are inEnglish)
+- Select a language (when you select the language, bear in mind that these instructions are in English)
 
 - At this point you should be on the R installation Wizard menu.Just click **Next**
 
@@ -70,20 +69,13 @@ Rather than accepting the default(C:Files-4.1.2) you should click on the browse 
 
 (Where Rstudio is already installed move to step 3)
 
-If you don't have administrator privilege on your computer you will need to call your IT/computer support to install R Studio.First download RStudio by clicking on the link below
-
-[https://posit.co/download/rstudio-desktop/](https://posit.co/download/rstudio-desktop/)
-
-For Window 11 (64-bit):
-
-[[https://download1.rstudio.org/electron/windows/RStudio-2022.12.0-353.exe](https://download1.rstudio.org/electron/windows/RStudio-2023.12.0-369.exe)]([https://download1.rstudio.org/electron/windows/RStudio-2022.12.0-353.exe](https://download1.rstudio.org/electron/windows/RStudio-2023.12.0-369.exe))
+If you don't have administrator privilege on your computer you will need to call your IT/computer support to install R Studio.First download RStudio by [clicking on this link](https://posit.co/download/rstudio-desktop/](https://download1.rstudio.org/electron/windows/RStudio-2022.12.0-353.exe).
 
 Once downloaded, double click on it. Depending on your security settings you might get a popup security warning asking if you want to Run or Cancel the installation, Click on **Run**. At this point you should be on the RStudio installation Wizard menu. RStudio is very easy to install so just accept all defaults and click **Next** in all the menus until the end.
 
 That's it. Step 2 is complete, RStudio is now installed.
 
-Now start Rstudio to install all the necessary R packages that vmstools depends on. Copy the following text 
-( referenced in the workflow file [0_global.R] (https://github.com/ices-eg/wg_WGSFD/blob/test-workflow/VMS-datacall/0_global.R ) )
+Now start Rstudio to install all the necessary R packages that vmstools depends on. 
 
   
 ## Step 3: Installing vmstools
