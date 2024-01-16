@@ -21,17 +21,17 @@
 
 # Part 1. Installation of required software 
 
-This document is designed to aid analysts streamline the process of extracting VMS data in accordance with requirements of the ICES VMS data call.
+This document is designed to aid analysts streamline the processing of VMS and logbook data in accordance with requirements of the ICES data call.
 
 Part 1 of the document provides guidelines for installing all the software necessary for data manipulation and aggregation into the requested format. The software used, R and RStudio, are freely available.
 
 The document is designed to aid all users, regardless of their experience using R. The steps listed cover the installation of R and RStudio and detailed information will be provided to cover all stages of the installation process to ensure success. Depending on your skills you might want to jump some of the steps. To ensure consistency across all users we advise installing VMStools version 0.78. Following these steps should enable quick and simple processing of all data.
 
-All the instructions and code below were tested in windows versions newest than 7 and 8. However, if for any reason something is not working you can contact one of the members of our support team (emails at the end of the document).
-  
+All the instructions and code below were tested in windows versions 10 and 11. However, if for any reason something is not working you can contact one of the members of our support team (emails at the end of the document).
+
 ## Step 1: Installation of R
 
-Where R is already installed (at least 4.1.0 32-bit version) move to step 2
+Where a version of R is already installed, version 4.1.0 or later, move to step 2
 
 Completion of the first two steps of these guidelines is dependent on the users computer security setting. In instances where administrator privilege is required then please ask a member of your IT/computer support team to run the first two steps for you.
  
@@ -40,6 +40,7 @@ So let's start by instaling R; click on the link below to download R version 4.3
 [The Comprehensive R Archive Network - R Version 4.3.2](https://cran.r-project.org/bin/windows/base/R-4.3.2-win.exe)
 
 Once it is downloaded, double click on the file (.exe). Depending on your security settings you might get a pop up security warning asking if you want to Run or Cancel the installation, Click **Run**.-
+
 - Select a language (when you select the language, bear in mind that these instructions are in English)
 
 - At this point you should be on the R installation Wizard menu.Just click **Next**
@@ -54,16 +55,16 @@ Once it is downloaded, double click on the file (.exe). Depending on your securi
 
 Rather than accepting the default(C:Files-4.3.2) you should click on the browse button and create a directory C:-4.3.2 which will allow you to install packages without having administrator privileges. Once you have changed the folder just click **Next**
 
-### Next.
-
-- Click **Next** all the menus until the end of instalation, and that's it; R is now in- stalled on thecomputer.
+- Click **Next** all the menus until the end of instalation, and that's it; R is now installed on thecomputer.
 
   
 ## Step 2: Installation of RStudio
 
 (Where Rstudio is already installed move to step 3)
 
-If you don't have administrator privilege on your computer you will need to call your IT/computer support to install R Studio.First download RStudio by [clicking on this link](https://posit.co/download/rstudio-desktop/](https://download1.rstudio.org/electron/windows/RStudio-2022.12.0-353.exe).
+If you don't have administrator privilege on your computer you will need to call your IT/computer support to install R Studio.
+
+First download RStudio by [clicking on this link](https://download1.rstudio.org/electron/windows/RStudio-2022.12.0-353.exe).
 
 Once downloaded, double click on it. Depending on your security settings you might get a popup security warning asking if you want to Run or Cancel the installation, Click on **Run**. At this point you should be on the RStudio installation Wizard menu. RStudio is very easy to install so just accept all defaults and click **Next** in all the menus until the end.
 
