@@ -92,7 +92,7 @@
       axis.title.x = element_text(size = 14),
       plot.title = element_text(hjust = 0.5, size = 20),
       strip.text.x = element_text(size = 12, face = "bold"),
-      strip.background = element_rect(fill = "grey60", colour = "black", size = 1),
+      strip.background = element_rect(fill = "grey60", colour = "black", linewidth = 1),
       panel.background = element_blank()
     ) +
     scale_fill_manual(values = c("#000000", "#FCCF3F", "#FF0000", "#00FF00", "#0000FF",
@@ -128,10 +128,10 @@
   subTacsat <- subset(tacsatp, LE_GEAR %in% autoDetectionGears)
   nonsubTacsat <- subset(tacsatp, !LE_GEAR %in% autoDetectionGears)
   
-  if (visualInspection == TRUE)
+ if (visualInspection == TRUE)
   {
     storeScheme <-
-      activityTacsatAnalyse(
+      ac.tac.anal(
         subTacsat,
         units = "year",
         analyse.by = "LE_L5MET",
@@ -182,7 +182,7 @@
       units = "year",
       analyse.by = "LE_L5MET",
       storeScheme = storeScheme,
-      plot = FALSE,
+      plot = TRUE,
       level = "all")
   subTacsat$SI_STATE <- acTa
   subTacsat$ID <- 1:nrow(subTacsat)
@@ -190,28 +190,35 @@
   # Check results, and if results are not satisfactory, run analyses again but now with fixed peaks # 
   
   for (iGear in autoDetectionGears) {
-    subDat <- subset(subTacsat,LE_GEAR == iGear)
-    minS <-
-      min(
-        subDat$SI_SP[which(subDat$SI_STATE == "s")],
-        na.rm = TRUE)
-    minF <-
-      min(subDat$SI_SP[which(subDat$SI_STATE == "f")],
-          na.rm = TRUE)
-    if(minS < minF) {
+    subDat <- subset(subTacsat, LE_GEAR == iGear)
+    
+    # Check if there are non-missing values for "s" state
+    if (any(!is.na(subDat$SI_SP[which(subDat$SI_STATE == "s")]))) {
+      minS <- min(subDat$SI_SP[which(subDat$SI_STATE == "s")], na.rm = TRUE)
+    } else {
+      minS <- Inf  # or assign a default value or handle the case accordingly
+    }
+    
+    # Check if there are non-missing values for "f" state
+    if (any(!is.na(subDat$SI_SP[which(subDat$SI_STATE == "f")]))) {
+      minF <- min(subDat$SI_SP[which(subDat$SI_STATE == "f")], na.rm = TRUE)
+    } else {
+      minF <- Inf  # or assign a default value or handle the case accordingly
+    }
+    
+    if (minS < minF) {
       storeScheme$fixPeaks[which(storeScheme$analyse.by == iGear)] <- TRUE
-      subacTa <-
-        activityTacsat(
-          subDat,
-          units = "year",
-          analyse.by = "LE_GEAR",
-          storeScheme,
-          plot = FALSE,
-          level = "all"
-        )
+      subacTa <- activityTacsat(
+        subDat,
+        units = "year",
+        analyse.by = "LE_GEAR",
+        storeScheme,
+        plot = FALSE,
+        level = "all"
+      )
       subTacsat$SI_STATE[subDat$ID] <- subacTa
     }
-  }
+  }  
   subTacsat <-
     subTacsat[,
               -rev(grep("ID", colnames(subTacsat)))[1]
@@ -221,7 +228,7 @@
   
   
   
-  metiers <- unique(nonsubTacsat$LE_GEAR)
+  metiers <- unique(nonsubTacsat$LE_l5MET)
   nonsubTacsat$SI_STATE <- NA
   for (mm in metiers) {
     nonsubTacsat$SI_STATE[
@@ -269,14 +276,15 @@
   # -------------------------------------------------
   
   # Get the indices of columns in eflalo that contain "LE_KG_" or "LE_EURO_"
-  idxkgeur <- grep("LE_KG_|LE_EURO_", colnames(eflalo))
+  idxkg <- grep("LE_KG_", colnames(eflalo))
+  idxeur <- grep("LE_EURO_", colnames(eflalo))
   
   # Calculate the total KG and EURO for each row
-  eflalo$LE_KG_TOT <- rowSums(eflalo[, idxkgeur], na.rm = TRUE)
-  eflalo$LE_EURO_TOT <- rowSums(eflalo[, idxkgeur], na.rm = TRUE)
+  eflalo$LE_KG_TOT <- rowSums(eflalo[, idxkg], na.rm = TRUE)
+  eflalo$LE_EURO_TOT <- rowSums(eflalo[, idxeur], na.rm = TRUE)
   
   # Remove the columns used for the total calculation
-  eflalo <- eflalo[, -idxkgeur]
+  eflalo <- eflalo %>% select(!all_of(c(colnames(eflalo)[idxkg], colnames(eflalo)[idxeur])))
   
   # Split eflalo into two data frames based on the presence of FT_REF in tacsatp
   eflaloNM <- subset(eflalo, !FT_REF %in% unique(tacsatp$FT_REF))
