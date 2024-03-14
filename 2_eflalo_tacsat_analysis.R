@@ -1,34 +1,49 @@
+#'------------------------------------------------------------------------------
+#
+# Script to extract and process VMS and logbook data for ICES VMS data call
+# 2.1: Linking TACSAT and EFLALO data                                       ----
+#
+#'------------------------------------------------------------------------------
 
-
-#for(year in yearsToSubmit)  {
+# Looping through the years to submit
+#for(year in yearsToSubmit){
+  print(paste0("Start loop for year ",year))
   
-  print(year)
-  
+  #'----------------------------------------------------------------------------
+  # 2.1.0 load TACSAT and EFLALO data from file                             ----
+  #'----------------------------------------------------------------------------
   load(file = paste0(outPath,paste0("/cleanEflalo",year,".RData")) )
-  load(file = paste0(outPath, paste0("/cleanTacsat", year, ".RData")) )
+  load(file = paste0(outPath, paste0("/cleanTacsat", year,".RData")) )
   
+  # Assign geometry column to tacsat for later operations
+  tacsat$geometry <- NULL
   
-  # 2.1 Merge the TACSAT and EFLALO data together --------------------------------------------
-  
-  # Merge eflalo and tacsat =================================
-  
+  #'----------------------------------------------------------------------------
+  # 2.1.1 Merge TACSAT and EFLALO                                             ----
+  #'----------------------------------------------------------------------------
   tacsatp <- mergeEflalo2Tacsat(eflalo,tacsat)
   
-  # Assign gear and length to tacsat =================================
   
+  #'----------------------------------------------------------------------------
+  # 2.1.2 Assign gear and length                                              ----
+  #'----------------------------------------------------------------------------
   # Define the columns to be added
-  cols <- c("LE_GEAR", "LE_MSZ", "VE_LEN", "VE_KW", "LE_RECT", "LE_MET", "LE_WIDTH", "VE_FLT", "LE_CDAT", "VE_COU")
+  cols <- c("LE_GEAR", "LE_MSZ", "VE_LEN", "VE_KW", "LE_RECT", "LE_MET", "LE_WIDTH", "VE_FLT", "VE_COU")
   
   # Use a loop to add each column
   for (col in cols) {
     # Match 'FT_REF' values in 'tacsatp' and 'eflalo' and use these to add the column from 'eflalo' to 'tacsatp'
     tacsatp[[col]] <- eflalo[[col]][match(tacsatp$FT_REF, eflalo$FT_REF)]
   }
-  
 
+  tacsatp <- data.frame(tacsatp)
+  
   # Save not merged tacsat data
   # Subset 'tacsatp' where 'FT_REF' equals 0 (not merged)
   tacsatpmin <- subset(tacsatp, FT_REF == 0)
+  
+  # Feedback on tacsatpmin
+  cat(sprintf("%.2f%% of of the tacsat data did not merge\n", (nrow(tacsatpmin) / (nrow(tacsatpmin) + nrow(tacsatp))) * 100))
   
   # Save 'tacsatpmin' to a file named "tacsatNotMerged<year>.RData" in the 'outPath' directory
   save(
@@ -39,26 +54,50 @@
   # Subset 'tacsatp' where 'FT_REF' does not equal 0 (merged)
   tacsatp <- subset(tacsatp, FT_REF != 0)
   
+  #'----------------------------------------------------------------------------
+  # 2.1.3 For multi gear/metier etc trips, divide the pings to the right gear/metier etc. ----
+  #'----------------------------------------------------------------------------
+
+  tacsatpa_LE_GEAR <- trip_assign(tacsatp, eflalo, col = "LE_GEAR", trust_logbook = T)
+  tacsatp <- rbindlist(list(tacsatp[tacsatp$FT_REF %!in% tacsatpa_LE_GEAR$FT_REF,], tacsatpa_LE_GEAR), fill = T)
+  
+  tacsatpa_LE_MSZ <- trip_assign(tacsatp, eflalo, col = "LE_MSZ", trust_logbook = T)
+  tacsatp <- rbindlist(list(tacsatp[tacsatp$FT_REF %!in% tacsatpa_LE_MSZ$FT_REF,], tacsatpa_LE_MSZ), fill = T)
+  
+  tacsatpa_LE_RECT <- trip_assign(tacsatp, eflalo, col = "LE_RECT", trust_logbook = T)
+  tacsatp <- rbindlist(list(tacsatp[tacsatp$FT_REF %!in% tacsatpa_LE_RECT$FT_REF,], tacsatpa_LE_RECT), fill = T)
+  
+  tacsatpa_LE_MET <- trip_assign(tacsatp, eflalo, col = "LE_MET", trust_logbook = T)
+  tacsatp <- rbindlist(list(tacsatp[tacsatp$FT_REF %!in% tacsatpa_LE_MET$FT_REF,], tacsatpa_LE_MET), fill = T)
+  
+  if("LE_WIDTH" %in% names(eflalo)){
+    tacsatpa_LE_WIDTH <- trip_assign(tacsatp, eflalo, col = "LE_WIDTH", trust_logbook = T)
+    tacsatp <- rbindlist(list(tacsatp[tacsatp$FT_REF %!in% tacsatpa_LE_WIDTH$FT_REF,], tacsatpa_LE_WIDTH), fill = T)
+  }
+  
+  #Set catch date to be equal to SI_DATE 
+  tacsatp$LE_CDAT <- tacsatp$SI_DATE
+  
+  tacsatp <- as.data.frame(tacsatp)
+  
   # Save 'tacsatp' to a file named "tacsatMerged<year>.RData" in the 'outPath' directory
   save(
     tacsatp,
     file = file.path(outPath, paste0("tacsatMerged", year, ".RData"))
   )
   
-  # 2.2  Define activity  ---------------------------------------------------------------------
   
-  
-  # Calculate time interval between points ===================================
+  #'----------------------------------------------------------------------------
+  # 2.1.4 Define activity                                                   ----
+  #'----------------------------------------------------------------------------
+  # Calculate time interval between points
   tacsatp <- intvTacsat(tacsatp, level = "trip", fill.na = TRUE)
   
   # Reset values that are simply too high to 2x the regular interval rate  
-  
-  
   tacsatp$INTV[tacsatp$INTV > intvThres] <- 2 * intvThres
   
   
-  # Remove points with NA's in them in critial places ========================
-
+  # Remove points with NA's in them in critical places
   idx <-
     which(
       is.na(tacsatp$VE_REF) == TRUE |
@@ -103,7 +142,6 @@
   
   ggsave(diag.plot, filename = file.path(outPath, paste0("SpeedHistogram_", year, ".jpg")))
   
-  # Create speed threshold object # 
   
   # start by correctly formatting the level 5 metier
   tacsatp$LE_L5MET <-  sapply(strsplit(tacsatp$LE_MET, "_"), function(x) paste(x[1:2], collapse = "_"))  
@@ -128,16 +166,14 @@
   subTacsat <- subset(tacsatp, LE_GEAR %in% autoDetectionGears)
   nonsubTacsat <- subset(tacsatp, !LE_GEAR %in% autoDetectionGears)
   
- if (visualInspection == TRUE)
-  {
+ if (visualInspection == TRUE){
     storeScheme <-
       ac.tac.anal(
         subTacsat,
         units = "year",
         analyse.by = "LE_L5MET",
         identify = "means")
-  } else
-  {
+ }else  {
     storeScheme <-
       expand.grid(
         years = year,
@@ -158,16 +194,20 @@
     
     # Define mean values of the peaks and the number of peaks when they are different from 5 # 
     
-    
     storeScheme$means[which(storeScheme$LE_GEAR == "TBB")] <- c("-11.5 -6 0 6 11.5")
     storeScheme$means[which(storeScheme$LE_GEAR == "OTB")] <- c("-9 -3 0 3 9")
     storeScheme$means[which(storeScheme$LE_GEAR == "OTT")] <- c("-9 -3 0 3 9")
+    storeScheme$means[which(storeScheme$LE_GEAR == "OTM")] <- c("-9 -3 0 3 9")
     storeScheme$means[which(storeScheme$LE_GEAR == "MIS")] <- c("-9 -3 0 3 9")
     storeScheme$means[which(storeScheme$LE_GEAR == "SSC")] <- c("-9 0 9")
+    storeScheme$means[which(storeScheme$LE_GEAR == "LLD")] <- c("-9 0 9")
+    storeScheme$means[which(storeScheme$LE_GEAR == "LLS")] <- c("-9 0 9")
     storeScheme$means[which(storeScheme$LE_GEAR == "PTB")] <- c("-10 -3 0 3 10")
     storeScheme$means[which(storeScheme$LE_GEAR == "DRB")] <- c("-10 0 10")
     storeScheme$means[which(storeScheme$LE_GEAR == "HMD")] <- c("-9 0 9")
     storeScheme$peaks[which(storeScheme$LE_GEAR == "SSC")] <- 3
+    storeScheme$peaks[which(storeScheme$LE_GEAR == "LLD")] <- 3
+    storeScheme$peaks[which(storeScheme$LE_GEAR == "LLS")] <- 3
     storeScheme$peaks[which(storeScheme$LE_GEAR == "DRB")] <- 3
     storeScheme$peaks[which(storeScheme$LE_GEAR == "HMD")] <- 3
     storeScheme$peaks[which(is.na(storeScheme$peaks) == TRUE)] <- 5
