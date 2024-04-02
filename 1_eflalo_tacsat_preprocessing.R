@@ -14,7 +14,9 @@ data(harbours)
 data(ICESareas)
 data(europa)
 
-year <- 2022
+year <- 2022          ##
+yearsToSubmit <- 2022 ##TESTING - DELETE FROM PUBLISHED VERSION
+
 # Looping through the years to submit
 #for(year in yearsToSubmit){
   print(paste0("Start loop for year ",year))
@@ -62,11 +64,19 @@ year <- 2022
   eflalo <- subset(eflalo, !(FT_DTIME == "00:00" & FT_LTIME == "00:00"))
   eflalo <- subset(eflalo, !(paste(FT_DDAT, FT_DTIME) == paste(FT_LDAT, FT_LTIME)))
   
+  eflalo <- as.data.frame(eflalo %>%
+    group_by(VE_REF, VE_FLT, VE_COU, VE_LEN, VE_KW, VE_TON, FT_REF, FT_DCOU, FT_DHAR, FT_DDAT, FT_DTIME, 
+             FT_LCOU, FT_LHAR, FT_LDAT, FT_LTIME, LE_CDAT, LE_STIME, LE_ETIME, LE_SLAT, LE_SLON, LE_ELAT, 
+             LE_ELON, LE_GEAR, LE_MSZ, LE_RECT, LE_DIV, LE_MET, SP_SPX) %>%
+    summarise(LE_ID = first(LE_ID),
+              LE_KG = sum(LE_KG),
+              LE_EURO = sum(LE_EURO)))
   
   # First, create a data frame that summarises the first value for each LE_ID
   eflalo_summary <- eflalo %>%
     group_by(LE_ID) %>%
     summarise(across(everything(), ~ first(.x[!is.na(.x)])))
+  eflalo_summary <- as.data.frame(eflalo_summary)
   
   # Next, create a second data frame that aggregates LE_KG and LE_EURO for each LE_ID and SP_SPX
   eflalo_wide <- eflalo %>%
@@ -79,7 +89,7 @@ year <- 2022
   eflalo_final <- left_join(eflalo_summary, eflalo_wide, by = "LE_ID")
   
   eflalo <- as.data.frame(eflalo_final)
-  eflalo <- eflalo %>% select(-SP_SPX, -LE_KG, -LE_EURO)
+  eflalo <- eflalo %>% dplyr::select(-SP_SPX, -LE_KG, -LE_EURO)
   
    
   #- Make sure data is in right format
