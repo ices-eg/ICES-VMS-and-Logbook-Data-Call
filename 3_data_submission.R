@@ -68,17 +68,18 @@ cols <- c(
   "RecordType", "CountryCode", "Year", "Month", "NoDistinctVessels", "AnonymizedVesselID",
   "C-square","MetierL4", "MetierL5",  "MetierL6",  "VesselLengthRange",
   "AverageFishingSpeed", "FishingHour", "AverageInterval", "AverageVesselLength", "AveragekW",
-  "kWFishingHour", "TotWeight", "TotValue" , "AverageGearWidth"
+  "kWFishingHour", "TotWeight", "TotValue" , "NoPings", "AverageGearWidth", "MSFD_BBHT", "Depth"
 )
 
 # Table 1
 table1Save <- table1 %>%
-  # Separate LE_MET into met4 and met5
-  separate(col = LE_MET, c("met4", "met5"), sep = '_', remove = FALSE) %>%
+  # Separate LE_MET into met4 and met5, dropping extra pieces
+  separate(col = LE_MET, c("met4", "met5"), sep = '_', extra = "drop", remove = FALSE) %>%
   # Group by several variables
-  group_by(RT, VE_COU, Year, Month, Csquare, LE_GEAR, met5, LE_MET, LENGTHCAT) %>%
+  group_by(RT, VE_COU, Year, Month, Csquare, LE_GEAR, met5, LE_MET, LENGTHCAT, MSFD_BBHT, depth) %>%
   # Summarise the grouped data
   summarise(
+    num_records = n(),
     mean_si_sp = mean(SI_SP),
     sum_intv = sum(INTV, na.rm = TRUE),
     mean_intv = mean(INTV, na.rm = TRUE),
@@ -88,13 +89,30 @@ table1Save <- table1 %>%
     sum_le_kg_tot = sum(LE_KG_TOT, na.rm = TRUE),
     sum_le_euro_tot = sum(LE_EURO_TOT, na.rm = TRUE),
     n_vessels = n_distinct(VE_ID, na.rm = TRUE),
-    vessel_ids = ifelse(n_distinct(VE_ID) < 3, paste(unique(VE_ID), collapse = ";"), 'not_required')
+    vessel_ids = ifelse(n_distinct(VE_ID) < 3, paste(unique(VE_ID), collapse = ";"), 'not_required'),
+    .groups = "drop"
   ) %>%
   # Relocate n_vessels and vessel_ids before Csquare
   relocate(n_vessels, vessel_ids, .before = Csquare) %>%
   # Add a new column AverageGearWidth with NA values
-  mutate(AverageGearWidth = NA %>% as.numeric()) %>%
+  mutate(AverageGearWidth = NA_real_) %>%
   # Convert to data frame
+  as.data.frame()
+
+table1b <- table1Save %>%
+  group_by(RT, VE_COU, Year, Month, n_vessels, vessel_ids, Csquare, LE_GEAR, met5, LE_MET, LENGTHCAT, AverageGearWidth) %>%
+  summarise(
+    num_records = sum(num_records),
+    mean_si_sp = sum(mean_si_sp * num_records) / sum(num_records),
+    sum_intv = sum(sum_intv),
+    mean_intv = sum(mean_intv * num_records) / sum(num_records),
+    mean_ve_len = sum(mean_ve_len * num_records) / sum(num_records),
+    mean_ve_kf = sum(mean_ve_kf * num_records) / sum(num_records),
+    sum_kwHour = sum(sum_kwHour),
+    sum_le_kg_tot = sum(sum_le_kg_tot),
+    sum_le_euro_tot = sum(sum_le_euro_tot),
+    .groups = "drop"
+  ) %>%
   as.data.frame()
 
 # Rename the columns of table1Save

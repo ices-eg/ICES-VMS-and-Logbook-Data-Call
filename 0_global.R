@@ -63,15 +63,14 @@ autoDetectionGears        <- c("TBB","OTB","OTT","SSC","SDN","DRB","PTB","HMD", 
 
 #- Decide if you want to visualy analyse speed-histograms to identify fishing activity
 #  peaks or have prior knowledge and use the template provided around lines 380 below
-visualInspection          <- FALSE
+visualInspection          <- TRUE
 
 #- Specify how landings should be distributed over the VMS pings: By day, ICES rectangle, trip basis or otherwise
 # Available Options:
 # linkEflaloTacsat          <- c("day","ICESrectangle","trip")
-# linkEflaloTacsat          <- c("day","ICESrectangle","trip")
 # linkEflaloTacsat          <- c("ICESrectangle","trip")
- linkEflaloTacsat          <- c("day","trip")
-# linkEflaloTacsat          <- c("trip")
+# linkEflaloTacsat          <- c("day","trip")
+ linkEflaloTacsat          <- c("trip")
 
  
  # Extract valid level 6 metiers 
@@ -484,8 +483,7 @@ ac.tac.anal <- function(tacsat, units = "year", storeScheme = storeScheme, analy
 }
 
 act.tac <- function (tacsat, units = "year", analyse.by = "LE_L5MET", storeScheme = NULL, 
-                     plot = FALSE, level = "all") 
-{
+                     plot = FALSE, level = "all"){
   require("mixtools")
   if (!"SI_DATIM" %in% colnames(tacsat)) 
     tacsat$SI_DATIM <- as.POSIXct(paste(tacsat$SI_DATE, tacsat$SI_TIME, # id datim doesn't exist in eflalo, creates in
@@ -1199,6 +1197,32 @@ trip_assign <- function(tacsatp, eflalo, col = "LE_GEAR", trust_logbook = T){
   return(tz)
 }
 
+predict_gear_width_mod <- function(model, coefficient, data) {
+  coeffs <- unique(coefficient)
+  coeffs <- coeffs[!is.na(coeffs)]
+  gear_widths <- icesVMS::get_benthis_parameters()
+  x <- rep(NA, nrow(data))
+  for (coeff in coeffs) {
+    cwhich <- which(coefficient == coeff)
+    x[cwhich] <- as.numeric(data[[coeff]][cwhich])
+  }
+  mods <- unique(model)
+  mods <- mods[!is.na(mods)]
+  output <- rep(NA, nrow(data))
+  for (mod in mods) {
+    fun <- match.fun(mod)
+    mwhich <- which(model == mod)
+    a_b <- gear_widths[gear_widths$gearModel == mod & gear_widths$gearCoefficient == coefficient[mwhich][1], c("firstFactor", "secondFactor")]
+    if (nrow(a_b) > 0) {
+      a <- as.numeric(a_b$firstFactor)
+      b <- as.numeric(a_b$secondFactor)
+      x_subset <- as.numeric(x[mwhich])
+      output[mwhich] <- fun(a, b, x_subset)
+    }
+  }
+  output
+}
+
 # Define a function to add gear width to metier
 add_gearwidth <- function(x, met_name = "LE_MET", oal_name = "VE_LEN", kw_name = "VE_KW"){
   
@@ -1241,7 +1265,7 @@ add_gearwidth <- function(x, met_name = "LE_MET", oal_name = "VE_LEN", kw_name =
     left_join(aux_lookup, by = "Metier_level6")
   
   vms$gearWidth_model <-
-    predict_gear_width(vms$gearModel, vms$gearCoefficient, vms)
+    predict_gear_width_mod(vms$gearModel, vms$gearCoefficient, vms)
   
   if("avg_gearWidth" %!in% names(vms))
     vms[, avg_gearWidth := NA]

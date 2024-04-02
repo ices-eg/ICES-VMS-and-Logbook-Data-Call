@@ -141,7 +141,7 @@
                                  "#333333"))
   
   ggsave(diag.plot, filename = file.path(outPath, paste0("SpeedHistogram_", year, ".jpg")))
-  
+  diag.plot
   
   # start by correctly formatting the level 5 metier
   tacsatp$LE_L5MET <-  sapply(strsplit(tacsatp$LE_MET, "_"), function(x) paste(x[1:2], collapse = "_"))  
@@ -229,6 +229,16 @@
   
   # Check results, and if results are not satisfactory, run analyses again but now with fixed peaks # 
   
+  summary_table <- subTacsat %>%
+    filter(SI_STATE == "f") %>%
+    group_by(LE_L5MET) %>%
+    dplyr::summarise(
+      min_SI_SP = min(SI_SP),
+      max_SI_SP = max(SI_SP)
+    )
+  print(summary_table)
+  message(paste("These are your maximum and minimum fishing speeds (in knots), as defined by the autodetection algorithm, for ", year, ". Check they look realistic!", sep  =""))
+  
   for (iGear in autoDetectionGears) {
     subDat <- subset(subTacsat, LE_GEAR == iGear)
     
@@ -292,8 +302,7 @@
   tacsatp <- orderBy( ~ VE_REF + SI_DATIM, data = tacsatp)
   
   # Set fishing sequences with hauling in the middle to "f" ##################
-  
-  
+
   idx <-
     which(
       tacsatp$SI_STATE[2:(nrow(tacsatp) - 1)] == "h" &
@@ -324,7 +333,7 @@
   eflalo$LE_EURO_TOT <- rowSums(eflalo[, idxeur], na.rm = TRUE)
   
   # Remove the columns used for the total calculation
-  eflalo <- eflalo %>% select(!all_of(c(colnames(eflalo)[idxkg], colnames(eflalo)[idxeur])))
+  eflalo <- eflalo %>% dplyr::select(!all_of(c(colnames(eflalo)[idxkg], colnames(eflalo)[idxeur])))
   
   # Split eflalo into two data frames based on the presence of FT_REF in tacsatp
   eflaloNM <- subset(eflalo, !FT_REF %in% unique(tacsatp$FT_REF))
@@ -377,6 +386,14 @@
   
   # 2.4 Assign c-square, year, month, quarter, area and create table 1
   # ------------------------------------------------------------------
+  # Add habitat and bathymetry to the tacsatEflalo file
+  tacsatEflalo <- tacsatEflalo |> 
+    sf::st_as_sf(coords = c("SI_LONG", "SI_LATI"), remove = F) |> 
+    sf::st_set_crs(4326) |> 
+    st_join(eusm, join = st_intersects) |> 
+    st_join(bathy, join = st_intersects) |> 
+    mutate(geometry = NULL) |> 
+    data.frame()
   
   # Calculate the c-square based on longitude and latitude
   tacsatEflalo$Csquare <- CSquare(tacsatEflalo$SI_LONG, tacsatEflalo$SI_LATI, degrees = 0.05)
@@ -389,12 +406,22 @@
   tacsatEflalo$kwHour <- tacsatEflalo$VE_KW * tacsatEflalo$INTV / 60
   tacsatEflalo$INTV <- tacsatEflalo$INTV / 60
   
+  # Add the calculated gear width to each fishing point
+  tacsatEflalo$GEARWIDTH <- add_gearwidth(tacsatEflalo)
+  
+  # Add swept area(m2) for each point in the tacsateflalo
+  tacsatEflalo$SA_M2 <- tacsatEflalo$GEARWIDTH * tacsatEflalo$INTV * tacsatEflalo$SI_SP * 1852
+  
+  # Check if logical
+  tacsatEflalo[,.(min = min(GEARWIDTH), max = max(GEARWIDTH)), by = .(LE_MET)]
+  
+  
   # Define the record type
   RecordType <- "VE"
   
   # Define the columns to be included in the table
   cols <- c(
-    "VE_REF", "VE_COU", "Year", "Month", "Csquare", "LE_GEAR",
+    "VE_REF", "VE_COU", "Year", "Month", "Csquare", "MSFD_BBHT", "depth", "LE_GEAR",
     "LE_MET", "SI_SP", "INTV", "VE_LEN", "kwHour", "VE_KW", "LE_KG_TOT", "LE_EURO_TOT"
   )
   
