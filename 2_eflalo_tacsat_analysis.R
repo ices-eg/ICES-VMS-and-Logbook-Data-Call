@@ -5,6 +5,9 @@
 #
 #'------------------------------------------------------------------------------
 
+year <- 2022
+yearsToSubmit <- 2022
+
 # Looping through the years to submit
 #for(year in yearsToSubmit){
   print(paste0("Start loop for year ",year))
@@ -345,36 +348,11 @@
   # Filter rows where SI_STATE is 1
   tacsatEflalo <- tacsatp[tacsatp$SI_STATE == 1,]
   
-  # Check the type of linking required and call splitAmongPings accordingly
-  if (!"trip" %in% linkEflaloTacsat) stop("trip must be in linkEflaloTacsat")
+  tacsatp <- tacsatp[!is.na(tacsatp$INTV),]
   
-  if (all(c("day", "ICESrectangle", "trip") %in% linkEflaloTacsat)) {
-    level <- "day"
-    tmpTa <- tacsatp
-    tmpEf <- eflaloM
-  } else if (all(c("day","trip") %in% linkEflaloTacsat) & !"ICESrectangle" %in% linkEflaloTacsat) {
-    level <- "day"
-    tmpTa <- tacsatp
-    tmpEf <- eflaloM
-    tmpTa$LE_RECT <- "ALL"
-    tmpEf$LE_RECT <- "ALL"
-  } else if (all(c("ICESrectangle", "trip") %in% linkEflaloTacsat) & !"day" %in% linkEflaloTacsat) {
-    level <- "ICESrectangle"
-    tmpTa <- tacsatp
-    tmpEf <- eflaloM
-  } else if (linkEflaloTacsat == "trip" & length(linkEflaloTacsat) == 1) {
-    level <- "trip"
-    tmpTa <- tacsatp
-    tmpEf <- eflaloM
-  }
+  tacsatEflalo <- splitAmongPings2(tacsatp, eflalo)
   
-  tacsatEflalo <- splitAmongPings(
-    tacsat = tmpTa,
-    eflalo = tmpEf,
-    variable = "all",
-    level = level,
-    conserve = level != "trip"
-  )
+  eflalo$tripInTacsat <- ifelse(eflalo$FT_REF %in% tacsatEflalo$FT_REF, "Y", "N")
   
   save(
     tacsatEflalo,
@@ -422,14 +400,14 @@
   # Define the columns to be included in the table
   cols <- c(
     "VE_REF", "VE_COU", "Year", "Month", "Csquare", "MSFD_BBHT", "depth", "LE_GEAR",
-    "LE_MET", "SI_SP", "INTV", "VE_LEN", "kwHour", "VE_KW", "LE_KG_TOT", "LE_EURO_TOT"
-  )
+    "LE_MET", "SI_SP", "INTV", "VE_LEN", "kwHour", "VE_KW", "LE_KG_TOT", "LE_EURO_TOT",
+    "GEARWIDTH", "SA_M2")
   
   # Create or append to table1 based on the year
   if (year == yearsToSubmit[1]) {
-    table1 <- cbind(RT = RecordType, tacsatEflalo[, cols])
+    table1 <- cbind(RT = RecordType, tacsatEflalo[,..cols])
   } else {
-    table1 <- rbind(table1, cbind(RT = RecordType, tacsatEflalo[, cols]))
+    table1 <- rbind(table1, cbind(RT = RecordType, tacsatEflalo[,..cols]))
   }
   
   

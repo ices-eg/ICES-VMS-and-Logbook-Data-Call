@@ -41,7 +41,7 @@ vlen_ices <- getCodeList("VesselLengthClass") ### Get DATSU Vocabulary list for 
 
 vlen_icesc =  vlen_ices%>%
   filter ( Key %in% c("VL0006", "VL0608", "VL0810", "VL1012", "VL1215" ,"VL1518", "VL1824" ,"VL2440" ,"VL40XX"))%>%
-  select(Key)%>%
+  dplyr::select(Key)%>%
   arrange(Key)
 
 # TABLE 1. Add the vessel length category using  LENGTHCAT field, aligned with VESSEL LENGTH categories selected from ICES Vocabulary 
@@ -67,8 +67,8 @@ table2$LENGTHCAT <-  table2$VE_LEN%>%cut(   breaks=c(0, 6, 8, 10, 12, 15, 18, 24
 cols <- c(
   "RecordType", "CountryCode", "Year", "Month", "NoDistinctVessels", "AnonymizedVesselID",
   "C-square","MetierL4", "MetierL5",  "MetierL6",  "VesselLengthRange",
-  "AverageFishingSpeed", "FishingHour", "AverageInterval", "AverageVesselLength", "AveragekW",
-  "kWFishingHour", "TotWeight", "TotValue" , "NoPings", "AverageGearWidth", "MSFD_BBHT", "Depth"
+  "Habitat", "Depth", "No_Records", "AverageFishingSpeed", "FishingHour", "AverageInterval", "AverageVesselLength", "AveragekW",
+  "kWFishingHour", "TotWeight", "TotValue" ,  "AverageGearWidth"
 )
 
 # Table 1
@@ -156,6 +156,7 @@ colnames(table2Save) <- cols
 
 
 
+
 ##Get vocabulary for mandatory and fields with associated vocabulary using the DATSU API
 # install.packages("icesVocab", repos = "https://ices-tools-prod.r-universe.dev")
 library(icesVocab)
@@ -167,13 +168,13 @@ library(icesVocab)
 ### 3.5.1 Check if C-Squares are within ICES Ecoregions =====================
 
   csquares_d      <-  table1Save%>%
-                      select('C-square')%>%
+                      dplyr::select('C-square')%>%
                       distinct( )
 
   csquares_dcoord <-  cbind ( csquares_d ,  CSquare2LonLat (csqr = csquares_d$`C-square` ,degrees =  0.05)   )
   valid_csquare   <-  csquares_dcoord%>%
                       filter(SI_LATI >= 30 & SI_LATI <= 90  )%>%
-                      select('C-square')%>%
+                      dplyr::select('C-square')%>%
                       pull()
 
 
@@ -188,10 +189,14 @@ library(icesVocab)
   table ( table1Save$VesselLengthRange%in%vlen_ices$Key )  # TRUE records accepted in DATSU, FALSE aren't
 
   # Get summary  of   DATSU valid/not valid records
-  table1Save [ !table1Save$VesselLengthRange %in%vlen_ices$Key,]%>%group_by(VesselLengthRange)%>%select(VesselLengthRange)%>%tally()
+  table1Save [ !table1Save$VesselLengthRange %in%vlen_ices$Key,]%>%
+    group_by(VesselLengthRange)%>%
+    dplyr::select(VesselLengthRange)%>%
+    tally()
 
   # Correct them if any not valid and filter only valid ones
-  table1Save      <-  table1Save%>%filter(VesselLengthRange %in% vlen_ices$Key)
+  table1Save      <-  table1Save%>%
+    filter(VesselLengthRange %in% vlen_ices$Key)
 
 ### 3.5.3 Check Metier L4 (Gear) categories are accepted =================================
 
@@ -199,7 +204,7 @@ library(icesVocab)
   table (table1Save$MetierL4 %in%m4_ices$Key )   # TRUE records accepted in DATSU, FALSE aren't
 
   # Get summary  of   DATSU valid/not valid records
-  table1Save [ !table1Save$MetierL4 %in%m4_ices$Key,]%>%group_by(MetierL4)%>%select(MetierL4)%>%tally()
+  table1Save [ !table1Save$MetierL4 %in%m4_ices$Key,]%>%group_by(MetierL4)%>%dplyr::select(MetierL4)%>%tally()
 
   # Correct them if any not valid and filter only valid ones
   table1Save      <-  table1Save%>%filter(MetierL4 %in% m4_ices$Key)
@@ -212,7 +217,7 @@ library(icesVocab)
   table (table1Save$MetierL5 %in%m5_ices$Key )   # TRUE records accepted in DATSU, FALSE aren't
 
   # Get summary  of   DATSU valid/not valid records
-  table1Save [ !table1Save$MetierL5 %in%m5_ices$Key,]%>%group_by(MetierL5)%>%select(MetierL5)%>%tally()
+  table1Save [ !table1Save$MetierL5 %in%m5_ices$Key,]%>%group_by(MetierL5)%>%dplyr::select(MetierL5)%>%tally()
 
   # Correct them if any not valid and filter only valid ones
   table1Save      <-  table1Save%>%filter(MetierL5 %in% m5_ices$Key)
@@ -224,7 +229,7 @@ library(icesVocab)
   table (table1Save$MetierL6 %in%m6_ices$Key )   # TRUE records accepted in DATSU, FALSE aren't
 
   # Get summary  of   DATSU valid/not valid records
-  table1Save [ !table1Save$MetierL6 %in%m6_ices$Key,]%>%group_by(MetierL6)%>%select(MetierL6)%>%tally()
+  table1Save [ !table1Save$MetierL6 %in%m6_ices$Key,]%>%group_by(MetierL6)%>%dplyr::select(MetierL6)%>%tally()
 
   # Correct them if any not valid and filter only valid ones
   table1Save      <-  table1Save%>%filter(MetierL6 %in% m6_ices$Key)
@@ -235,7 +240,7 @@ library(icesVocab)
   table (table1Save$CountryCode %in%cntrcode$Key )   # TRUE records accepted in DATSU, FALSE aren't
   
   # Get summary  of   DATSU valid/not valid records
-  table1Save [ !table1Save$VMSEnabled %in% cntrcode$Key,]%>% group_by(CountryCode) %>% select(CountryCode) %>% tally()
+  table1Save [ !table1Save$VMSEnabled %in% cntrcode$Key,]%>% group_by(CountryCode) %>% dplyr::select(CountryCode) %>% tally()
   
   # Correct them if any not valid and filter only valid ones
   table1Save      <-  table1Save%>%filter(CountryCode %in% cntrcode$Key)
@@ -253,7 +258,7 @@ library(icesVocab)
   table (table2Save$ICESrectangle %in%statrect_ices$Key )   # TRUE records accepted in DATSU, FALSE aren't
 
   # Get summary  of   DATSU valid/not valid records
-  table2Save [ !table2Save$ICESrectangle %in%statrect_ices$Key,]%>%group_by(ICESrectangle)%>%select(ICESrectangle)%>%tally()
+  table2Save [ !table2Save$ICESrectangle %in%statrect_ices$Key,]%>%group_by(ICESrectangle)%>%dplyr::select(ICESrectangle)%>%tally()
 
   # Correct them if any not valid and filter only valid ones
   table2Save      <-  table2Save%>%filter(ICESrectangle %in% statrect_ices$Key)
@@ -267,7 +272,7 @@ library(icesVocab)
   table ( table2Save$VesselLengthRange%in%vlen_ices$Key )  # TRUE records accepted in DATSU, FALSE aren't
 
   # Get summary  of   DATSU valid/not valid records
-  table2Save [ !table2Save$VesselLengthRange %in%vlen_ices$Key,]%>%group_by(VesselLengthRange)%>%select(VesselLengthRange)%>%tally()
+  table2Save [ !table2Save$VesselLengthRange %in%vlen_ices$Key,]%>%group_by(VesselLengthRange)%>%dplyr::select(VesselLengthRange)%>%tally()
 
   # Correct them if any not valid and filter only valid ones
   table2Save      <-  table2Save%>%filter(VesselLengthRange %in% vlen_ices$Key)
@@ -279,7 +284,7 @@ library(icesVocab)
   table (table2Save$MetierL4 %in%m4_ices$Key )   # TRUE records accepted in DATSU, FALSE aren't
 
   # Get summary  of   DATSU valid/not valid records
-  table2Save [ !table2Save$MetierL4 %in%m4_ices$Key,]%>%group_by(MetierL4)%>%select(MetierL4)%>%tally()
+  table2Save [ !table2Save$MetierL4 %in%m4_ices$Key,]%>%group_by(MetierL4)%>%dplyr::select(MetierL4)%>%tally()
 
   # Correct them if any not valid and filter only valid ones
   table2Save      <-  table2Save%>%filter(MetierL4 %in% m4_ices$Key)
@@ -292,7 +297,7 @@ library(icesVocab)
   table (table2Save$MetierL5 %in%m5_ices$Key )   # TRUE records accepted in DATSU, FALSE aren't
 
   # Get summary  of   DATSU valid/not valid records
-  table2Save [ !table2Save$MetierL5 %in%m5_ices$Key,]%>%group_by(MetierL5)%>%select(MetierL5)%>%tally()
+  table2Save [ !table2Save$MetierL5 %in%m5_ices$Key,]%>%group_by(MetierL5)%>%dplyr::select(MetierL5)%>%tally()
 
   # Correct them if any not valid and filter only valid ones
   table2Save      <-  table2Save%>%filter(MetierL5 %in% m5_ices$Key)
@@ -304,7 +309,7 @@ m6_ices         <-  getCodeList("Metier6_FishingActivity")
 table (table2Save$MetierL6 %in%m6_ices$Key )   # TRUE records accepted in DATSU, FALSE aren't
 
 # Get summary  of   DATSU valid/not valid records
-table2Save [ !table2Save$MetierL6 %in%m6_ices$Key,]%>%group_by(MetierL6)%>%select(MetierL6)%>%tally()
+table2Save [ !table2Save$MetierL6 %in%m6_ices$Key,]%>%group_by(MetierL6)%>%dplyr::select(MetierL6)%>%tally()
 
 # Correct them if any not valid and filter only valid ones
 table2Save      <-  table2Save%>%filter(MetierL6 %in% m6_ices$Key)
@@ -318,7 +323,7 @@ table2Save      <-  table2Save%>%filter(MetierL6 %in% m6_ices$Key)
   table (table2Save$VMSEnabled %in%yn$Key )   # TRUE records accepted in DATSU, FALSE aren't
 
   # Get summary  of   DATSU valid/not valid records
-  table2Save [ !table2Save$VMSEnabled %in%yn$Key,]%>%group_by(VMSEnabled)%>%select(VMSEnabled)%>%tally()
+  table2Save [ !table2Save$VMSEnabled %in%yn$Key,]%>%group_by(VMSEnabled)%>%dplyr::select(VMSEnabled)%>%tally()
 
   # Correct them if any not valid and filter only valid ones
   table2Save      <-  table2Save%>%filter(VMSEnabled %in% yn$Key)
@@ -330,7 +335,7 @@ table2Save      <-  table2Save%>%filter(MetierL6 %in% m6_ices$Key)
   table (table2Save$CountryCode %in%cntrcode$Key )   # TRUE records accepted in DATSU, FALSE aren't
   
   # Get summary  of   DATSU valid/not valid records
-  table2Save [ !table2Save$VMSEnabled %in% cntrcode$Key,]%>% group_by(CountryCode) %>% select(CountryCode) %>% tally()
+  table2Save [ !table2Save$VMSEnabled %in% cntrcode$Key,]%>% group_by(CountryCode) %>% dplyr::select(CountryCode) %>% tally()
   
   # Correct them if any not valid and filter only valid ones
   table2Save      <-  table2Save%>%filter(CountryCode %in% cntrcode$Key)

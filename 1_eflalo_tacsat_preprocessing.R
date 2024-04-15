@@ -61,7 +61,7 @@ yearsToSubmit <- 2022 ##TESTING - DELETE FROM PUBLISHED VERSION
   # Remove duplicates
   eflalo <- distinct(eflalo)
   
-  eflalo <- subset(eflalo, !(FT_DTIME == "00:00" & FT_LTIME == "00:00"))
+  #eflalo <- subset(eflalo, !(FT_DTIME == "00:00" & FT_LTIME == "00:00"))
   eflalo <- subset(eflalo, !(paste(FT_DDAT, FT_DTIME) == paste(FT_LDAT, FT_LTIME)))
   
   eflalo <- as.data.frame(eflalo %>%
@@ -75,7 +75,10 @@ yearsToSubmit <- 2022 ##TESTING - DELETE FROM PUBLISHED VERSION
   # First, create a data frame that summarises the first value for each LE_ID
   eflalo_summary <- eflalo %>%
     group_by(LE_ID) %>%
-    summarise(across(everything(), ~ first(.x[!is.na(.x)])))
+    reframe(across(everything(), ~ {
+      x <- .x[!is.na(.x)]
+      if (length(x) > 0) first(x) else NA
+    }))
   eflalo_summary <- as.data.frame(eflalo_summary)
   
   # Next, create a second data frame that aggregates LE_KG and LE_EURO for each LE_ID and SP_SPX

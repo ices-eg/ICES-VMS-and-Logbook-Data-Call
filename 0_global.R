@@ -1223,53 +1223,44 @@ predict_gear_width_mod <- function(model, coefficient, data) {
   output
 }
 
-# Define a function to add gear width to metier
 add_gearwidth <- function(x, met_name = "LE_MET", oal_name = "VE_LEN", kw_name = "VE_KW"){
-  
   require(data.table)
   require(dplyr)
   require(sfdSAR)
   require(icesVMS)
   
   setDT(x)
+  
   ID <- c(oal_name, kw_name)
   x[,(ID):= lapply(.SD, as.numeric), .SDcols = ID]
   x[, Metier_level6 := get(met_name)]
   
-  
   #Updated metiers
   metier_lookup <- fread("https://raw.githubusercontent.com/ices-eg/RCGs/master/Metiers/Reference_lists/RDB_ISSG_Metier_list.csv")
   
-  if(any(x[, get(met_name)] %!in% metier_lookup$Metier_level6))
-    stop(paste("Non valid metiers in tacsatEflalo:", paste(x[x[, get(met_name)] %!in% metier_lookup$Metier_level6][, get(met_name)], collapse = ", ")))
-  
   gear_widths <- get_benthis_parameters()
-  
   aux_lookup <- data.table(merge(gear_widths, metier_lookup, by.x = "benthisMet", by.y = "Benthis_metiers", all.y = T))
-  aux_lookup <- aux_lookup[,.(Metier_level6, benthisMet, avKw, avLoa, avFspeed, subsurfaceProp, gearWidth, firstFactor, secondFactor, gearModel, 
+  aux_lookup <- aux_lookup[,.(Metier_level6, benthisMet, avKw, avLoa, avFspeed, subsurfaceProp, gearWidth, firstFactor, secondFactor, gearModel,
                               gearCoefficient, contactModel)]
-  
   aux_lookup <<- unique(aux_lookup)
   
-  
   aux_lookup <- data.table(merge(gear_widths, metier_lookup, by.x = "benthisMet", by.y = "Benthis_metiers", all.y = T))
-  aux_lookup <- aux_lookup[,.(Metier_level6, benthisMet, avKw, avLoa, avFspeed, subsurfaceProp, gearWidth, firstFactor, secondFactor, gearModel, 
+  aux_lookup <- aux_lookup[,.(Metier_level6, benthisMet, avKw, avLoa, avFspeed, subsurfaceProp, gearWidth, firstFactor, secondFactor, gearModel,
                               gearCoefficient, contactModel)]
-  
   aux_lookup[gearCoefficient == "avg_kw", gearCoefficient := kw_name]
   aux_lookup[gearCoefficient == "avg_oal", gearCoefficient := oal_name]
-  
   aux_lookup <- unique(aux_lookup)
   
-  vms <- x |> 
+  vms <- x |>
     left_join(aux_lookup, by = "Metier_level6")
   
-  vms$gearWidth_model <-
-    predict_gear_width_mod(vms$gearModel, vms$gearCoefficient, vms)
+  vms$gearWidth_model <- NA
+  valid_gear_models <- !is.na(vms$gearModel) & !is.na(vms$gearCoefficient)
+  vms$gearWidth_model[valid_gear_models] <-
+    predict_gear_width_mod(vms$gearModel[valid_gear_models], vms$gearCoefficient[valid_gear_models], vms[valid_gear_models, ])
   
   if("avg_gearWidth" %!in% names(vms))
     vms[, avg_gearWidth := NA]
-  
   
   gearWidth_filled <-
     with(vms,
@@ -1278,9 +1269,10 @@ add_gearwidth <- function(x, met_name = "LE_MET", oal_name = "VE_LEN", kw_name =
                        gearWidth)
          ))
   
+  gearWidth_filled[is.na(gearWidth_filled)] <- NA
+  
   return(gearWidth_filled)
 }
-
 # Define a function to check for missing columns in clean Tacsat data
 tacsat_clean <- function(tacsat){
   '%!in%' <- function(x,y)!('%in%'(x,y))
@@ -1532,6 +1524,75 @@ tacsatInHarbour <- function(tacsat, harbours, rowSize = 30, returnNames = FALSE,
   return(tacsat)
 }
 
+
+splitAmongPings2 <- function(tacsatp, eflalo) {
+  require(data.table)
+  
+  t <- data.table(tacsatp)
+  e <- data.table(eflalo)
+  
+  if(any(is.na(t$INTV)))
+    stop("NA values in intervals (INTV) in tacsatp, please add an interval to all pings")
+  
+  e[, SI_DATE := LE_CDAT] 
+  #find all column names with KG or EURO in them
+  kg_euro <- grep("KG|EURO", colnames(e), value = T)
+  
+  ### sum by FT_REF, LE_MET, SI_DATE
+  
+  n1 <- e[FT_REF %in% t$FT_REF,lapply(.SD,sum, na.rm = T),by=.(FT_REF, LE_MET, SI_DATE),
+          .SDcols=kg_euro][, ide1 := 1:.N]
+  
+  setkey(t, FT_REF, LE_MET, SI_DATE)
+  setkey(n1, FT_REF, LE_MET, SI_DATE)
+  
+  ts1 <- merge(t, n1)
+  
+  setkey(ts1, FT_REF, LE_MET, SI_DATE)
+  ts1[,Weight:=INTV/sum(INTV, na.rm = T), by=.(FT_REF, LE_MET, SI_DATE)]
+  ts1[,(kg_euro):= lapply(.SD, function(x) x * Weight), .SDcols=kg_euro]
+  
+  ### sum by FT_REF, LE_MET
+  n2 <- n1[ide1 %!in% ts1$ide1, lapply(.SD,sum, na.rm = T),by=.(FT_REF, LE_MET),
+           .SDcols=kg_euro][, ide2 := 1:.N]
+  
+  setkey(t, FT_REF, LE_MET)
+  setkey(n2, FT_REF, LE_MET)
+  
+  ts2 <- merge(t, n2)
+  
+  setkey(ts2, FT_REF, LE_MET)
+  ts2[,Weight:=INTV/sum(INTV, na.rm = T), by=.(FT_REF, LE_MET)]
+  ts2[,(kg_euro):= lapply(.SD, function(x) x * Weight), .SDcols=kg_euro]
+  
+  
+  ### sum by FT_REF
+  n3 <- n2[ide2 %!in% ts2$ide2, lapply(.SD,sum, na.rm = T),by=.(FT_REF),
+           .SDcols=kg_euro][, ide3 := 1:.N]
+  
+  setkey(t, FT_REF)
+  setkey(n3, FT_REF)
+  
+  ts3 <- merge(t, n3)
+  
+  setkey(ts3, FT_REF)
+  ts3[,Weight:=INTV/sum(INTV, na.rm = T), by=.(FT_REF)]
+  ts3[,(kg_euro):= lapply(.SD, function(x) x * Weight), .SDcols=kg_euro]
+  
+  
+  #Combine all aggregations
+  ts <- rbindlist(list(t, ts1, ts2, ts3), fill = T)
+  ts[ ,`:=`(Weight = NULL, ide1 = NULL, ide2 = NULL, ide3 = NULL)]
+  diffs = setdiff(names(ts), kg_euro)
+  
+  out <- ts[,lapply(.SD,sum, na.rm = T),by=diffs,
+            .SDcols=kg_euro]
+  
+  return(data.frame(out))
+}
+
+## remove NA INTVs
+## Only use unique tacsatps
 
 
 #'------------------------------------------------------------------------------
