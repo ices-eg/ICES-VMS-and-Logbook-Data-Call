@@ -75,7 +75,7 @@ Now start Rstudio to install all the necessary R packages that vmstools depends 
   
 ## Step 3: Installing Libraries
 
-If you are following the workflow script, the installation and loading of libraries is now handled within the script. We still need to download and install the libraries which are not available on CRAN. To do this, we will need the **Devtools** library. Devtools provides functions that allow you to install packages from GitHub. If you haven’t installed it yet, you can do so by running the following command in your R console:
+If you are following the workflow script, the installation and loading of most libraries is now handled within the script. We still need to download and install the libraries which are not available on CRAN. To do this, we will need the **Devtools** library. Devtools provides functions that allow you to install packages from GitHub. If you haven’t installed it yet, you can do so by running the following command in your R console:
 
 Paste:
   
