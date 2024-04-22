@@ -73,9 +73,9 @@ That's it. Step 2 is complete, RStudio is now installed.
 Now start Rstudio to install all the necessary R packages that vmstools depends on. 
 
   
-## Step 3: Installing vmstools
+## Step 3: Installing Libraries
 
-Next, we need to download and install the vmstools library. To do this, we will need the **Devtools** library. Devtools provides functions that allow you to install packages from GitHub. If you haven’t installed it yet, you can do so by running the following command in your R console:
+If you are following the workflow script, the installation and loading of libraries is now handled within the script. We still need to download and install the libraries which are not available on CRAN. To do this, we will need the **Devtools** library. Devtools provides functions that allow you to install packages from GitHub. If you haven’t installed it yet, you can do so by running the following command in your R console:
 
 Paste:
   
@@ -91,7 +91,7 @@ Once installed, you need to load the devtools package. You can do this with the 
 ```r
 library(devtools)
 ```
-Now you can install the specific version of the package from GitHub using the **install_github** function. You need to provide the repository name in the format username/repo@version. In your case, the repository is *nielshintzen/vmstools* and the version is 0.78. Here’s how you can install it:
+Now you can install the specific version of the package from GitHub using the **install_github** function. You need to provide the repository name in the format username/repo@version. In this case, the repository we want to install is *nielshintzen/vmstools* and the version is 0.78. Here’s how you can install it:
 
 ```r
 install_github("nielshintzen/vmstools@0.78")
@@ -103,18 +103,7 @@ library(vmstools)
 ```
 Please note that the install_github function might not work if you’re behind a firewall that blocks connections to GitHub.
 
-Next, we will install the other required libraries, which are available on CRAN. Paste the following code into your console:
-
-```r 
-# Get the list of required packages
-packages <- c("data.table", "doBy", "dplyr", "geosphere", "ggplot2",
-  "glue", "gt", "icesConnect", "icesVMS", "icesVocab",
-  "mixtools", "progressr","purrr", "raster", "sf",
-  "tidyr","tidyverse", "units")
-
-# Install them from CRAN
-install.packages(packages)
-```
+If you are following the recommended workflow, neccessary libraries will be installed (if not currently available) and loaded in lines 16-23. If not following the workflow, you will install the other required libraries, which are available on CRAN.
 
 That's it; you now have all you need to process your data.
 
