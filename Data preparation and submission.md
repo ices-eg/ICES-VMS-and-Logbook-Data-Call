@@ -37,7 +37,7 @@ Completion of the first two steps of these guidelines is dependent on the users 
  
 So let's start by instaling R; click on the link below to download R version 4.3.3.
 
-[The Comprehensive R Archive Network - R Version 4.3.2](https://cran.r-project.org/bin/windows/base/R-4.3.3-win.exe)
+[The Comprehensive R Archive Network - R Version 4.3.3](https://cran.r-project.org/bin/windows/base/R-4.3.3-win.exe)
 
 Once it is downloaded, double click on the file (.exe). Depending on your security settings you might get a pop up security warning asking if you want to Run or Cancel the installation, Click **Run**.-
 
