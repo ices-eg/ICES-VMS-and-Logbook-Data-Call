@@ -103,7 +103,7 @@ library(vmstools)
 ```
 Please note that the install_github function might not work if you’re behind a firewall that blocks connections to GitHub.
 
-If you are following the recommended workflow, neccessary libraries will be installed (if not currently available) and loaded in lines 16-23. If not following the workflow, you will install the other required libraries, which are available on CRAN.
+If you are following the recommended workflow, the required libraries will be installed (if they not currently available on your computer) and loaded in lines 16-23. If you are not following the workflow, you will need to manually install these libraries, which are available on CRAN.
 
 That's it; you now have all you need to process your data.
 
