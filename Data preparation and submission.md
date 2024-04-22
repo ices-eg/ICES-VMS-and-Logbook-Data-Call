@@ -53,7 +53,7 @@ Once it is downloaded, double click on the file (.exe). Depending on your securi
 <img src="https://raw.githubusercontent.com/neilcampbelll/spatial/b9816dc3fe7ce82aa8aa7996422170f03faa4ac3/Screenshot%202024-01-16%20143734.png" alt="drawing" width="400"/>
  
 
-Rather than accepting the default(C:Files-4.3.2) you should click on the browse button and create a directory C:-4.3.2 which will allow you to install packages without having administrator privileges. Once you have changed the folder just click **Next**
+Rather than accepting the default(C:Files-4.3.3) you should click on the browse button and create a directory C:-4.3.3 which will allow you to install packages without having administrator privileges. Once you have changed the folder just click **Next**
 
 - Click **Next** all the menus until the end of instalation, and that's it; R is now installed on thecomputer.
 
