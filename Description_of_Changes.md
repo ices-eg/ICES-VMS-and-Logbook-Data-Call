@@ -30,7 +30,7 @@ The updated version incorporates additional data cleaning steps, using newer and
 
 1. Cleaning TACSAT data:
 
-   - The new version uses the `sf` package for spatial operations, while the original version uses the `sp` package.
+   - The new version exclusively uses the `sf` package for spatial operations.
    - The new version calculates the percentage of remaining records after each cleaning step, which is not done in the original version.
    - The new version uses the `tacsatInHarbour` function to identify points in the harbor, while the original version uses the `pointInHarbour` function.
    - The new version removes the `inHarbour` column from the TACSAT data frame after filtering out points in the harbor, which is not done in the original version.
@@ -82,7 +82,7 @@ The updates to the script new code includes several additional data processing, 
 
 ## 3_data_submission.R
 
-The new data submission code follows a similar structure to the original code but includes additional data processing steps, vocabulary checks, and creates some formatted QC reports. The new code also utilizes more `dplyr` functions for data manipulation compared to the original code.
+The new data submission code follows a similar structure to the original code but includes additional data processing steps, vocabulary checks, and creates some formatted QC reports. The new code also utilizes more `dplyr` functions for data manipulation.
 
 1. Aggregating and summarizing Table1 and Table2:
 
@@ -98,8 +98,8 @@ The new data submission code follows a similar structure to the original code bu
 
 3. Data QC report (optional):
 
-   - Both versions generate a QC report to check the number of NAs and record types for each field in Table 1 and Table 2.
-   - The new code uses the `gt` package to create formatted tables for the QC report, while the original code does not include this formatting.
+   - The workflow generates a QC report to check the number of NAs and record types for each field in Table 1 and Table 2.
+   - The revised code uses the `gt` package to create formatted tables for this QC report.
 
 ## 4_plot_data.R
 
