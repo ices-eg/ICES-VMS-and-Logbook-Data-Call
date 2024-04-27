@@ -35,9 +35,9 @@ Where a version of R is already installed, version 4.1.0 or later, move to step 
 
 Completion of the first two steps of these guidelines is dependent on the users computer security setting. In instances where administrator privilege is required then please ask a member of your IT/computer support team to run the first two steps for you.
  
-So let's start by instaling R; click on the link below to download R version 4.3.3.
+So let's start by instaling R; click on the link below to download the latest R version.
 
-[The Comprehensive R Archive Network - R Version 4.3.3](https://cran.r-project.org/bin/windows/base/R-4.3.3-win.exe)
+[The Comprehensive R Archive Network - Latest R Version](https://cran.r-project.org/bin/windows/base/)
 
 Once it is downloaded, double click on the file (.exe). Depending on your security settings you might get a pop up security warning asking if you want to Run or Cancel the installation, Click **Run**.-
 
