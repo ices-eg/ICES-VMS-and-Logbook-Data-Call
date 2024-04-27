@@ -111,12 +111,14 @@ That's it; you now have all you need to process your data.
 # Part 2. Proposed workflow R code 
 
 Part one of these guidelines have guided you through the installation of all the software needed to process your data into the formats specified in the data call. Now, part two will focus on guiding you through the blocks that comprise the workflow: 
+
 - [0_global.R](https://github.com/ices-eg/wg_WGSFD/blob/test-workflow/VMS-datacall/0_global.R)
 - [1_eflalo_tacsat_preprocessing.R](https://github.com/ices-eg/wg_WGSFD/blob/test-workflow/VMS-datacall/1_eflalo_tacsat_preprocessing.R)
 - [2_eflalo_tacsat_analysis_R](https://github.com/ices-eg/wg_WGSFD/blob/test-workflow/VMS-datacall/2_eflalo_tacsat_analysis_R)
 - [3_data_submission.R](https://github.com/ices-eg/wg_WGSFD/blob/test-workflow/VMS-datacall/3_data_submission.R)
-
-The key things to note are that using the workflow blocks 0, 1 and 2 to process your data **is not mandatory**, but they are a very good idea. If you have your data in a bespoke national database and feel comfortable outputting it in the required format, please feel free to do so. Using block 3 to process the submission of data to ICES is, however, very strongly urged. 
+- [4_plot_data.R](https://github.com/ices-eg/wg_WGSFD/blob/test-workflow/VMS-datacall/4_plot_data.R)
+  
+The key things to note are that using the workflow blocks 0, 1 and 2 to process your data **is not mandatory**, but they are a very good idea. If you have your data in a bespoke national database and feel comfortable outputting it in the required format, please feel free to do so. Using block 3 to process the submission of data to ICES is, however, very strongly urged. Block 4 is a voluntary step which is not required for data processing and submission, but will help you visualise your data after it has been processed, and identify errors before uploading.
 
 VMS and logbook data are highly resolved data which carry a lot of information about the behaviours and incomes of individuals. As we are using this data for scientific purposes, and in an international context, we obviously want to protect individual anonymity as much as possible. To this end, we combine VMS data (spatio-temporal information on individual vessels) and logbook records (landed weights and values by fishing operation) and then aggregate them by metier over a 0.05-degree grid, using the "c-squares" notation system. 
 
