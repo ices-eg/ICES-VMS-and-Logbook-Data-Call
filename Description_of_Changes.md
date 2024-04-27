@@ -6,7 +6,7 @@ The workflow script largely follows the same process and approach as the origina
 
 The code has been revised to include more setup steps, data checks, helper functions and some additional analyses compared to the original code. The core workflow is generally similar, but the new code is more extensive and robust.
 
-1. The new code uses the `pacman` package to install and load required packages, avoiding the need to load the packages individually using library().
+1. The new code uses the `pacman` package to install and load required packages, avoiding the need to load the packages individually using `library()`.
 
 2. The script now creates directories for storing scripts, data, results and plots if they don't already exist.
 
