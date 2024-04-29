@@ -174,7 +174,7 @@ library(icesVocab)
 
 ### 3.5.3 Check Metier L4 (Gear) categories are accepted =================================
 
-  m4_ices         <-  getCodeList("GearTypeL4")
+  m4_ices         <-  getCodeList("GearTypeL4")  ### NOTE - some discussion on if this will be deprecated as a duplicate of the "GearType" vocab - if it fails here, delete L4 and try again
   table (table1Save$MetierL4 %in%m4_ices$Key )   # TRUE records accepted in DATSU, FALSE aren't
 
   # Get summary  of   DATSU valid/not valid records
