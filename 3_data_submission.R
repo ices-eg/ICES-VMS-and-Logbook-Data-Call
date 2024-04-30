@@ -326,7 +326,7 @@ remrecsTable1["VesselLengthClass",] <- c(nrow(table1Save), nrow(table1Save)/as.n
 
 ### 3.5.3 Check Metier L4 (Gear) categories are accepted -----------------------
 
-m4_ices         <-  getCodeList("GearTypeL4")
+m4_ices         <-  getCodeList("GearType")
 table (table1Save$MetierL4 %in%m4_ices$Key )   # TRUE records accepted in DATSU, FALSE aren't
 
 # Get summary  of   DATSU valid/not valid records
