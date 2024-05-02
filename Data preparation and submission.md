@@ -275,13 +275,15 @@ This section will focus on 'cleaning' the data in the tacsatfile. The informatio
 
 This section will check for five common types of errors. At each of these checks errors will be removed from the tacsat object. However, the data removed will be kept and saved in the 'Results'folder so you can verify the errors. Also, the volume for each of errors for each of the five checks is recorded the 'remrecsTacsat'object. This object will tell you percentage wise how much you have lost in relation to the original tacsat object.
 
+###### 1.2.2.1 Remove points outside the ICES area
+
 ###### 1.2.2.2 Remove duplicate records
 
 ###### 1.2.2.3 Remove points that cannot be possible
 
 ###### 1.2.2.4 Remove points which are pseudo duplicates as they have an interval rate < x minutes 
 
-###### 1.2.2.4 Remove points on land
+###### 1.2.2.5 Remove points on land/in harbour
 
 All of the above are self-explanatory and each of the blocks will check for a particular type of error, remove them where they occur and store the removed entries in the 'Results' folder and will quantify the number of values removed.
 
