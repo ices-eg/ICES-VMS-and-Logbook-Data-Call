@@ -192,30 +192,30 @@ Next we load in a number of helper functions which will be used later in the wor
 
 
 
-# ```'%!in%'```
-# ```transform_to_sf```
-# ```get_spec_bounds```
-# ```get_species_indices```
-# ```kgeur```
-#  ```create_trip_id```
-#  ```convert_to_datetime```
-#  ```remove_before_jan```
-#  ```intvTacsat```
-#  ```sfsortTacsat```
-#  ```callNumberPeak```
-#  ```ac.tac.anal```
-#  ```act.tac```
-#  ```trip_assign```
-#  ```predict_gear_width_mod```
-#  ```add_gearwidth```
-#  ```tacsat_clean```
-#  ```eflalo_clean```
-#  ```get_indices``` 
-#  ```get_species``` 
-#  ```get_bounds``` 
-#  ```replace_outliers``` 
-#  ```tacsatInHarbour```
-#  ```splitAmongPings2```
+* ```'%!in%'```
+* ```transform_to_sf```
+* ```get_spec_bounds```
+* ```get_species_indices```
+* ```kgeur```
+*  ```create_trip_id```
+*  ```convert_to_datetime```
+*  ```remove_before_jan```
+*  ```intvTacsat```
+*  ```sfsortTacsat```
+*  ```callNumberPeak```
+*  ```ac.tac.anal```
+*  ```act.tac```
+*  ```trip_assign```
+*  ```predict_gear_width_mod```
+*  ```add_gearwidth```
+*  ```tacsat_clean```
+*  ```eflalo_clean```
+*  ```get_indices``` 
+*  ```get_species``` 
+*  ```get_bounds``` 
+*  ```replace_outliers``` 
+*  ```tacsatInHarbour```
+*  ```splitAmongPings2```
 
 ## 1 Data preprocessing 
 (1_eflalo_tacsat_preprocessing.r)
