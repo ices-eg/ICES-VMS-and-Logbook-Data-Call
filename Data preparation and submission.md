@@ -141,7 +141,7 @@ Many of the specific functions that this workflow uses to extract and process VM
 
 [https://github.com/nielshintzen/VMStools/wiki](https://github.com/nielshintzen/VMStools/wiki)
 
-Before initiating the workflow, it is first necessary that you have all VMS and landings data in the tacsat2 and eflalo2 format srespectively. If you need more information about either format you can download a document with the detailed specifications for both in the linkbelow.
+Before initiating the workflow, it is first necessary that you have all VMS and landings data in the tacsat2 and eflalo2 formats respectively. If you need more information about either format you can download a document with the detailed specifications for both in the linkbelow.
 
 [https://github.com/nielshintzen/VMStools/releases/tag/0.0/Exchange_EFLALO2_v2-1.doc](https://github.com/nielshintzen/VMStools/releases/tag/0.0/Exchange_EFLALO2_v2-1.doc)
 
@@ -189,8 +189,6 @@ The thresholds here defined will be used later in different processes throughout
 # - Functions
 
 Next we load in a number of helper functions which will be used later in the workflow. This helps ensure consistency in how the data is processed.
-
-
 
 * ```'%!in%'```
 * ```transform_to_sf```
@@ -275,7 +273,7 @@ This section will focus on 'cleaning' the data in the tacsatfile. The informatio
 
 ###### 1.2.2.1 Keep track of removed points
 
-This section will check for five common types of errors. A teach of these checks errors will be removed from the tacsat object. However, the data removed will be kept and saved in the 'Results'folder so you can verify the errors. Also, the volume for each of errors for each of the five checks is recorded the 'remrecsTacsat'object. This object will tell you percentage wise how much you have lost in relation to the original tacsat object.
+This section will check for five common types of errors. At each of these checks errors will be removed from the tacsat object. However, the data removed will be kept and saved in the 'Results'folder so you can verify the errors. Also, the volume for each of errors for each of the five checks is recorded the 'remrecsTacsat'object. This object will tell you percentage wise how much you have lost in relation to the original tacsat object.
 
 ###### 1.2.2.2 Remove duplicate records
 
@@ -283,11 +281,11 @@ This section will check for five common types of errors. A teach of these checks
 
 ###### 1.2.2.4 Remove points which are pseudo duplicates as they have an interval rate < x minutes 
 
-###### 1.2.2.5 Remove points inharbour
+###### 1.2.2.4 Remove points on land
 
-###### 1.2.2.6 Remove points on land
+All of the above are self-explanatory and each of the blocks will check for a particular type of error, remove them where they occur and store the removed entries in the 'Results' folder and will quantify the number of values removed.
 
-All of the above are self-explanatory and each of the five blocks will check for a particular type of error, remove them where they occur and store the removed entries in the 'Results' folder and will quantify the number of values removed.
+![image](https://github.com/ices-eg/ICES-VMS-and-Logbook-Data-Call/assets/16877549/a667d306-8155-4207-86d4-e9f5332c44c8)
 
 ###### Save the remrecsTacsat file
 
