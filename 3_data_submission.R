@@ -120,10 +120,6 @@ load(file = paste0(outPath, "/table1.RData"))
 load(file = paste0(outPath, "/table2.RData"))
 
 
-### REMOVE THIS IN RELEASE
-table1$VE_COU <- "PT"
-table2$VE_COU <- "PT"
-
 
 #'------------------------------------------------------------------------------
 # 3.2.2 Replace vessel ID by an anonymized ID column                        ----
