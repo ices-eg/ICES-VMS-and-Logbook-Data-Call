@@ -59,8 +59,10 @@ linkEflaloTacsat <- c("trip")
 valid_metiers <- fread("https://raw.githubusercontent.com/ices-eg/RCGs/master/Metiers/Reference_lists/RDB_ISSG_Metier_list.csv")$Metier_level6
 
 # Load the bathymetry and habitat layers into R
-eusm <- readRDS(paste0(dataPath, "/eusm.rds"))
-bathy <- readRDS(paste0(dataPath, "/ICES_GEBCO.rds"))
+eusm <- readRDS(paste0(dataPath, "eusm.rds"))
+eusm <- eusm %>% st_transform(4326)
+bathy <- readRDS(paste0(dataPath, "ICES_GEBCO.rds"))
+bathy <- bathy %>% st_set_crs(4326)
 
 # Necessary setting for spatial operations
 sf::sf_use_s2(FALSE)
