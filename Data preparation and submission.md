@@ -186,7 +186,36 @@ The thresholds here defined will be used later in different processes throughout
 
 #- Specify how landings should be distributed over the VMS pings: By day, ICES rectangle, trip basis or otherwise
 
+# - Functions
 
+Next we load in a number of helper functions which will be used later in the workflow. This helps ensure consistency in how the data is processed.
+
+
+
+# ```'%!in%'```
+# ```transform_to_sf```
+# ```get_spec_bounds```
+# ```get_species_indices```
+# ```kgeur```
+#  ```create_trip_id```
+#  ```convert_to_datetime```
+#  ```remove_before_jan```
+#  ```intvTacsat```
+#  ```sfsortTacsat```
+#  ```callNumberPeak```
+#  ```ac.tac.anal```
+#  ```act.tac```
+#  ```trip_assign```
+#  ```predict_gear_width_mod```
+#  ```add_gearwidth```
+#  ```tacsat_clean```
+#  ```eflalo_clean```
+#  ```get_indices``` 
+#  ```get_species``` 
+#  ```get_bounds``` 
+#  ```replace_outliers``` 
+#  ```tacsatInHarbour```
+#  ```splitAmongPings2```
 
 ## 1 Data preprocessing 
 (1_eflalo_tacsat_preprocessing.r)
@@ -201,7 +230,7 @@ This will load in to the session support data such as a map of Europe, list of h
 ####  1.2 Clean the tacsat and eflalo data
 #####  Looping through the data years
 
-The next line of code has a 'for' loop which means that all the code within the loop will run at the same time. This particular loop stretches from line 51 to line 496 leaving only a couple of lines at the end of the code. However, before running the 'for' loop there are a few things that need to be changed/adapted to your case.
+The next line of code has a 'for' loop which means that all the code within the loop will run at the same time. This particular loop stretches from line 17 to line 363 leaving only a couple of lines at the end of the code. However, before running the 'for' loop there are a few things that need to be changed/adapted to your case.
 
 In order to ensure that everything is working properly and to have a better understanding of what the code is doing inside the loop we will run one single year as a test. If we are able to run one year of data without coming across errors then we can run the code for all the years at once.
 
