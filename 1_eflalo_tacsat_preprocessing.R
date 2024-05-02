@@ -362,7 +362,7 @@ for(year in yearsToSubmit){
 } 
 
 # Housekeeping
-rm(harbours, europa, ICESareas, tacsat_name, eflalo_name, tacsat, eflalo, remrecsTacsat, remrecsEflalo,
+rm(harbours, ICESareas, tacsat_name, eflalo_name, tacsat, eflalo, remrecsTacsat, remrecsEflalo,
    ia, overs, tacsatx, coords, invalid_positions, pih,
    trip_id, percent_removed, num_records, idx, dt1, result, overlapping.trips)
 rm(list = ls(pattern = "_20"))
