@@ -12,7 +12,6 @@
 # data(euharbours); if(substr(R.Version()$os,1,3)== "lin")
 data(harbours)
 data(ICESareas)
-data(europa)
 
 # Looping through the years to submit
 for(year in yearsToSubmit){
