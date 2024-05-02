@@ -1237,68 +1237,6 @@ get_indices <- function(pattern, col_type, data) {
 
 # Define a function to get the species names
 get_species <- function(data) {
-  substr(grep("KG", colnames(data), value = TRUE), 7, 9)
-}
-
-# Define a function to get the bounds for each species
-get_bounds <- function(specs, data) {
-  n <- length(specs)
-  pb <- txtProgressBar(min = 0, max = n, style = 3)
-  
-  result <- sapply(seq_along(specs), function(i) {
-    x <- specs[i]
-    idx <- get_indices(x, "KG", data) # specify "KG" as the col_type
-    
-    if (length(idx) > 0) {
-      wgh <- sort(unique(unlist(data[data[, idx] > 0, idx])))
-      # Exclude 0 values before applying log10
-      wgh <- wgh[wgh > 0]
-      
-      if (length(wgh) > 0) {
-        log_wgh <- log10(wgh)
-        difw <- diff(log_wgh)
-        
-        if (any(difw > lanThres)) {
-          # Return the next value in wgh after the last value that had a difference less than or equal to lanThres
-          wgh[max(which(difw <= lanThres)) + 1]
-        } else {
-          # If no outliers, return the maximum value in wgh
-          max(wgh, na.rm = TRUE)
-        }
-      } else {
-        0
-      }
-    } else {
-      0
-    }
-    
-    setTxtProgressBar(pb, i)
-  })
-  
-  close(pb)
-  result
-}
-
-# Define a function to replace outliers with NA
-replace_outliers <- function(data, specBounds, idx) {
-  for (iSpec in idx) {
-    outlier_idx <- which(data[, iSpec] > as.numeric(specBounds[(iSpec - idx[1] + 1), 2]))
-    if (length(outlier_idx) > 0) {
-      data[outlier_idx, iSpec] <- NA
-    }
-  }
-  data
-}
-
-
-
-# Define a function to get the indices of columns that match a pattern
-get_indices <- function(pattern, col_type, data) {
-  grep(paste0("LE_", col_type, "_", pattern), colnames(data))
-}
-
-# Define a function to get the species names
-get_species <- function(data) {
   substr(grep("^LE_KG_", colnames(data), value = TRUE), 7, 9)
 }
 
