@@ -13,6 +13,22 @@
 data(harbours)
 data(ICESareas)
 
+harbours_alt <- 
+  harbours |> 
+  # Convert spelling to ISO
+  dplyr::mutate(harbour = iconv(harbour, from = "latin1", to = "UTF-8")) |> 
+  as_tibble() |> 
+  sf::st_as_sf(coords = c("lon", "lat"),
+               crs = 4326) |> 
+  sf::st_transform(crs = 3857) |> 
+  # the range in harbour is always 3 km
+  sf::st_buffer(dist = 3000) |> 
+  sf::st_transform(crs = 4326) |> 
+  dplyr::select(harbour)
+
+
+
+
 # Looping through the years to submit
 for(year in yearsToSubmit){
   print(paste0("Start loop for year ",year))
@@ -146,19 +162,17 @@ for(year in yearsToSubmit){
   
   # 1.2.5 Remove points in harbour ---------------------------------------------
   
-  # Identify points in harbour
-      tacsat <- tacsatInHarbour(tacsat, harbours)
-
-  # Save points in harbour
-  pih <- tacsat %>% filter(inHarbour == TRUE)
-  save(pih, file = file.path(outPath, paste0("pointInHarbour", year, ".RData")))
+  # Find intersections
+  overs <- sf::st_intersects(tacsat, harbours_alt)
   
-  # Remove points in harbour from tacsat
-  tacsat <- tacsat %>% filter(inHarbour == FALSE)
-  tacsat <- tacsat[, !(names(tacsat) %in% c("bbox_xmin", "bbox_ymin", "bbox_xmax", "bbox_ymax", "inHarbour"))]
-
-  # Calculate the percentage of remaining records
-  percentage_remaining <- round((nrow(tacsat) / as.numeric(remrecsTacsat["total", 1])) * 100, 2)
+  # See what points fall out the ICES area
+  tacsatx <- tacsat[lengths(overs) > 0,]
+  
+  # Filter tacsat
+  tacsat <- tacsat[!(lengths(overs) > 0),]
+  
+  # Calculate the percentage of remaining records 
+  percentage_remaining <- round(nrow(tacsat)/as.numeric(remrecsTacsat["total",1])*100,2)
   
   # Update remrecsTacsat
   remrecsTacsat["harbour",] <- c(nrow(tacsat), percentage_remaining)
@@ -168,11 +182,11 @@ for(year in yearsToSubmit){
     remrecsTacsat,
     file = file.path(outPath, paste0("remrecsTacsat", year, ".RData"))
   )
-    tacsat <- as.data.frame(tacsat)
+  tacsat <- as.data.frame(tacsat)
   tacsat <- tacsat %>% dplyr::select(-geometry)
   tacsat <- tacsat %>% dplyr::select(-unique_id)
-#  Save the cleaned tacsat file
- 
+  #  Save the cleaned tacsat file
+  
   save(
     tacsat,
     file = file.path(outPath, paste("cleanTacsat", year, ".RData", sep = ""))
@@ -199,21 +213,21 @@ for(year in yearsToSubmit){
   
   
   # 1.3.2 Warn for outlying catch records --------------------------------------
-
+  
   # 
   # Main script - remove change of outliers - should be checked in the logbook instead.
   idxkg <- get_indices("", "KG", eflalo)
   idxeur <- get_indices("", "EURO", eflalo)
   idxoth <- setdiff(1:ncol(eflalo), c(idxkg, idxeur))
   eflalo <- eflalo[, c(idxoth, idxkg, idxeur)]
-
+  
   specs <- sort(get_species(eflalo))
   specBounds <- get_bounds(specs, eflalo)
   specBounds <- cbind(specs, specBounds)
   specBounds[is.na(specBounds[, 2]), 2] <- "0"
-
+  
   idx <- unlist(lapply(specs, function(x) get_indices(x, "KG", eflalo)))
-
+  
   eflalo2 <- replace_outliers(eflalo, specBounds, idx)
   
   if(!identical(eflalo, eflalo2)){
@@ -222,7 +236,7 @@ for(year in yearsToSubmit){
     View(f4)
   }
   
-    # 
+  # 
   # 
   # 1.3.3 Remove non-unique trip numbers --------------------------------------
   
@@ -310,6 +324,7 @@ for(year in yearsToSubmit){
   
   eflalo <- data.frame(eflalo2)
   
+  eflalo <- eflalo %>% select(-ref)
   
   # Create a data table 'dt1' with the necessary columns from 'eflalo'
   dt1 <- data.table(ID = eflalo$VE_REF, FT = eflalo$FT_REF,
@@ -362,8 +377,8 @@ for(year in yearsToSubmit){
 } 
 
 # Housekeeping
-rm(harbours, ICESareas, tacsat_name, eflalo_name, tacsat, eflalo, remrecsTacsat, remrecsEflalo,
-   ia, overs, tacsatx, coords, invalid_positions, pih,
+rm(harbours, harbours_alt, ICESareas, tacsat_name, eflalo_name, tacsat, eflalo, remrecsTacsat, remrecsEflalo,
+   ia, overs, tacsatx, coords, invalid_positions, 
    trip_id, percent_removed, num_records, idx, dt1, result, overlapping.trips)
 rm(list = ls(pattern = "_20"))
 
