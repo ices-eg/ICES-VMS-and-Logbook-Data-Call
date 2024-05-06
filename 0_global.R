@@ -44,7 +44,7 @@ intvThres     <- 240  # Maximum difference in time interval in minutes to preven
 lanThres      <- 1.5  # Maximum difference in log10-transformed sorted weights
 
 # Set the years to submit
-yearsToSubmit <- c(2009, 2023)
+yearsToSubmit <- c(2018, 2022)
 
 # Set the gear names for which automatic fishing activity is wanted
 autoDetectionGears <- c("TBB","OTB","OTT","SSC","SDN","DRB","PTB","HMD", "MIS")
@@ -63,7 +63,6 @@ eusm <- readRDS(paste0(dataPath, "eusm.rds"))
 eusm <- eusm %>% st_transform(4326)
 bathy <- readRDS(paste0(dataPath, "ICES_GEBCO.rds"))
 bathy <- bathy %>% st_set_crs(4326)
-
 # Necessary setting for spatial operations
 sf::sf_use_s2(FALSE)
 
@@ -1239,13 +1238,18 @@ get_indices <- function(pattern, col_type, data) {
 
 # Define a function to get the species names
 get_species <- function(data) {
-  substr(grep("^LE_KG_", colnames(data), value = TRUE), 7, 9)
+  substr(grep("KG", colnames(data), value = TRUE), 7, 9)
 }
 
 # Define a function to get the bounds for each species
 get_bounds <- function(specs, data) {
-  sapply(specs, function(x) {
-    idx <- get_indices(x, "KG", data)  # specify "KG" as the col_type
+  n <- length(specs)
+  pb <- txtProgressBar(min = 0, max = n, style = 3)
+  
+  result <- sapply(seq_along(specs), function(i) {
+    x <- specs[i]
+    idx <- get_indices(x, "KG", data) # specify "KG" as the col_type
+    
     if (length(idx) > 0) {
       wgh <- sort(unique(unlist(data[data[, idx] > 0, idx])))
       # Exclude 0 values before applying log10
@@ -1254,6 +1258,7 @@ get_bounds <- function(specs, data) {
       if (length(wgh) > 0) {
         log_wgh <- log10(wgh)
         difw <- diff(log_wgh)
+        
         if (any(difw > lanThres)) {
           # Return the next value in wgh after the last value that had a difference less than or equal to lanThres
           wgh[max(which(difw <= lanThres)) + 1]
@@ -1267,9 +1272,13 @@ get_bounds <- function(specs, data) {
     } else {
       0
     }
+    
+    setTxtProgressBar(pb, i)
   })
+  
+  close(pb)
+  result
 }
-
 
 # Define a function to replace outliers with NA
 replace_outliers <- function(data, specBounds, idx) {
@@ -1284,83 +1293,60 @@ replace_outliers <- function(data, specBounds, idx) {
 
 
 
-tacsatInHarbour <- function(tacsat, harbours, rowSize = 30, returnNames = FALSE, saveHarbourList = TRUE) {
-  # Extract longitude and latitude from tacsat geometry
-  lon <- st_coordinates(tacsat$geometry)[, 1]
-  lat <- st_coordinates(tacsat$geometry)[, 2]
-  
-  # Extract relevant columns from harbours data frame
-  harb <- harbours[, c("lon", "lat", "range")]
-  
-  # Assign row names to harb if the column exists
-  if ("Description" %in% colnames(harbours)) {
-    rownames(harb) <- harbours$Description
-  } else if ("harbour" %in% colnames(harbours)) {
-    rownames(harb) <- harbours$harbour
-  }
-  
-  # Order harb by longitude and latitude
-  harb <- harb[order(harb$lon, harb$lat), ]
-  
-  # Order tacsat by longitude and latitude
-  ordxys <- order(lon, lat)
-  tacsat <- tacsat[ordxys, ]
-  lon <- lon[ordxys]
-  lat <- lat[ordxys]
-  
-  # Divide data into chunks
-  nChunks <- ceiling(length(lon) / rowSize)
-  chunks <- cut(seq_along(lon), breaks = nChunks, labels = FALSE)
-  
-  # Function to calculate distances for each chunk
-  calculateDistances <- function(chunk) {
-    lon_chunk <- lon[chunks == chunk]
-    lat_chunk <- lat[chunks == chunk]
-    
-    if (length(lon_chunk) == 0 || nrow(harb) == 0) {
-      # If there are no points in the chunk or no harbors, return NA or FALSE
-      if (returnNames) {
-        return(rep(NA, length(lon_chunk)))
-      } else {
-        return(rep(FALSE, length(lon_chunk)))
-      }
-    }
-    
-    # Calculate distances between points and harbours
-    distances <- tryCatch(
-      distHaversine(cbind(lon_chunk, lat_chunk), harb[, c("lon", "lat")]),
-      warning = function(w) {
-        # Handle the warning by returning a matrix of Inf values
-        return(matrix(Inf, nrow = length(lon_chunk), ncol = nrow(harb)))
-      }
-    )
-    
-    # Find points within the range of each harbour
-    within_range <- distances <= harb$range
-    
-    if (returnNames) {
-      # Return harbour names for points within range
-      harbour_names <- apply(within_range, 1, function(x) paste(rownames(harb)[x], collapse = ","))
-      harbour_names[harbour_names == ""] <- NA
-      return(harbour_names)
-    } else {
-      # Return binary values for points within range
-      return(apply(within_range, 1, any))
-    }
-  }
-  
-  # Apply distance calculation to each chunk
-  store <- unlist(lapply(unique(chunks), calculateDistances))
-  
-  # Add the result as a new column to the tacsat data frame
-  tacsat$inHarbour <- store
-  
-  if (saveHarbourList) {
-    write.table(harbours, file = "harbourList_pointInHarbour.txt", append = FALSE, sep = "\t")
-  }
-  
-  return(tacsat)
+# Define a function to get the indices of columns that match a pattern
+get_indices <- function(pattern, col_type, data) {
+  grep(paste0("LE_", col_type, "_", pattern), colnames(data))
 }
+
+# Define a function to get the species names
+get_species <- function(data) {
+  substr(grep("^LE_KG_", colnames(data), value = TRUE), 7, 9)
+}
+
+get_bounds <- function(specs, data) {
+  sapply(specs, function(x) {
+    idx <- get_indices(x, "KG", data)
+    if (length(idx) > 0) {
+      wgh <- sort(unique(unlist(data[data[, idx] > 0, idx])))
+      wgh <- wgh[wgh > 0]
+      if (length(wgh) > 0) {
+        log_wgh <- log10(wgh)
+        difw <- diff(log_wgh)
+        if (any(difw > lanThres)) {
+          valid_indices <- which(difw <= lanThres)
+          if (length(valid_indices) > 0) {
+            wgh[max(valid_indices) + 1]
+          } else {
+            0
+          }
+        } else {
+          max(wgh, na.rm = TRUE)
+        }
+      } else {
+        0
+      }
+    } else {
+      0
+    }
+  })
+}
+
+
+replace_outliers <- function(data, specBounds, idx) {
+  for (i in seq_along(idx)) {
+    iSpec <- idx[i]
+    species_values <- data[, iSpec]
+    species_bound <- as.numeric(specBounds[i, 2])
+    
+    if (!is.na(species_bound) && !anyNA(species_values)) {
+      outlier_mask <- species_values > species_bound
+      data[outlier_mask, iSpec] <- NA
+    }
+  }
+  data
+}
+
+
 
 
 splitAmongPings2 <- function(tacsatp, eflalo) {
