@@ -44,10 +44,10 @@ intvThres     <- 240  # Maximum difference in time interval in minutes to preven
 lanThres      <- 1.5  # Maximum difference in log10-transformed sorted weights
 
 # Set the years to submit
-yearsToSubmit <- c(2018, 2022)
+yearsToSubmit <- c(2009, 2023)
 
 # Set the gear names for which automatic fishing activity is wanted
-autoDetectionGears <- c("TBB","OTB","OTT","SSC","SDN","DRB","PTB","HMD", "MIS")
+autoDetectionGears <- c("TBB","OTB","OTT", "OTM","SSC","SDN","DRB","PTB","HMD", "MIS")
 
 # Decide if you want to visually analyze speed-histograms to identify fishing activity peaks
 visualInspection <- TRUE
