@@ -17,7 +17,7 @@ rm(list=ls())
 if (!require("pacman")) install.packages("pacman")
 pacman::p_load(vmstools, sf, data.table, raster, terra, mapview, Matrix, dplyr, 
                doBy, mixtools, tidyr, glue, gt, progressr, geosphere, purrr, 
-               ggplot2, sfdSAR, icesVocab, generics, icesConnect, icesVMS,
+               ggplot2, sfdSAR, icesVocab, generics, icesConnect, icesVMS, icesSharePoint,
                tidyverse, units, tcltk, lubridate, here)
 
 # Set paths
@@ -44,7 +44,7 @@ intvThres     <- 240  # Maximum difference in time interval in minutes to preven
 lanThres      <- 1.5  # Maximum difference in log10-transformed sorted weights
 
 # Set the years to submit
-yearsToSubmit <- c(2009, 2023)
+yearsToSubmit <- c(2009:2023)
 
 # Set the gear names for which automatic fishing activity is wanted
 autoDetectionGears <- c("TBB","OTB","OTT", "OTM","SSC","SDN","DRB","PTB","HMD", "MIS")
@@ -58,6 +58,26 @@ linkEflaloTacsat <- c("trip")
 # Extract valid level 6 metiers 
 valid_metiers <- fread("https://raw.githubusercontent.com/ices-eg/RCGs/master/Metiers/Reference_lists/RDB_ISSG_Metier_list.csv")$Metier_level6
 
+#'------------------------------------------------------------------------------
+# 0.2bis Download the bathymetry and habitat files                          ----
+#'------------------------------------------------------------------------------
+#'
+#'To access the files needed for the habitat and bathymetry part of the workflow you need to download a zip file
+#'containing both, as sf objects, in .rds formats. The script below should download and unzip the files into the
+#'correct directory. If you have problems downloading these files, contact neil.campbell@ices.dk 
+#'To download it manually, use the url: 
+#'https://community.ices.dk/ExpertGroups/DataExpports/VMS_Data_call/SitePages/HomePage.aspx
+
+
+if(!file.exists(paste0(dataPath, "hab_and_bathy_layers.zip"))){
+
+    # Download the zip file
+    icesSharePoint::spgetfile(file = "SEAwise Documents/hab_and_bathy_layers.zip", site = "/ExpertGroups/DataExpports/VMS_Data_call", destdir = dataPath)
+    
+    # Extract the zip archive
+    unzip(paste0(dataPath, "hab_and_bathy_layers.zip"), exdir = dataPath, overwrite = TRUE)
+  }
+  
 # Load the bathymetry and habitat layers into R
 eusm <- readRDS(paste0(dataPath, "eusm.rds"))
 eusm <- eusm %>% st_transform(4326)
@@ -65,6 +85,8 @@ bathy <- readRDS(paste0(dataPath, "ICES_GEBCO.rds"))
 bathy <- bathy %>% st_set_crs(4326)
 # Necessary setting for spatial operations
 sf::sf_use_s2(FALSE)
+
+
 
 #'------------------------------------------------------------------------------
 # 0.3 Defining functions                                                    ----
