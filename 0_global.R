@@ -101,7 +101,7 @@ if(!file.exists(paste0(dataPath, "hab_and_bathy_layers.zip"))){
   
    
     # Extract the zip archive
-    unzip(paste0(dataPath, "hab_and_bathy_layers.zip"), exdir = dataPath, overwrite = TRUE)
+    unzip(paste0(dataPath, "hab_and_bathy_layers.zip"), exdir = dataPath, overwrite = TRUE, junkpaths = TRUE)
   }
   
 # Load the bathymetry and habitat layers into R
