@@ -13,6 +13,33 @@
 # Clear the workspace
 rm(list=ls())
 
+
+## Download and install required packages which are not available via CRAN
+
+# Install devtools from CRAN
+install.packages("devtools")
+
+## Download and install the library required to interact with the ICES SharePoint site
+library(devtools)
+install.packages("icesSharePoint", repos = c('https://ices-tools-prod.r-universe.dev', 'https://cloud.r-project.org'))
+
+## set ICES sharepoint username
+options(icesSharePoint.username = "your ices login name")  ## replace this text with your ICES sharepoint login name
+## check it has worked
+options("icesSharePoint.username")
+
+
+# Download the VMStools .tar.gz file from GitHub
+url <- "https://github.com/nielshintzen/vmstools/releases/download/0.77/vmstools_0.77.tar.gz"
+download.file(url, destfile = "vmstools_0.77.tar.gz", mode = "wb")
+
+# Install the library from the downloaded .tar.gz file
+install.packages("vmstools_0.77.tar.gz", repos = NULL, type = "source")
+
+# Clean up by removing the downloaded file
+unlink("vmstools_0.77.tar.gz")
+
+
 # Install required packages using pacman
 if (!require("pacman")) install.packages("pacman")
 pacman::p_load(vmstools, sf, data.table, raster, terra, mapview, Matrix, dplyr, 
@@ -59,21 +86,20 @@ linkEflaloTacsat <- c("trip")
 valid_metiers <- fread("https://raw.githubusercontent.com/ices-eg/RCGs/master/Metiers/Reference_lists/RDB_ISSG_Metier_list.csv")$Metier_level6
 
 #'------------------------------------------------------------------------------
-# 0.2bis Download the bathymetry and habitat files                          ----
+# Download the bathymetry and habitat files                                 ----
 #'------------------------------------------------------------------------------
 #'
 #'To access the files needed for the habitat and bathymetry part of the workflow you need to download a zip file
-#'containing both, as sf objects, in .rds formats. The script below should download and unzip the files into the
-#'correct directory. If you have problems downloading these files, contact neil.campbell@ices.dk 
-#'To download it manually, use the url: 
-#'https://community.ices.dk/ExpertGroups/DataExpports/VMS_Data_call/SitePages/HomePage.aspx
-
+#'containing both as sf objects in .rds formats. The script below should download and unzip the files into the
+#'correct directory. If you have problems downloading the files, contact neil.campbell@ices.dk 
 
 if(!file.exists(paste0(dataPath, "hab_and_bathy_layers.zip"))){
 
     # Download the zip file
     icesSharePoint::spgetfile(file = "SEAwise Documents/hab_and_bathy_layers.zip", site = "/ExpertGroups/DataExpports/VMS_Data_call", destdir = dataPath)
-    
+    ## The first time you run this code you will be prompted to enter your ICES Sharepoint password. Type it in the pop-up window to proceed with the download
+  
+   
     # Extract the zip archive
     unzip(paste0(dataPath, "hab_and_bathy_layers.zip"), exdir = dataPath, overwrite = TRUE)
   }
@@ -83,6 +109,7 @@ eusm <- readRDS(paste0(dataPath, "eusm.rds"))
 eusm <- eusm %>% st_transform(4326)
 bathy <- readRDS(paste0(dataPath, "ICES_GEBCO.rds"))
 bathy <- bathy %>% st_set_crs(4326)
+
 # Necessary setting for spatial operations
 sf::sf_use_s2(FALSE)
 
