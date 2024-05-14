@@ -3,7 +3,7 @@
 # The following script is a proposed workflow example to process the ICES
 # VMS data call request. It is not an exact template to be applied to data from
 # every member state and needs to be adjusted according to the data availability
-# and needs of every member state.
+# and needs of every national data set.
 #'------------------------------------------------------------------------------
 
 #'------------------------------------------------------------------------------
