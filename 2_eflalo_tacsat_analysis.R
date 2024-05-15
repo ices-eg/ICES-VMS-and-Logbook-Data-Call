@@ -303,17 +303,21 @@ for(year in yearsToSubmit){
   tacsatp <- rbindTacsat(subTacsat, nonsubTacsat)
   tacsatp <- orderBy( ~ VE_REF + SI_DATIM, data = tacsatp)
   
+  # This next step is retained from previous code. The new function to assign
+  # fishing activity states does not use "h" (harbour), but if you are using your
+  # own workflow code, you may wish to look for this. We do not recommend it.
+  #
   # Set fishing sequences with hauling in the middle to "f" ##################
-
-  idx <-
-    which(
-      tacsatp$SI_STATE[2:(nrow(tacsatp) - 1)] == "h" &
-        tacsatp$SI_STATE[1:(nrow(tacsatp) - 2)] == "f" &
-        tacsatp$SI_STATE[3:(nrow(tacsatp))    ] == "f" &
-        tacsatp$VE_REF[2:(nrow(tacsatp) - 1)] == tacsatp$VE_REF[1:(nrow(tacsatp) - 2)] &
-        tacsatp$VE_REF[2:(nrow(tacsatp) - 1)] == tacsatp$VE_REF[3:(nrow(tacsatp))]
-    ) + 1
-  tacsatp$SI_STATE[idx] <- "f"
+  #
+  # idx <-
+  # which(
+  #   tacsatp$SI_STATE[2:(nrow(tacsatp) - 1)] == "h" &
+  #     tacsatp$SI_STATE[1:(nrow(tacsatp) - 2)] == "f" &
+  #     tacsatp$SI_STATE[3:(nrow(tacsatp))    ] == "f" &
+  #     tacsatp$VE_REF[2:(nrow(tacsatp) - 1)] == tacsatp$VE_REF[1:(nrow(tacsatp) - 2)] &
+  #     tacsatp$VE_REF[2:(nrow(tacsatp) - 1)] == tacsatp$VE_REF[3:(nrow(tacsatp))]
+  #  ) + 1
+  # tacsatp$SI_STATE[idx] <- "f"
   
   save(
     tacsatp,
