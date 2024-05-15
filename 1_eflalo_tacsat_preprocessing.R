@@ -213,29 +213,32 @@ for(year in yearsToSubmit){
   
   
   # 1.3.2 Warn for outlying catch records --------------------------------------
-  
-  # 
+  # This code is retained to provide an example for how to check for and replace
+  # outlying values in catch data (i.e. trips which record catches of individual 
+  # species well above the range expected. It is better to thoroughly examine your
+  # logbook data and satisfy yourself that you have looked for issues such as this
+  # and resolved them, than using an automated function to overwrite data
+  #
   # Main script - remove change of outliers - should be checked in the logbook instead.
-  idxkg <- get_indices("", "KG", eflalo)
-  idxeur <- get_indices("", "EURO", eflalo)
-  idxoth <- setdiff(1:ncol(eflalo), c(idxkg, idxeur))
-  eflalo <- eflalo[, c(idxoth, idxkg, idxeur)]
-  
-  specs <- sort(get_species(eflalo))
-  specBounds <- get_bounds(specs, eflalo)
-  specBounds <- cbind(specs, specBounds)
-  specBounds[is.na(specBounds[, 2]), 2] <- "0"
-  
-  idx <- unlist(lapply(specs, function(x) get_indices(x, "KG", eflalo)))
-  
-  eflalo2 <- replace_outliers(eflalo, specBounds, idx)
-  
-  if(!identical(eflalo, eflalo2)){
-    warning(paste("There are unrealistic landings in the eflalo data, please check f4"))
-    f4 <- generics::setdiff(eflalo, eflalo2)
-    View(f4)
-  }
-  
+  # idxkg <- get_indices("", "KG", eflalo)
+  # idxeur <- get_indices("", "EURO", eflalo)
+  # idxoth <- setdiff(1:ncol(eflalo), c(idxkg, idxeur))
+  # eflalo <- eflalo[, c(idxoth, idxkg, idxeur)]
+  #
+  # specs <- sort(get_species(eflalo))
+  # specBounds <- get_bounds(specs, eflalo)
+  # specBounds <- cbind(specs, specBounds)
+  # specBounds[is.na(specBounds[, 2]), 2] <- "0"
+  #
+  # idx <- unlist(lapply(specs, function(x) get_indices(x, "KG", eflalo)))
+  #
+  # eflalo2 <- replace_outliers(eflalo, specBounds, idx)
+  # 
+  # if(!identical(eflalo, eflalo2)){
+  # warning(paste("There are unrealistic landings in the eflalo data, please check f4"))
+  # f4 <- generics::setdiff(eflalo, eflalo2)
+  # View(f4)
+  # }  
   # 
   # 
   # 1.3.3 Remove non-unique trip numbers --------------------------------------
