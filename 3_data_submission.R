@@ -573,8 +573,8 @@ table( table2$INTV > 0  )
 #'------------------------------------------------------------------------------
 
 # Headers and quotes have been removed to be compatible with required submission and ICES SQL DB format.
-write.table(table1Save, file.path(outPath, "table1Save.csv"), na = "",row.names=FALSE,col.names=FALSE,sep=",",quote=FALSE)
-write.table(table2Save, file.path(outPath, "table2Save.csv"), na = "",row.names=FALSE,col.names=FALSE,sep=",",quote=FALSE)
+write.table(table1Save, file.path(outPath, "table1Save.csv"), na = "",row.names=FALSE,col.names=TRUE,sep=",",quote=FALSE)
+write.table(table2Save, file.path(outPath, "table2Save.csv"), na = "",row.names=FALSE,col.names=TRUE,sep=",",quote=FALSE)
 
 #'------------------------------------------------------------------------------
 # 3.8 Data call submission using ICESVMS package (OPTIONAL)                 ----
