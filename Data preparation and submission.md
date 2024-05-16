@@ -35,9 +35,9 @@ Where a version of R is already installed, version 4.1.0 or later, move to step 
 
 Completion of the first two steps of these guidelines is dependent on the users computer security setting. In instances where administrator privilege is required then please ask a member of your IT/computer support team to run the first two steps for you.
  
-So let's start by instaling R; click on the link below to download R version 4.3.2.
+So let's start by instaling R; click on the link below to download the latest R version.
 
-[The Comprehensive R Archive Network - R Version 4.3.2](https://cran.r-project.org/bin/windows/base/R-4.3.2-win.exe)
+[The Comprehensive R Archive Network - Latest R Version](https://cran.r-project.org/bin/windows/base/)
 
 Once it is downloaded, double click on the file (.exe). Depending on your security settings you might get a pop up security warning asking if you want to Run or Cancel the installation, Click **Run**.-
 
@@ -53,7 +53,7 @@ Once it is downloaded, double click on the file (.exe). Depending on your securi
 <img src="https://raw.githubusercontent.com/neilcampbelll/spatial/b9816dc3fe7ce82aa8aa7996422170f03faa4ac3/Screenshot%202024-01-16%20143734.png" alt="drawing" width="400"/>
  
 
-Rather than accepting the default(C:Files-4.3.2) you should click on the browse button and create a directory C:-4.3.2 which will allow you to install packages without having administrator privileges. Once you have changed the folder just click **Next**
+Rather than accepting the default(C:Files-4.3.3) you should click on the browse button and create a directory C:-4.3.3 which will allow you to install packages without having administrator privileges. Once you have changed the folder just click **Next**
 
 - Click **Next** all the menus until the end of instalation, and that's it; R is now installed on thecomputer.
 
@@ -73,9 +73,9 @@ That's it. Step 2 is complete, RStudio is now installed.
 Now start Rstudio to install all the necessary R packages that vmstools depends on. 
 
   
-## Step 3: Installing vmstools
+## Step 3: Installing Libraries
 
-Next, we need to download and install the vmstools library. To do this, we will need the **Devtools** library. Devtools provides functions that allow you to install packages from GitHub. If you haven’t installed it yet, you can do so by running the following command in your R console:
+If you are following the workflow script, the installation and loading of most libraries is now handled within the script. We still need to download and install the libraries which are not available on CRAN. To do this, we will need the **Devtools** library. Devtools provides functions that allow you to install packages from GitHub. If you haven’t installed it yet, you can do so by running the following command in your R console:
 
 Paste:
   
@@ -91,7 +91,7 @@ Once installed, you need to load the devtools package. You can do this with the 
 ```r
 library(devtools)
 ```
-Now you can install the specific version of the package from GitHub using the **install_github** function. You need to provide the repository name in the format username/repo@version. In your case, the repository is *nielshintzen/vmstools* and the version is 0.78. Here’s how you can install it:
+Now you can install the specific version of the package from GitHub using the **install_github** function. You need to provide the repository name in the format username/repo@version. In this case, the repository we want to install is *nielshintzen/vmstools* and the version is 0.78. Here’s how you can install it:
 
 ```r
 install_github("nielshintzen/vmstools@0.78")
@@ -103,18 +103,7 @@ library(vmstools)
 ```
 Please note that the install_github function might not work if you’re behind a firewall that blocks connections to GitHub.
 
-Next, we will install the other required libraries, which are available on CRAN. Paste the following code into your console:
-
-```r 
-# Get the list of required packages
-packages <- c("data.table", "doBy", "dplyr", "geosphere", "ggplot2",
-  "glue", "gt", "icesConnect", "icesVMS", "icesVocab",
-  "mixtools", "progressr","purrr", "raster", "sf",
-  "tidyr","tidyverse", "units")
-
-# Install them from CRAN
-install.packages(packages)
-```
+If you are following the recommended workflow, the required libraries will be installed (if they not currently available on your computer) and loaded in lines 16-23. If you are not following the workflow, you will need to manually install these libraries, which are available on CRAN.
 
 That's it; you now have all you need to process your data.
 
@@ -122,12 +111,14 @@ That's it; you now have all you need to process your data.
 # Part 2. Proposed workflow R code 
 
 Part one of these guidelines have guided you through the installation of all the software needed to process your data into the formats specified in the data call. Now, part two will focus on guiding you through the blocks that comprise the workflow: 
+
 - [0_global.R](https://github.com/ices-eg/wg_WGSFD/blob/test-workflow/VMS-datacall/0_global.R)
 - [1_eflalo_tacsat_preprocessing.R](https://github.com/ices-eg/wg_WGSFD/blob/test-workflow/VMS-datacall/1_eflalo_tacsat_preprocessing.R)
 - [2_eflalo_tacsat_analysis_R](https://github.com/ices-eg/wg_WGSFD/blob/test-workflow/VMS-datacall/2_eflalo_tacsat_analysis_R)
 - [3_data_submission.R](https://github.com/ices-eg/wg_WGSFD/blob/test-workflow/VMS-datacall/3_data_submission.R)
-
-The key things to note are that using the workflow blocks 0, 1 and 2 to process your data **is not mandatory**, but they are a very good idea. If you have your data in a bespoke national database and feel comfortable outputting it in the required format, please feel free to do so. Using block 3 to process the submission of data to ICES is, however, very strongly urged. 
+- [4_plot_data.R](https://github.com/ices-eg/wg_WGSFD/blob/test-workflow/VMS-datacall/4_plot_data.R)
+  
+The key things to note are that using the workflow blocks 0, 1 and 2 to process your data **is not mandatory**, but they are a very good idea. If you have your data in a bespoke national database and feel comfortable outputting it in the required format, please feel free to do so. Using block 3 to process the submission of data to ICES is, however, very strongly urged. Block 4 is a voluntary step which is not required for data processing and submission, but will help you visualise your data after it has been processed, and identify errors before uploading.
 
 VMS and logbook data are highly resolved data which carry a lot of information about the behaviours and incomes of individuals. As we are using this data for scientific purposes, and in an international context, we obviously want to protect individual anonymity as much as possible. To this end, we combine VMS data (spatio-temporal information on individual vessels) and logbook records (landed weights and values by fishing operation) and then aggregate them by metier over a 0.05-degree grid, using the "c-squares" notation system. 
 
@@ -551,30 +542,32 @@ and in the table below
 
 
 ## VE table format
-
-| **Start**|**FieldCode**           | **Datatype**      | **Code List**                                                 | **Mandatory** | **Description**                                                                                                                                     |
-|-------|---------------------|---------------|-----------------------------------------------------------|-----------|-------------------------------------------------------------------------------------------------------------------------------------------------|
-| 1     | RecordType          | char(2)       |                                                           | M         | RecordType field consists of a 2-character code,  which defines the record type and thus the layout of the data fields included on that record. |
-| 2     | CountryCode         | char(3)       | [ISO_3166](http://vocab.ices.dk/?ref=337)                 | M         | ISO 3166-1 alpha-3 codes. The flag country  of the vessel.                                                                                      |
-| 3     | Year                | char(4)       | [Year](http://vocab.ices.dk/?ref=362)                     | M         | Year                                                                                                                                            |
-| 4     | Month               | int(2)        |                                                           | M         | Month                                                                                                                                           |
-| 5     | NoDistinctVessels   | int(5)        |                                                           | M         | Number of distinct vessels                                                                                                                      |
-| 6     | AnonymizedVesselID  | nvarchar(500) |                                                           | M         | Anonymized vessel ID: Country code + 3 digits and semicolon separated.  For example: ESP001; ESP003;                                            |
-| 7     | C-square            | nvarchar(15)  |                                                           | M         | 0.05x0.05 degree,  C-square reference XXXX:XXX:XXX:X                                                                                            |
-| 8     | MetierL4            | char(25)      | [GearTypeL4](http://vocab.ices.dk/?ref=1498)              | M         | Metier level 4                                                                                                                                  |
-| 9     | MetierL5            | char(50)      | [TargetAssemblage](http://vocab.ices.dk/?ref=1499)        | M         | Metier level 5                                                                                                                                         |
-| 10    | MetierL6            | char(40)      | [Metier6_FishingActivity](http://vocab.ices.dk/?ref=1647) | M         | Metier level 6                                                                                                                                  |
-| 11    | VesselLengthRange   | char(20)      | [VesselLengthClass](http://vocab.ices.dk/?ref=1725)       | M         | Length class for vessels used in data sampling                                                                                                  |
-| 12    | AverageFishingSpeed | float(15)     |                                                           | M         | Average fishing speed within the aggregation: year, month, c-square, vessel length category, gear code and DCF métier                           |
-| 13    | FishingHour         | float(15)     |                                                           | M         | Fishing hour calculated from VMS data (excluding non-fishing activity)                                                                          |
-| 14    | AverageInterval     | float(10)     |                                                           | M         | Average polling frequency calculated from VMS data                                                                                              |
-| 15    | AverageVesselLength | float(15)     |                                                           | M         | Average vessel length within the aggregation: year,  month, c-square, gear code and DCF metier                                                  |
-| 16    | AveragekW           | float(15)     |                                                           | M         | Average vessel power( kW) within the aggregation: year,  month, c-square, gear code and DCF metier                                              |
-| 17    | kWFishingHour       | float(15)     |                                                           | M         | kW\*Fishing hours                                                                                                                               |
-| 18    | TotWeight           | float(15)     |                                                           | M         | Total landings of all species caught in **kg**                                                                                                  |
-| 19    | TotValue            | float(15)     |                                                           |           | Total Value of all species caught in **Euro**                                                                                                   |
-| 20    | AverageGearWidth    | float(15)     |                                                           | M         | Average Gear width                                                                                                                              |
-
+| Start | FieldCode           | Datatype      | Code List                                                 | Mandatory | Description                                                                                                                                         |
+|-------|---------------------|---------------|-----------------------------------------------------------|-----------|--------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1     | RecordType          | char(2)       |                                                           | M         | RecordType field consists of a 2-character code,  which defines the record type and thus the layout of the data fields included on that record.    |
+| 2     | CountryCode         | char(3)       | [ISO_3166](http://vocab.ices.dk/?ref=337)                 | M         | ISO 3166-1 alpha-3 codes. The flag country  of the vessel.                                                                                         |
+| 3     | Year                | char(4)       | [Year](http://vocab.ices.dk/?ref=362)                     | M         | Year                                                                                                                                               |
+| 4     | Month               | int(2)        |                                                           | M         | Month                                                                                                                                              |
+| 5     | NoDistinctVessels   | int(5)        |                                                           | M         | Number of distinct vessels                                                                                                                         |
+| 6     | AnonymizedVesselID  | nvarchar(500) |                                                           | M         | Anonymized vessel ID: Country code + 3 digits and semicolon separated.  For example: ESP001; ESP003;                                               |
+| 7     | C-square            | nvarchar(15)  |                                                           | M         | 0.05x0.05 degree,  C-square reference XXXX:XXX:XXX:X                                                                                               |
+| 8     | MetierL4            | char(25)      | [GearType](https://vocab.ices.dk/?codetypeguid=6f65b819-57ca-4904-a961-2d55699008d5)              | M         | Metier level 4                                                                                                                                     |
+| 9     | MetierL5            | char(50)      | [TargetAssemblage](http://vocab.ices.dk/?ref=1499)        | M         | Metier level 5                                                                                                                                     |
+| 10    | MetierL6            | char(40)      | [Metier6_FishingActivity](http://vocab.ices.dk/?ref=1647) | M         | Metier level 6                                                                                                                                     |
+| 11    | VesselLengthRange   | char(20)      | [VesselLengthClass](http://vocab.ices.dk/?ref=1725)       | M         | Length class for vessels used in data sampling                                                                                                     |
+| 12    | Habitat             | nvarchar      |  [ADD TO DATSU]                                           |           | MSFD Habitat type                                                                                                                                       |
+| 13    | Depth               | nvarchar      |  [ADD TO DATSU]                                           |          | 200m Depth range                                                                                                                                        |
+| 14    | No_Records          | int           |                                                           | M          | Number of records included in row (required for correct calculation of average speed and gear width when aggregated to c-square                                                                                                   |
+| 15    | AverageFishingSpeed | float(15)     |                                                           | M         | Average fishing speed within the aggregation: year, month, c-square, vessel length category, gear code and DCF métier                              |
+| 16    | FishingHour         | float(15)     |                                                           | M         | Fishing hour calculated from VMS data (excluding non-fishing activity)                                                                             |
+| 17    | AverageInterval     | float(10)     |                                                           | M         | Average polling frequency calculated from VMS data                                                                                                 |
+| 18    | AverageVesselLength | float(15)     |                                                           | M         | Average vessel length within the aggregation: year,  month, c-square, gear code and DCF metier                                                     |
+| 19    | AveragekW           | float(15)     |                                                           | M         | Average vessel power( kW) within the aggregation: year,  month, c-square, gear code and DCF metier                                                 |
+| 20    | kWFishingHour       | float(15)     |                                                           | M         | kW*Fishing hours                                                                                                                                   |
+| 21    | SweptArea           | float         |                                                           |           | Swept area                                                                                                                                         |
+| 22    | TotWeight           | float(15)     |                                                           | M         | Total landings of all species caught in **kg**                                                                                                     |
+| 23    | TotValue            | float(15)     |                                                           |           | Total Value of all species caught in **Euro**                                                                                                      |
+| 24    | AverageGearWidth    | float(15)     |                                                           | M         | Average Gear width                                                                          
 M = mandatory
 
 
