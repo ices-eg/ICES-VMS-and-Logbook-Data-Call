@@ -405,7 +405,7 @@ remrecsTable2["VesselLengthClass",] <- c(nrow(table2Save), nrow(table2Save)/as.n
 #table2Save <- table2Save %>%
 #  rename(MetierL4 = met4)
 
-m4_ices         <-  getCodeList("GearTypeL4")
+m4_ices         <-  getCodeList("GearType")
 table (table2Save$MetierL4 %in%m4_ices$Key )   # TRUE records accepted in DATSU, FALSE aren't
 
 # Get summary  of   DATSU valid/not valid records
