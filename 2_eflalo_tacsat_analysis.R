@@ -240,7 +240,13 @@ for(year in yearsToSubmit){
     )
   print(summary_table)
   message(paste("These are your maximum and minimum fishing speeds (in knots), as defined by the autodetection algorithm, for ", year, ". Check they look realistic!", sep  =""))
-  
+
+    # Write the summary table to a text file
+  cat("\n\nYear:", year, "\n", file = file.path(outPath, "fishing_speeds_by_metier_and_year.txt"), append = TRUE)
+  write.table(summary_table, file = file.path(outPath, "fishing_speeds_by_metier_and_year.txt"), 
+              append = TRUE, sep = "\t", row.names = FALSE, col.names = !file.exists(file.path(outPath, "fishing_speeds_by_metier_and_year.txt")))
+  cat("\n", file = file.path(outPath, "fishing_speeds_by_metier_and_year.txt"), append = TRUE)
+                                
   for (iGear in autoDetectionGears) {
     subDat <- subset(subTacsat, LE_GEAR == iGear)
     
