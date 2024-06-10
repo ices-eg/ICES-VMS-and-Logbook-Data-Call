@@ -1106,13 +1106,13 @@ trip_assign <- function(tacsatp, eflalo, col = "LE_GEAR", trust_logbook = T){
       tx <- tz[is.na(get(col))]
       tx[, (col) := NULL]
       
-      mx <- rbind(e[,.(meantime = LE_SDATTIM), by = .(get(col))], e[,.(meantime = LE_EDATTIM), by = .(get(col))])
-      names(mx) <-  c(col, "meantime")
+      mx <- rbind(e[,.(meantime = LE_SDATTIM), by = .(get(col), FT_REF)], e[,.(meantime = LE_EDATTIM), by = .(get(col), FT_REF)])
+      names(mx) <-  c(col, "FT_REF", "meantime")
       
       tx[, time := SI_DATIM]
       
-      setkey(tx, time)
-      setkey(mx, meantime)
+      setkey(tx, FT_REF, time)
+      setkey(mx, FT_REF, meantime)
       tx <- mx[tx, roll="nearest"]
       tx$meantime <- NULL
       tz <- rbindlist(list(tz[!is.na(get(col))], tx), fill = T)
