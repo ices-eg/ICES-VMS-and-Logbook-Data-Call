@@ -1169,6 +1169,7 @@ predict_gear_width_mod <- function(model, coefficient, data) {
   output
 }
 
+# Define a function to add gear width to metier
 add_gearwidth <- function(x, met_name = "LE_MET", oal_name = "VE_LEN", kw_name = "VE_KW"){
   
   require(data.table)
@@ -1177,7 +1178,6 @@ add_gearwidth <- function(x, met_name = "LE_MET", oal_name = "VE_LEN", kw_name =
   require(icesVMS)
   
   setDT(x)
-  
   ID <- c(oal_name, kw_name)
   x[,(ID):= lapply(.SD, as.numeric), .SDcols = ID]
   x[, Metier_level6 := get(met_name)]
@@ -1186,26 +1186,32 @@ add_gearwidth <- function(x, met_name = "LE_MET", oal_name = "VE_LEN", kw_name =
   #Updated metiers
   metier_lookup <- fread("https://raw.githubusercontent.com/ices-eg/RCGs/master/Metiers/Reference_lists/RDB_ISSG_Metier_list.csv")
   
+  if(any(x[, get(met_name)] %!in% metier_lookup$Metier_level6))
+    stop(paste("Non valid metiers in tacsatEflalo:", paste(x[x[, get(met_name)] %!in% metier_lookup$Metier_level6][, get(met_name)], collapse = ", ")))
+  
   gear_widths <- get_benthis_parameters()
+  
   aux_lookup <- data.table(merge(gear_widths, metier_lookup, by.x = "benthisMet", by.y = "Benthis_metiers", all.y = T))
-  aux_lookup <- aux_lookup[,.(Metier_level6, benthisMet, avKw, avLoa, avFspeed, subsurfaceProp, gearWidth, firstFactor, secondFactor, gearModel,
+  aux_lookup <- aux_lookup[,.(Metier_level6, benthisMet, avKw, avLoa, avFspeed, subsurfaceProp, gearWidth, firstFactor, secondFactor, gearModel, 
                               gearCoefficient, contactModel)]
+  
   aux_lookup <<- unique(aux_lookup)
   
+  
   aux_lookup <- data.table(merge(gear_widths, metier_lookup, by.x = "benthisMet", by.y = "Benthis_metiers", all.y = T))
-  aux_lookup <- aux_lookup[,.(Metier_level6, benthisMet, avKw, avLoa, avFspeed, subsurfaceProp, gearWidth, firstFactor, secondFactor, gearModel,
+  aux_lookup <- aux_lookup[,.(Metier_level6, benthisMet, avKw, avLoa, avFspeed, subsurfaceProp, gearWidth, firstFactor, secondFactor, gearModel, 
                               gearCoefficient, contactModel)]
+  
   aux_lookup[gearCoefficient == "avg_kw", gearCoefficient := kw_name]
   aux_lookup[gearCoefficient == "avg_oal", gearCoefficient := oal_name]
+  
   aux_lookup <- unique(aux_lookup)
   
-  vms <- x |>
+  vms <- x |> 
     left_join(aux_lookup, by = "Metier_level6")
   
-  vms$gearWidth_model <- NA
-  valid_gear_models <- !is.na(vms$gearModel) & !is.na(vms$gearCoefficient)
-  vms$gearWidth_model[valid_gear_models] <-
-    predict_gear_width_mod(vms$gearModel[valid_gear_models], vms$gearCoefficient[valid_gear_models], vms[valid_gear_models, ])
+  vms$gearWidth_model <-
+    predict_gear_width(vms$gearModel, vms$gearCoefficient, vms)
   
   if("avg_gearWidth" %!in% names(vms))
     vms[, avg_gearWidth := NA]
@@ -1218,9 +1224,115 @@ add_gearwidth <- function(x, met_name = "LE_MET", oal_name = "VE_LEN", kw_name =
                        gearWidth)
          ))
   
-  gearWidth_filled[is.na(gearWidth_filled)] <- NA
-  
   return(gearWidth_filled)
+}
+
+add_swept_area <- function(x, met_name = "LE_MET", oal_name = "VE_LEN", kw_name = "VE_KW", width_name = "GEARWIDTH"){
+  
+  require(data.table)
+  require(dplyr)
+  require(sfdSAR)
+  require(icesVMS)
+  
+  setDT(x)
+  ID <- c(oal_name, kw_name)
+  x[,(ID):= lapply(.SD, as.numeric), .SDcols = ID]
+  x[, Metier_level6 := get(met_name)]
+  
+  
+  #Updated metiers
+  metier_lookup <- fread("https://raw.githubusercontent.com/ices-eg/RCGs/master/Metiers/Reference_lists/RDB_ISSG_Metier_list.csv")
+  
+  if(any(x[, get(met_name)] %!in% metier_lookup$Metier_level6))
+    stop(paste("Non valid metiers in tacsatEflalo:", paste(x[x[, get(met_name)] %!in% metier_lookup$Metier_level6][, get(met_name)], collapse = ", ")))
+  
+  gear_widths <- get_benthis_parameters()
+  
+  aux_lookup <- data.table(merge(gear_widths, metier_lookup, by.x = "benthisMet", by.y = "Benthis_metiers", all.y = T))
+  aux_lookup <- aux_lookup[,.(Metier_level6, benthisMet, avKw, avLoa, avFspeed, subsurfaceProp, gearWidth, firstFactor, secondFactor, gearModel, 
+                              gearCoefficient, contactModel)]
+  
+  aux_lookup <<- unique(aux_lookup)
+  
+  
+  aux_lookup <- data.table(merge(gear_widths, metier_lookup, by.x = "benthisMet", by.y = "Benthis_metiers", all.y = T))
+  aux_lookup <- aux_lookup[,.(Metier_level6, benthisMet, avKw, avLoa, avFspeed, subsurfaceProp, gearWidth, firstFactor, secondFactor, gearModel, 
+                              gearCoefficient, contactModel)]
+  
+  aux_lookup[gearCoefficient == "avg_kw", gearCoefficient := kw_name]
+  aux_lookup[gearCoefficient == "avg_oal", gearCoefficient := oal_name]
+  
+  aux_lookup <- unique(aux_lookup)
+  
+  vms <- x |> 
+    left_join(aux_lookup, by = "Metier_level6")
+  
+  vms$surface <-
+    predict_surface_contact(vms$contactModel,
+                            vms$INTV,
+                            vms$GEARWIDTH,
+                            vms$SI_SP)
+  
+  vms[contactModel == "trawl_contact", surface := surface]
+  
+  return(vms$surface)
+}
+
+
+
+add_subsurface_swept_area <- function(x, met_name = "LE_MET", oal_name = "VE_LEN", kw_name = "VE_KW", width_name = "GEARWIDTH"){
+  
+  require(data.table)
+  require(dplyr)
+  require(sfdSAR)
+  require(icesVMS)
+  
+  setDT(x)
+  ID <- c(oal_name, kw_name)
+  x[,(ID):= lapply(.SD, as.numeric), .SDcols = ID]
+  x[, Metier_level6 := get(met_name)]
+  
+  
+  #Updated metiers
+  metier_lookup <- fread("https://raw.githubusercontent.com/ices-eg/RCGs/master/Metiers/Reference_lists/RDB_ISSG_Metier_list.csv")
+  
+  if(any(x[, get(met_name)] %!in% metier_lookup$Metier_level6))
+    stop(paste("Non valid metiers in tacsatEflalo:", paste(x[x[, get(met_name)] %!in% metier_lookup$Metier_level6][, get(met_name)], collapse = ", ")))
+  
+  gear_widths <- get_benthis_parameters()
+  
+  aux_lookup <- data.table(merge(gear_widths, metier_lookup, by.x = "benthisMet", by.y = "Benthis_metiers", all.y = T))
+  aux_lookup <- aux_lookup[,.(Metier_level6, benthisMet, avKw, avLoa, avFspeed, subsurfaceProp, gearWidth, firstFactor, secondFactor, gearModel, 
+                              gearCoefficient, contactModel)]
+  
+  aux_lookup <<- unique(aux_lookup)
+  
+  
+  aux_lookup <- data.table(merge(gear_widths, metier_lookup, by.x = "benthisMet", by.y = "Benthis_metiers", all.y = T))
+  aux_lookup <- aux_lookup[,.(Metier_level6, benthisMet, avKw, avLoa, avFspeed, subsurfaceProp, gearWidth, firstFactor, secondFactor, gearModel, 
+                              gearCoefficient, contactModel)]
+  
+  aux_lookup[gearCoefficient == "avg_kw", gearCoefficient := kw_name]
+  aux_lookup[gearCoefficient == "avg_oal", gearCoefficient := oal_name]
+  
+  aux_lookup <- unique(aux_lookup)
+  
+  vms <- x |> 
+    left_join(aux_lookup, by = "Metier_level6")
+  
+  vms$surface <-
+    predict_surface_contact(vms$contactModel,
+                            vms$INTV,
+                            vms$GEARWIDTH,
+                            vms$SI_SP)
+  
+  vms[contactModel == "trawl_contact", surface := surface * 1000]
+  
+  # calculate subsurface contact
+  vms$subsurface <- vms$surface * as.numeric(vms$subsurfaceProp) * .01
+  
+  
+  return(vms$subsurface)
 }
 
 # Define a function to check for missing columns in clean Tacsat data
