@@ -435,8 +435,11 @@ for(year in yearsToSubmit){
   # Add the calculated gear width to each fishing point
   tacsatEflalo$GEARWIDTH <- add_gearwidth(tacsatEflalo)
   
-  # Add swept area(m2) for each point in the tacsateflalo
-  tacsatEflalo$SA_M2 <- tacsatEflalo$GEARWIDTH * tacsatEflalo$INTV * tacsatEflalo$SI_SP * 1852
+  # Add surface swept area(m2) for each point in the tacsateflalo
+  tacsatEflalo$SA_M2 <- add_swept_area(tacsatEflalo)
+  
+  # Add subsurface swept area(m2) for each point in the tacsateflalo
+  tacsatEflalo$SA_M2_subsurface <- add_subsurface_swept_area(tacsatEflalo)
   
   # Check if logical
   tacsatEflalo[,.(min = min(GEARWIDTH), max = max(GEARWIDTH)), by = .(LE_MET)]
