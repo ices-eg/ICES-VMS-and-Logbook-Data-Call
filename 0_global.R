@@ -1273,7 +1273,7 @@ add_swept_area <- function(x, met_name = "LE_MET", oal_name = "VE_LEN", kw_name 
                             vms$GEARWIDTH,
                             vms$SI_SP)
   
-  vms[contactModel == "trawl_contact", surface := surface]
+  vms[contactModel == "trawl_contact", surface := surface * 1000]
   
   return(vms$surface)
 }
