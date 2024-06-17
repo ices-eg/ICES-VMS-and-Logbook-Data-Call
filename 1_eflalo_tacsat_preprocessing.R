@@ -364,19 +364,84 @@ for(year in yearsToSubmit){
   remrecsEflalo["overlappingTrips",] <- c(num_records, (100 + percent_removed))
   
   
-  # Save the remrecsEflalo file 
-  save(
-    remrecsEflalo,
-    file = file.path(outPath, paste0("remrecsEflalo", year, ".RData"))
-  )
-  
-  #   Save the cleaned eflalo file 
-  save(
-    eflalo,
-    file = file.path(outPath,paste0("cleanEflalo",year,".RData"))
-  )
-  message("Cleaning eflalo completed for year ", year)
-  print(remrecsEflalo)
+
+
+#'----------------------------------------------------------------------------
+# 1.4 METIERS ICES Vocabulary Quality Control ----------------------------------------
+#'----------------------------------------------------------------------------
+#'
+#' Check the fields with related Metier ICES Vocabularies prior the analysis block (2_eflalo_tacsat_analysis.R)
+#' Some functions in this analysis will rise errors if there are  values with  not valid controlled vocabulary 
+#' 
+ 
+
+### 1.4.1 Check Metier L4 (Gear) categories are accepted -----------------------
+
+m4_ices         <-  getCodeList("GearType")
+table ( eflalo$LE_GEAR %in%m4_ices$Key )   # TRUE records accepted in DATSU, FALSE aren't
+
+# Get summary  of   DATSU valid/not valid records
+eflalo [ ! eflalo$LE_GEAR %in%m4_ices$Key,]%>%group_by(LE_GEAR)%>%dplyr::select(LE_GEAR)%>%tally()
+
+# Correct or dismiss not valid records (if any) and filter only valid ones
+
+eflalo      <-  eflalo%>%filter(LE_GEAR %in% m4_ices$Key)
+
+
+# Calculate the number of remaining records and the percentage of records removed
+num_records <- nrow(eflalo)
+percent_removed <- round((num_records - as.numeric(remrecsEflalo["total", 1])) / as.numeric(remrecsEflalo["total", 1]) * 100, 2)
+
+
+# Add to remrecsEflalo
+remrecsEflalo["MetierL4_LE_GEAR",] <- c(nrow(eflalo), nrow(eflalo)/as.numeric(remrecsEflalo["Total","RowsRemaining"])*100)
+
+
+
+
+ 
+### 3.5.5 Check Metier L6 (Fishing Activity) categories are accepted -----------
+
+m6_ices         <-  getCodeList("Metier6_FishingActivity")
+
+table ( eflalo$LE_MET %in%m6_ices$Key )   # TRUE records accepted in DATSU, FALSE aren't
+
+# Get summary  of   DATSU valid/not valid records
+eflalo [ ! eflalo$LE_MET  %in%m6_ices$Key,]%>%group_by(LE_MET)%>%dplyr::select(LE_MET)%>%tally()
+
+# Correct them if any not valid and filter only valid ones
+eflalo      <-  eflalo%>%filter(LE_MET %in% m6_ices$Key)
+
+# Calculate the number of remaining records and the percentage of records removed
+num_records <- nrow(eflalo)
+percent_removed <- round((num_records - as.numeric(remrecsEflalo["total", 1])) / as.numeric(remrecsEflalo["total", 1]) * 100, 2)
+
+
+# Add to remrecsEflalo
+remrecsEflalo["MetierL6_LE_MET",] <- c(nrow(eflalo), nrow(eflalo)/as.numeric(remrecsEflalo["Total","RowsRemaining"])*100)
+
+
+
+
+
+#'----------------------------------------------------------------------------
+# 1.5 SAVE THE EFLALO AND THE QC REMRECSEFLALO FILE --------------------------
+#'----------------------------------------------------------------------------
+
+
+# Save the remrecsEflalo file 
+save(
+  remrecsEflalo,
+  file = file.path(outPath, paste0("remrecsEflalo", year, ".RData"))
+)
+
+#   Save the cleaned eflalo file 
+save(
+  eflalo,
+  file = file.path(outPath,paste0("cleanEflalo",year,".RData"))
+)
+message("Cleaning eflalo completed for year ", year)
+print(remrecsEflalo)
 } 
 
 # Housekeeping
@@ -384,6 +449,8 @@ rm(harbours, harbours_alt, ICESareas, tacsat_name, eflalo_name, tacsat, eflalo, 
    ia, overs, tacsatx, coords, invalid_positions, 
    trip_id, percent_removed, num_records, idx, dt1, result, overlapping.trips)
 rm(list = ls(pattern = "_20"))
+
+
 
 #'------------------------------------------------------------------------------
 # End of script                                                             
