@@ -416,12 +416,12 @@ for(year in yearsToSubmit){
   
   print("")
   
-}
+}  ##End of the  loop
 
 
 
 #'------------------------------------------------------------------------------
-# 2.3 Add spatial  auxiliary information to tacsatEflalo                                     ----
+# 2.3 Add auxiliary spatial information to tacsatEflalo                                     ----
 #'------------------------------------------------------------------------------
                               
 # If you already have cleaned tacsatEflalo files elsewhere, 
@@ -429,9 +429,11 @@ for(year in yearsToSubmit){
 # Loop trough years to submit
                               
 for(year in yearsToSubmit){
+  
   print(paste0("Start loop for year ",year))
   load(file = paste0(outPath,"tacsatEflalo",year,".RData"))
   
+  #'------------------------------------------------------------------------------
   # 2.3.1 Assign c-square, year, month, quarter, area and create table 1
   # ------------------------------------------------------------------
   # Add habitat and bathymetry to the tacsatEflalo file
@@ -444,19 +446,21 @@ for(year in yearsToSubmit){
     data.frame()
 
 #'------------------------------------------------------------------------------
-# 2.4 Add CSquare geocode to  tacsatEflalo                                    ----
+# 2.4 Add CSquare geocode to  tacsatEflalo   VMS records                    ----
 #'------------------------------------------------------------------------------
   
   # Calculate the c-square based on longitude and latitude
   tacsatEflalo$Csquare <- CSquare(tacsatEflalo$SI_LONG, tacsatEflalo$SI_LATI, degrees = 0.05)
 
 #'------------------------------------------------------------------------------
-# 2.5 Calcualte time fields and                                   ----
+# 2.5 Calcualte time fields and  convert effort indicators    to Hours      ----
 #'------------------------------------------------------------------------------
   
   # Extract the year and month from the date-time
   tacsatEflalo$Year <- year(tacsatEflalo$SI_DATIM)
   tacsatEflalo$Month <- month(tacsatEflalo$SI_DATIM)
+
+  ### ATTENTION: ONLY RUN THIS CODE IF YOUR EFFORT IS IN CALCUALTED MINUTES!!!!!!
   
   # Calculate the kilowatt-hour and convert interval to hours
   tacsatEflalo$kwHour <- tacsatEflalo$VE_KW * tacsatEflalo$INTV / 60
