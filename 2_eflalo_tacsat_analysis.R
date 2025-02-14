@@ -421,7 +421,7 @@ for(year in yearsToSubmit){
 
 
 #'------------------------------------------------------------------------------
-# 2.3 Add auxiliary spatial information to tacsatEflalo                                     ----
+# 2.3 Add auxiliary spatial information to tacsatEflalo   and data preparation before data aggregation      ----
 #'------------------------------------------------------------------------------
                               
 # If you already have cleaned tacsatEflalo files elsewhere, 
@@ -429,13 +429,15 @@ for(year in yearsToSubmit){
 # Loop trough years to submit
                               
 for(year in yearsToSubmit){
+
+#'------------------------------------------------------------------------------
+# 2.3.1 Add auxiliary spatial information to tacsatEflalo                                     ----
+#'------------------------------------------------------------------------------
   
   print(paste0("Start loop for year ",year))
   load(file = paste0(outPath,"tacsatEflalo",year,".RData"))
   
-  #'------------------------------------------------------------------------------
-  # 2.3.1 Assign c-square, year, month, quarter, area and create table 1
-  # ------------------------------------------------------------------
+ 
   # Add habitat and bathymetry to the tacsatEflalo file
   tacsatEflalo <- tacsatEflalo |> 
     sf::st_as_sf(coords = c("SI_LONG", "SI_LATI"), remove = F) |> 
@@ -446,14 +448,14 @@ for(year in yearsToSubmit){
     data.frame()
 
 #'------------------------------------------------------------------------------
-# 2.4 Add CSquare geocode to  tacsatEflalo   VMS records                    ----
+# 2.3.2 Add CSquare geocode to  tacsatEflalo   VMS records                    ----
 #'------------------------------------------------------------------------------
   
   # Calculate the c-square based on longitude and latitude
   tacsatEflalo$Csquare <- CSquare(tacsatEflalo$SI_LONG, tacsatEflalo$SI_LATI, degrees = 0.05)
 
 #'------------------------------------------------------------------------------
-# 2.5 Calcualte time fields and  convert effort indicators    to Hours      ----
+# 2.3.3 Calcualte time fields and  convert effort indicators    to Hours      ----
 #'------------------------------------------------------------------------------
   
   # Extract the year and month from the date-time
@@ -468,7 +470,7 @@ for(year in yearsToSubmit){
 
 
 #'------------------------------------------------------------------------------
-# 2.6 Calculate SWEPT AREA   by VMS record in TACSATEFLALO                   ----
+# 2.3.4 Calculate SWEPT AREA   by VMS record in TACSATEFLALO                   ----
 #'------------------------------------------------------------------------------
   
   # Add the calculated gear width to each fishing point
