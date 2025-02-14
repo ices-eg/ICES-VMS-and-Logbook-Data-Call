@@ -342,8 +342,9 @@ for(year in yearsToSubmit){
     removed <- nrow(tacsatp %>% filter(LE_MET %!in% valid_metiers))
     tacsatp <- tacsatp %>% filter(LE_MET %in% valid_metiers)
     cat(sprintf("%.2f%% of of the tacsatp removed due to invalid metier l6 \n", (removed / (removed + kept) * 100)))
-  
-  # 2.2.2 Dispatch landings of merged eflalo at the ping scale
+
+  #'----------------------------------------------------------------------------
+  # 2.2.2 Calculate total landings weight and sales value 
   # -------------------------------------------------
   
   # Get the indices of columns in eflalo that contain "LE_KG_" or "LE_EURO_"
@@ -358,20 +359,39 @@ for(year in yearsToSubmit){
   
   # Remove the columns used for the total calculation
    eflalo <- eflalo[, -c(idx_kg, idx_euro)]
+
+
+  #'----------------------------------------------------------------------------
+  # 2.2.3 Retain only EFLALO fishing trip records with related  VMS Records  (EFLALOM) 
+  # --------------------------------------------------------------------------
   
-  # Split eflalo into two data frames based on the presence of FT_REF in tacsatp
   eflaloNM <- subset(eflalo, !FT_REF %in% unique(tacsatp$FT_REF))
   eflaloM <- subset(eflalo, FT_REF %in% unique(tacsatp$FT_REF))
 
   message(sprintf("%.2f%% of the eflalo data not in tacsat\n", (nrow(eflaloNM) / (nrow(eflaloNM) ))))
 
+  #'----------------------------------------------------------------------------
+  # 2.2.4 Retain only VMS Records indentified as fishing  
+  # --------------------------------------------------------------------------          
+                              
   # Convert SI_STATE to binary (0/1) format
   tacsatp$SI_STATE <- ifelse(tacsatp$SI_STATE == "f", 1, 0)
   
   # Filter rows where SI_STATE is 1
   tacsatEflalo <- tacsatp[tacsatp$SI_STATE == 1,]
+
+
+  #'----------------------------------------------------------------------------
+  # 2.2.4 Retain only VMS Records with associated effort ( INTV ) 
+  # --------------------------------------------------------------------------   
   
   tacsatp <- tacsatp[!is.na(tacsatp$INTV),]
+
+  #'----------------------------------------------------------------------------
+  # 2.2.5 Split landings among VMS records pings 
+  # --------------------------------------------------------------------------   
+
+ 
   
   # Distribute landings among pings, first by day, metier and trip; then by metier and trip; then by trip
   tacsatEflalo <- splitAmongPings2(tacsatp, eflalo)
@@ -401,11 +421,13 @@ for(year in yearsToSubmit){
 
 
 #'------------------------------------------------------------------------------
-# 2.3 Add information to tacsatEflalo                                     ----
+# 2.3 Add spatial  auxiliary information to tacsatEflalo                                     ----
 #'------------------------------------------------------------------------------
+                              
 # If you already have cleaned tacsatEflalo files elsewhere, 
 # change file location below, and make sure data is called tacsatEflalo
 # Loop trough years to submit
+                              
 for(year in yearsToSubmit){
   print(paste0("Start loop for year ",year))
   load(file = paste0(outPath,"tacsatEflalo",year,".RData"))
@@ -420,9 +442,17 @@ for(year in yearsToSubmit){
     st_join(bathy, join = st_intersects) |> 
     mutate(geometry = NULL) |> 
     data.frame()
+
+#'------------------------------------------------------------------------------
+# 2.4 Add CSquare geocode to  tacsatEflalo                                    ----
+#'------------------------------------------------------------------------------
   
   # Calculate the c-square based on longitude and latitude
   tacsatEflalo$Csquare <- CSquare(tacsatEflalo$SI_LONG, tacsatEflalo$SI_LATI, degrees = 0.05)
+
+#'------------------------------------------------------------------------------
+# 2.5 Calcualte time fields and                                   ----
+#'------------------------------------------------------------------------------
   
   # Extract the year and month from the date-time
   tacsatEflalo$Year <- year(tacsatEflalo$SI_DATIM)
@@ -431,6 +461,11 @@ for(year in yearsToSubmit){
   # Calculate the kilowatt-hour and convert interval to hours
   tacsatEflalo$kwHour <- tacsatEflalo$VE_KW * tacsatEflalo$INTV / 60
   tacsatEflalo$INTV <- tacsatEflalo$INTV / 60
+
+
+#'------------------------------------------------------------------------------
+# 2.6 Calculate SWEPT AREA   by VMS record in TACSATEFLALO                   ----
+#'------------------------------------------------------------------------------
   
   # Add the calculated gear width to each fishing point
   tacsatEflalo$GEARWIDTH <- add_gearwidth(tacsatEflalo)
