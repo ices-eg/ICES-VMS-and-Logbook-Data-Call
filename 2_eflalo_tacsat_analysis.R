@@ -371,7 +371,7 @@ for(year in yearsToSubmit){
   message(sprintf("%.2f%% of the eflalo data not in tacsat\n", (nrow(eflaloNM) / (nrow(eflaloNM) ))))
 
   #'----------------------------------------------------------------------------
-  # 2.2.4 Retain only VMS Records indentified as fishing  
+  # 2.2.4 Retain only VMS Records identified  as fishing  operations
   # --------------------------------------------------------------------------          
                               
   # Convert SI_STATE to binary (0/1) format
@@ -382,13 +382,13 @@ for(year in yearsToSubmit){
 
 
   #'----------------------------------------------------------------------------
-  # 2.2.4 Retain only VMS Records with associated effort ( INTV ) 
+  # 2.2.5 Retain only VMS Records with associated effort ( INTV ) 
   # --------------------------------------------------------------------------   
   
   tacsatp <- tacsatp[!is.na(tacsatp$INTV),]
 
   #'----------------------------------------------------------------------------
-  # 2.2.5 Split landings among VMS records pings 
+  # 2.2.6 Split landings among VMS records pings 
   # --------------------------------------------------------------------------   
 
  
