@@ -47,6 +47,8 @@ pacman::p_load(vmstools, sf, data.table, raster, terra, mapview, Matrix, dplyr,
                ggplot2, sfdSAR, icesVocab, generics, icesConnect, icesVMS, icesSharePoint,
                tidyverse, units, tcltk, lubridate, here)
 
+?icesVocab
+
 # Set paths
 path <- paste0(getwd(), "/") # Working directory
 codePath  <- paste0(path, "Scripts/")   # Location to store R scripts
