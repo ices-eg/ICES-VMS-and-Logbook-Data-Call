@@ -107,6 +107,7 @@ if(!file.exists(paste0(dataPath, "hab_and_bathy_layers.zip"))){
   }
   
 # Load the bathymetry and habitat layers into R
+
 eusm <- readRDS(paste0(dataPath, "eusm.rds"))
 eusm <- eusm %>% st_transform(4326)
 bathy <- readRDS(paste0(dataPath, "ICES_GEBCO.rds"))

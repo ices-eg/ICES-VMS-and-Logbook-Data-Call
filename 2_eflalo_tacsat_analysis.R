@@ -6,7 +6,9 @@
 #'------------------------------------------------------------------------------
 
 # Looping through the years to submit
+
 for(year in yearsToSubmit){
+  
   print(paste0("Start loop for year ",year))
   
   #'----------------------------------------------------------------------------
@@ -456,13 +458,10 @@ for(year in yearsToSubmit){
     
   
   
-  # 2.2.2 Dispatch landings of merged eflalo at the ping scale
-  # -------------------------------------------------
-    
-    # Input data preparation
+    # TACSAT and EFLALO data preparation for SplitAmongPings function
     
     
-    ## 2.2.2.1 Creates EFLALO LE_KG_TOT and LE_EURO_TO if not created yet. 
+    ## 2.4.1 Creates EFLALO LE_KG_TOT and LE_EURO_TO if not created yet. 
     
       #' Attention: Only applies if you have EFLALO LE_KG and LE_EURO by species . If not species columns and 
       #' LE_KG_TOT and LE_KG_EURO are already calculated this section wont change the data 
@@ -481,11 +480,12 @@ for(year in yearsToSubmit){
       eflalo <- eflalo[, -c(idx_kg, idx_euro)]
       
       
-    ## 2.2.2.2 Retain EFLALO/LB records with related TACSAT/VMS records in EFLALOM ( Eflalo Merged)
-      
-      #' Only records in EFLALOM are taking forward for further analysis 
-      #' The EFLALO/Logbook records with not related VMS records are retained in EFLALONM ( Eflalo Not Merged)
-      #' Attention: Only Logbook records with related VMS ( Fishing or not fishing ) are retained for further analysis
+    # 2.4.2 Retain EFLALO/LB records with related TACSAT/VMS records in EFLALOM ( Eflalo Merged)
+    #------------------------------------------------------------------------------------------
+    
+    #' Only records in EFLALOM are taking forward for further analysis 
+    #' The EFLALO/Logbook records with not related VMS records are retained in EFLALONM ( Eflalo Not Merged)
+    #' Attention: Only Logbook records with related VMS ( Fishing or not fishing ) are retained for further analysis
       
       eflaloM  <- subset(eflalo, FT_REF %in% unique(tacsatp$FT_REF))
       eflaloNM <- subset(eflalo, !FT_REF %in% unique(tacsatp$FT_REF))
@@ -497,56 +497,105 @@ for(year in yearsToSubmit){
       message(sprintf("%.2f%% of the eflalo data not in tacsat\n", (nrow(eflaloNM) / (nrow(eflaloNM) ))))
 
       
-    ## 2.2.2.3 Filter the 
+    # 2.4.3 Filter the TACSAT records identified as vessel positions engaged in Fishing Operations
+    #------------------------------------------------------------------------------------------------
+    #' Attention: Several fishing trips will lost part or the total of their VMS records.
+    #' This means several EFLALO Fishing Trips  could be input in SplitAmongPings with reduced or not related TACSAT records.
+    #' If CONSERVE option is not used the landings related to these Fishing Trips will be excluded and the 
+    #' landings values ( weigh and sales value) is not considered in the final output. 
+    #' Thus, it can be expected a significant difference between the Total Landings values (KG, EURO) in EFLALOM
+    #' in comparison to the output of SplitamongPings function.
+    #' Consider the CONSERVE option in SplitAmongPings if appropriate following expert criteria.
+    #' Also you can investigate the reason of the significant VMS records missed due to not been identified as fishing. 
+    #' e.g. Narrow fishing speed ranges, etc. 
       
-  # Convert SI_STATE to binary (0/1) format
-  tacsatp$SI_STATE <- ifelse(tacsatp$SI_STATE == "f", 1, 0)
-  
-  # Filter rows where SI_STATE is 1
-  tacsatEflalo <- tacsatp[tacsatp$SI_STATE == 1,]
-  
-  tacsatp <- tacsatp[!is.na(tacsatp$INTV),]
-  
-  # Distribute landings among pings, first by day, metier and trip; then by metier and trip; then by trip
-  tacsatEflalo <- splitAmongPings2(tacsatp, eflalo)
-  
-  eflalo$tripInTacsat <- ifelse(eflalo$FT_REF %in% tacsatEflalo$FT_REF, "Y", "N")
+    
+      # Convert SI_STATE to binary (0/1) format
+      tacsatp$SI_STATE <- ifelse(tacsatp$SI_STATE == "f", 1, 0)
+      
+      # Filter TACSAT records which SI_STATE is fishing (SI_STATE ==1 )
+      tacsatp <- tacsatp[tacsatp$SI_STATE == 1,]
+      
+    # 2.4.4 Filter TACSAT records which SI_STATE is not NA.
+    #' No INTV values means not Fishign effort allocation , so cannot be used in further analysis. 
+      
+      tacsatp <- tacsatp[!is.na(tacsatp$INTV),]
+      
+      
+      
+    # 2.4.5 Distribute landings among pings
+    #---------------------------------------
+    #' Run the function SplitAmongPings using EFLALOM and TACSAT with valid fishing positions.
+    #' Read the documentation of VMSTools::SplitAmongPings and the ICES SFD 2025 report 
+    #' for details on the function settings, match levels and more options. 
+    #' CONSERVE will retain the landings from ELALO records with not related VMS records. These VMS records could exists 
+    #' with the original raw data but were lost due to Quality Control cleaning  or activity identification process.
+    #' If you use CONSERVER and  want to use all EFLALO records use EFLALO instead EFLALOM. 
+      
+      
+      tacsatEflalo <-  splitAmongPings(
+                          tacsat = tacsatp,
+                          eflalo = eflaloM,
+                          variable = "all",
+                          level = c("day","ICESrectangle","trip"),
+                          conserve = TRUE, 
+                          by = "INTV" ) 
+      
+      eflalo$tripInTacsat <- ifelse(eflalo$FT_REF %in% tacsatEflalo$FT_REF, "Y", "N")
+    
+      #' Intermediate data format and save:
+      #' Save 'tacsatEflalo' to a file named "tacsatEflalo<year>.RData" in the 'outPath' directory
+      #' Save 'eflalo' to a file named "eflalo<year>.RData" in the 'outPath' directory
+      
+      
+      save(
+        tacsatEflalo,
+        file = file.path(outPath, paste0("tacsatEflalo", year, ".RData"))
+      )
 
-  
-  save(
-    tacsatEflalo,
-    file = file.path(outPath, paste0("tacsatEflalo", year, ".RData"))
-  )
-
-  save(
-    eflalo,
-    file = file.path(outPath, paste0("/cleanEflalo", year, ".RData"))
-  )
-  
-  
-  print("Dispatching landings completed")
+      save(
+        eflalo,
+        file = file.path(outPath, paste0("/cleanEflalo", year, ".RData"))
+      )
+    
+    
+      print("Dispatching landings completed")
   
   
   
   print("")
   
-}
+}  ## END OF THE 1st YEAR LOOP 
 
 
 
 #'------------------------------------------------------------------------------
-# 2.3 Add information to tacsatEflalo                                     ----
+# 2.5 Add additional information to tacsatEflalo                             ----
 #'------------------------------------------------------------------------------
-# If you already have cleaned tacsatEflalo files elsewhere, 
-# change file location below, and make sure data is called tacsatEflalo
+#' Add additional to TACSATEFLALO dataset. 
+#' Habitat data
+#' Depth Data 
+#' Refinement of effort data values prepared for data aggregation
+ 
+
+
+
 # Loop trough years to submit
+
 for(year in yearsToSubmit){
+  
   print(paste0("Start loop for year ",year))
+  
+  # Load tacsatEflalo output from outPath location 
   load(file = paste0(outPath,"tacsatEflalo",year,".RData"))
   
-  # 2.3.1 Assign c-square, year, month, quarter, area and create table 1
+  # 2.5.1 Add Habitat and Bathymetry data values to TACSATEFLALO 
   # ------------------------------------------------------------------
-  # Add habitat and bathymetry to the tacsatEflalo file
+  #' Habitat and depth values are extracted from EU Habitat Map and GEBCO Bathymetry sources
+  #' The Habitat class and Depth ranges are used later as aggregation classes
+  #' 
+  #' GLOBAL VARIABLE REQUIRED: "eusm" and "bathy"  variables created in 0_global.R
+  
   tacsatEflalo <- tacsatEflalo |> 
     sf::st_as_sf(coords = c("SI_LONG", "SI_LATI"), remove = F) |> 
     sf::st_set_crs(4326) |> 
@@ -555,26 +604,53 @@ for(year in yearsToSubmit){
     mutate(geometry = NULL) |> 
     data.frame()
   
-  # Calculate the c-square based on longitude and latitude
+  # 2.5.2 Calculate the C-SQUARE by TACSAT record based on longitude and latitude of VMS data
+  #' FUNCTION REQUIRED: VMSTools::CSquare
+  
   tacsatEflalo$Csquare <- CSquare(tacsatEflalo$SI_LONG, tacsatEflalo$SI_LATI, degrees = 0.05)
   
-  # Extract the year and month from the date-time
+  # 2.5.3 Extract the year and month from the date-time
+  #' FUNTION REQUIRED: year and month from LUBRIDATE 
+  
   tacsatEflalo$Year <- year(tacsatEflalo$SI_DATIM)
   tacsatEflalo$Month <- month(tacsatEflalo$SI_DATIM)
   
-  # Calculate the kilowatt-hour and convert interval to hours
+  # 2.5.4 Calculate the kilowatt-hour and convert interval to hours
+  #' Attention: This step transform the TACSAT data value in INTV field
+  #' The INTV include the fishing effort by TACSAT/VMS position. It was calcualted in step 2.3.1 
+  #' The INTV calculation in 2.3.1 is given in minute. This step transform it in hours. 
+  #' If you calculated INTV elsewhere in another unit ( e.g. hours ) , modify or skip this transformation
+ 
+  
   tacsatEflalo$kwHour <- tacsatEflalo$VE_KW * tacsatEflalo$INTV / 60
   tacsatEflalo$INTV <- tacsatEflalo$INTV / 60
   
-  # Add the calculated gear width to each fishing point
+  # 2.5.5  Calculated gear width to each fishing point
+  #' Calculate the gear width using ICES R Package SFDSAR. Methods estimates the gear width based on the 
+  #' vessel length or vessel engine power based on the metier used.
+  #' Attention: The output provides the gear width in METERS. If you get the GEAR WIDTH information 
+  #' using other methos, ensure the values are supplied in METERS before submission. 
+  #'   
+  #'FUNCTION REQUIRED: global::add_gearwidth()
+
   tacsatEflalo$GEARWIDTH <- add_gearwidth(tacsatEflalo)
   
-  # Add swept area(m2) for each point in the tacsateflalo
+  # 2.5.6  Calculates Swept Area (m2) for each record in the TACSATEFLALO
+  #' Calculate the area swept by mobile bottom contact gears in m2. 
+  #' Attention: The GEARDWIDTH must be submitted in METERS , INTV in HOURS and SPEED in Knots
+  #' The knots are transformed into meters per hour ( knots *1852)
   tacsatEflalo$SA_M2 <- tacsatEflalo$GEARWIDTH * tacsatEflalo$INTV * tacsatEflalo$SI_SP * 1852
   
-  # Check if logical
+  # Check if the minimum and maximum gear width are reasonable size by METIER
+  
   tacsatEflalo[,.(min = min(GEARWIDTH), max = max(GEARWIDTH)), by = .(LE_MET)]
   
+  
+  
+  
+  #' FINAL data  save:
+  #' Save 'tacsatEflalo' to a file named "tacsatEflalo<year>.RData" in the 'outPath' directory
+  #' This is the final output of WORKFLOW BLOCK 2.EFLALO_TACSAT_ANALYSIS.R
     
   save(
     tacsatEflalo,
