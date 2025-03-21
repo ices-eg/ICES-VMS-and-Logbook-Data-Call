@@ -7,9 +7,10 @@ The CHANGELOG format is based on [Keep a Changelog](https://keepachangelog.com/e
 # [Unreleased]
 
 The changes are listed by the R Workflow block files. [0.global, 1.Eflalo Tacsat Preprocessing, 2.Eflalo Tacsat Analysis , 3.Data Submissions ] 
-R Library dependencies: [VMSTools 0.77](https://github.com/nielshintzen/vmstools/releases/tag/0.77)   
-ICES R Libraries: SFDSAR,  ICESVocab, icesConnect, icesVMS, icesSharePoint 
-R CRAN Libraries : sf, data.table, raster, terra, mapview, Matrix, dplyr, doBy, mixtools, tidyr, glue, gt, progressr, geosphere, purrr,  tidyverse, units, tcltk, lubridate, here
+R Library dependencies:
+   - [VMSTools 0.77](https://github.com/nielshintzen/vmstools/releases/tag/0.77)   
+   - ICES R Libraries: SFDSAR,  ICESVocab, icesConnect, icesVMS, icesSharePoint
+   - R CRAN Libraries : sf, data.table, raster, terra, mapview, Matrix, dplyr, doBy, mixtools, tidyr, glue, gt, progressr, geosphere, purrr,  tidyverse, units, tcltk, lubridate, here
 
 
 ## 2_eflalo_tacsat_analysis.R
