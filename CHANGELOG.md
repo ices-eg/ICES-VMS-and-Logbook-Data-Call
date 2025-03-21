@@ -1,18 +1,26 @@
 # VMS Workflow Changes 2024
 
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+
+
+
+## [0.10] - 27-04-2024
 
 The workflow script largely follows the same process and approach as the original. Changes have been made to improve consistency and transparency, remove deprecated libraries and functions, and add further quality assurance stages. The changes to the steps of the workflow are as follows.
 
-## [0.10] - 2024-03-21
-### Added
+
 
 ## 0_global.R
 
 The code has been revised to include more setup steps, data checks, helper functions and some additional analyses compared to the original code. The core workflow is generally similar, but the new code is more extensive and robust.
 
+### Changed
+
 1. The new code uses the `pacman` package to install and load required packages, avoiding the need to load the packages individually using `library()`.
 
 2. The script now creates directories for storing scripts, data, results and plots if they don't already exist.
+
+### Added
 
 3. The new script downloads and extracts valid metiers from an online CSV file, maintained by the RDBES.
 
