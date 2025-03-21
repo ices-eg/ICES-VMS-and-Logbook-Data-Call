@@ -19,7 +19,7 @@ The changes are listed by the R Workflow block files. [0.global, 1.Eflalo Tacsat
 
 The workflow script largely follows the same process and approach as the original. Changes have been made to improve consistency and transparency, remove deprecated libraries and functions, and add further quality assurance stages. The changes to the steps of the workflow are as follows.
 
-
+The changes are listed by the R Workflow block files. [0.global, 1.Eflalo Tacsat Preprocessing, 2.Eflalo Tacsat Analysis , 3.Data Submissions ]
 
 ## 0_global.R
 
