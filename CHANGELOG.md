@@ -4,7 +4,14 @@ All notable changes and version released to "VMS&LB Datacall R Workflow" are be 
 
 The CHANGELOG format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+# [Unreleased]
 
+## 2_eflalo_tacsat_analysis.R
+
+### Changed
+
+- Restore the VMSTools = SplitAmongPings 0.76 function. 
+- Updated the the  sections headers  and numbering  to  align with the Workflows documentation in ICES SFD WG Report / Benchmark Document  [link]
 
 # [0.10] - 27-04-2024
 
