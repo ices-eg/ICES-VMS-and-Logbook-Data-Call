@@ -1,6 +1,8 @@
-# VMS Workflow Changes 2024
+# VMS&LB Datacall R Workflow CHANGELOG - Version Control
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+All notable changes and version released to "VMS&LB Datacall R Workflow" are be documented in this file.
+
+The CHANGELOG format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 
 
