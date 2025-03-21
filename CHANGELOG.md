@@ -12,7 +12,7 @@ The changes are listed by the R Workflow block files. [0.global, 1.Eflalo Tacsat
 
 ### Changed
 
-- Restore the VMSTools = SplitAmongPings 0.76 function. 
+- Replace SplitAmongPings2 with the VMSTools = SplitAmongPings 0.76 function. 
 - Updated the the  sections headers  and numbering  to  align with the Workflows documentation in ICES SFD WG Report / Benchmark Document  [link]
 
 # [1.0.0] - 27-04-2024
