@@ -139,8 +139,7 @@ for(year in yearsToSubmit){
     # 2.3 Define TACSAT - Fishing Effort and  Activity status                ----
     #'----------------------------------------------------------------------------
     
-      library(vmstools)
-      
+          
     # 2.3.1 Calculate time interval between points
     #--------------------------------------------
     #' Calculate the time different betwee 2 consecutive TACSAT/VMS Records
