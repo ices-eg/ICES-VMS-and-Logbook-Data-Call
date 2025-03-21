@@ -1,6 +1,10 @@
 # VMS Workflow Changes 2024
 
+
 The workflow script largely follows the same process and approach as the original. Changes have been made to improve consistency and transparency, remove deprecated libraries and functions, and add further quality assurance stages. The changes to the steps of the workflow are as follows.
+
+## [0.10] - 2024-03-21
+### Added
 
 ## 0_global.R
 
