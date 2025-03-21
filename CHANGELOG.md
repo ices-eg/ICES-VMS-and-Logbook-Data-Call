@@ -6,7 +6,7 @@ The CHANGELOG format is based on [Keep a Changelog](https://keepachangelog.com/e
 
 # [Unreleased]
 
-The changes are classified by the R Workflow block files. [0.global, 1.Eflalo Tacsat Preprocessing, 2.Eflalo Tacsat Analysis , 3.Data Submissions ] 
+The changes are listed by the R Workflow block files. [0.global, 1.Eflalo Tacsat Preprocessing, 2.Eflalo Tacsat Analysis , 3.Data Submissions ] 
 
 ## 2_eflalo_tacsat_analysis.R
 
