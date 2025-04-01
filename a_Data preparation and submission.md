@@ -143,7 +143,7 @@ Key sections:
 - **Speed thresholds**: Defines vessel speed ranges associated with fishing for different gear types
 - **Activity detection**: Determines if a vessel is fishing or steaming based on speed and patterns
 - **Data merging**: Links VMS positions with logbook catch data
-- **Spatial assignment**: Allocates fishing activity to standardized spatial grid cells
+- **Spatial assignment**: Allocates fishing activity to habitat & bathymetry layers
 
 ## Block 3: Data Submission
 
