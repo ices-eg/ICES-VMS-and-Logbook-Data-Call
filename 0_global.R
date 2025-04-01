@@ -22,6 +22,8 @@ install.packages("devtools")
 ## Download and install the library required to interact with the ICES SharePoint site
 library(devtools)
 install.packages("icesSharePoint", repos = c('https://ices-tools-prod.r-universe.dev', 'https://cloud.r-project.org'))
+install.packages("sfdSAR", repos = "https://ices-tools-prod.r-universe.dev") ## do not install sfdSAR CRAN version, is obsolete
+install.packages("icesVMS", repos = 'https://ices-tools-prod.r-universe.dev')
 
 ## set ICES sharepoint username
 options(icesSharePoint.username = "your ices login name")  ## replace this text with your ICES sharepoint login name
@@ -47,7 +49,8 @@ pacman::p_load(vmstools, sf, data.table, raster, terra, mapview, Matrix, dplyr,
                ggplot2, sfdSAR, icesVocab, generics, icesConnect, icesVMS, icesSharePoint,
                tidyverse, units, tcltk, lubridate, here)
 
-?icesVocab
+
+ 
 
 # Set paths
 path <- paste0(getwd(), "/") # Working directory
@@ -1201,31 +1204,7 @@ trip_assign <- function(tacsatp, eflalo, col = "LE_GEAR", haul_logbook = F){
   
 }
 
-predict_gear_width_mod <- function(model, coefficient, data) {
-  coeffs <- unique(coefficient)
-  coeffs <- coeffs[!is.na(coeffs)]
-  gear_widths <- icesVMS::get_benthis_parameters()
-  x <- rep(NA, nrow(data))
-  for (coeff in coeffs) {
-    cwhich <- which(coefficient == coeff)
-    x[cwhich] <- as.numeric(data[[coeff]][cwhich])
-  }
-  mods <- unique(model)
-  mods <- mods[!is.na(mods)]
-  output <- rep(NA, nrow(data))
-  for (mod in mods) {
-    fun <- match.fun(mod)
-    mwhich <- which(model == mod)
-    a_b <- gear_widths[gear_widths$gearModel == mod & gear_widths$gearCoefficient == coefficient[mwhich][1], c("firstFactor", "secondFactor")]
-    if (nrow(a_b) > 0) {
-      a <- as.numeric(a_b$firstFactor)
-      b <- as.numeric(a_b$secondFactor)
-      x_subset <- as.numeric(x[mwhich])
-      output[mwhich] <- fun(a, b, x_subset)
-    }
-  }
-  output
-}
+
 
 add_gearwidth <- function(x, met_name = "LE_MET", oal_name = "VE_LEN", kw_name = "VE_KW"){
   
@@ -1233,6 +1212,8 @@ add_gearwidth <- function(x, met_name = "LE_MET", oal_name = "VE_LEN", kw_name =
   require(dplyr)
   require(sfdSAR)
   require(icesVMS)
+  
+  browser()
   
   setDT(x)
   
@@ -1263,7 +1244,7 @@ add_gearwidth <- function(x, met_name = "LE_MET", oal_name = "VE_LEN", kw_name =
   vms$gearWidth_model <- NA
   valid_gear_models <- !is.na(vms$gearModel) & !is.na(vms$gearCoefficient)
   vms$gearWidth_model[valid_gear_models] <-
-    predict_gear_width_mod(vms$gearModel[valid_gear_models], vms$gearCoefficient[valid_gear_models], vms[valid_gear_models, ])
+    predict_gear_width(vms$gearModel[valid_gear_models], vms$gearCoefficient[valid_gear_models], vms[valid_gear_models, ])
   
   if("avg_gearWidth" %!in% names(vms))
     vms[, avg_gearWidth := NA]
