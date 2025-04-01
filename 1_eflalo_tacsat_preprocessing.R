@@ -55,6 +55,7 @@ for(year in yearsToSubmit){
   tacsat <- formatTacsat(tacsat)
   eflalo <- formatEflalo(eflalo)
   
+  
   #'----------------------------------------------------------------------------
   # 1.2 Clean the TACSAT data                                               ----
   #'----------------------------------------------------------------------------
@@ -203,10 +204,10 @@ for(year in yearsToSubmit){
   remrecsEflalo <-
     matrix(
       NA,
-      nrow = 6, ncol = 2,
+      nrow = 8, ncol = 2,
       dimnames =
         list(
-          c("total", "duplicated", "impossible time", "before 1st Jan", "departArrival", "overlappingTrips"),
+          c("total", "duplicated", "impossible time", "before 1st Jan", "departArrival", "overlappingTrips", "MetierL4_LE_GEAR", "MetierL6_LE_MET"),
           c("rows", "percentage"))
     )
   remrecsEflalo["total", ] <- c(nrow(eflalo), "100%")
@@ -394,7 +395,7 @@ percent_removed <- round((num_records - as.numeric(remrecsEflalo["total", 1])) /
 
 
 # Add to remrecsEflalo
-remrecsEflalo["MetierL4_LE_GEAR",] <- c(nrow(eflalo), nrow(eflalo)/as.numeric(remrecsEflalo["Total","RowsRemaining"])*100)
+remrecsEflalo["MetierL4_LE_GEAR",] <- c(nrow(eflalo), round(nrow(eflalo)/as.numeric(remrecsEflalo["total",1])*100, 2))
 
 
 
@@ -418,7 +419,7 @@ percent_removed <- round((num_records - as.numeric(remrecsEflalo["total", 1])) /
 
 
 # Add to remrecsEflalo
-remrecsEflalo["MetierL6_LE_MET",] <- c(nrow(eflalo), nrow(eflalo)/as.numeric(remrecsEflalo["Total","RowsRemaining"])*100)
+remrecsEflalo["MetierL6_LE_MET",] <- c(nrow(eflalo), round(nrow(eflalo)/as.numeric(remrecsEflalo["total",1])*100, 2))
 
 
 
