@@ -640,7 +640,7 @@ for(year in yearsToSubmit){
   #' the  GEARDWIDTH must be in KILOMETERS , INTV in HOURS and SPEED in Knots
   #' The knots are transformed into KILOMETERS per hour ( knots *1.852)
   
-  tacsatEflalo$SA_KM2 <- tacsatEflalo$GEARWIDTHKM * tacsatEflalo$INTV .* tacsatEflalo$SI_SP * 1.852
+  tacsatEflalo$SA_KM2 <- tacsatEflalo$GEARWIDTHKM * tacsatEflalo$INTV * tacsatEflalo$SI_SP * 1.852
   
   # Check if the minimum and maximum gear width are reasonable size by METIER
   
