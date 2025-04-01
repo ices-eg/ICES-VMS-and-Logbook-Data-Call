@@ -632,17 +632,17 @@ for(year in yearsToSubmit){
   #'   
   #'FUNCTION REQUIRED: global::add_gearwidth()
 
-  tacsatEflalo$GEARWIDTH <- add_gearwidth(tacsatEflalo)
+  tacsatEflalo$GEARWIDTHKM <- add_gearwidth(tacsatEflalo)
   
   # 2.5.6  Calculates Swept Area (m2) for each record in the TACSATEFLALO
   #' Calculate the area swept by mobile bottom contact gears in m2. 
-  #' Attention: The GEARDWIDTH must be submitted in METERS , INTV in HOURS and SPEED in Knots
-  #' The knots are transformed into meters per hour ( knots *1852)
-  tacsatEflalo$SA_M2 <- tacsatEflalo$GEARWIDTH * tacsatEflalo$INTV * tacsatEflalo$SI_SP * 1852
+  #' Attention: The GEARDWIDTH must be submitted in KILOMETERS , INTV in HOURS and SPEED in Knots
+  #' The knots are transformed into KILOMETERS per hour ( knots *1852)
+  tacsatEflalo$SA_KM2 <- tacsatEflalo$GEARWIDTHKM * tacsatEflalo$INTV .* tacsatEflalo$SI_SP * 1.852
   
   # Check if the minimum and maximum gear width are reasonable size by METIER
   
-  tacsatEflalo[,.(min = min(GEARWIDTH), max = max(GEARWIDTH)), by = .(LE_MET)]
+  tacsatEflalo[,.(min = min(GEARWIDTHKM), max = max(GEARWIDTHKM)), by = .(LE_MET)]
   
   
   
