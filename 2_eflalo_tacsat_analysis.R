@@ -636,8 +636,10 @@ for(year in yearsToSubmit){
   
   # 2.5.6  Calculates Swept Area (Km2) for each record in the TACSATEFLALO
   #' Calculate the area swept by mobile bottom contact gears in Km2. 
-  #' Attention: The GEARDWIDTH must be submitted in KILOMETERS , INTV in HOURS and SPEED in Knots
+  #' Attention: To calcualte the Swept Area using code line below: 
+  #' the  GEARDWIDTH must be in KILOMETERS , INTV in HOURS and SPEED in Knots
   #' The knots are transformed into KILOMETERS per hour ( knots *1.852)
+  
   tacsatEflalo$SA_KM2 <- tacsatEflalo$GEARWIDTHKM * tacsatEflalo$INTV .* tacsatEflalo$SI_SP * 1.852
   
   # Check if the minimum and maximum gear width are reasonable size by METIER
