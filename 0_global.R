@@ -1076,7 +1076,7 @@ act.tac <- function (tacsat, units = "year", analyse.by = "LE_L5MET", storeSchem
 #' 3) If after step 1 and step2 still some remaining remaining TACSAT records with NULL values it choose
 #' the value with more related landings for that trip ( e.g. gear with more captures related)
 
-trip_assign <- function(tacsatp, eflalo, col = "LE_GEAR", haul_logbook = T){
+trip_assign <- function(tacsatp, eflalo, col = "LE_GEAR", haul_logbook = F){
   
   
   
