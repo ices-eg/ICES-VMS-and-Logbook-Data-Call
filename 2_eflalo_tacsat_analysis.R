@@ -103,20 +103,20 @@ for(year in yearsToSubmit){
       #'        
       #' FUNCTION REQUIRED: global::trip_assign
     
-      tacsatpa_LE_GEAR <- trip_assign(tacsatp, eflalo, col = "LE_GEAR", trust_logbook = T)
+      tacsatpa_LE_GEAR <- trip_assign(tacsatp, eflalo, col = "LE_GEAR",  haul_logbook = F)
       tacsatp <- rbindlist(list(tacsatp[tacsatp$FT_REF %!in% tacsatpa_LE_GEAR$FT_REF,], tacsatpa_LE_GEAR), fill = T)
       
-      tacsatpa_LE_MSZ <- trip_assign(tacsatp, eflalo, col = "LE_MSZ", trust_logbook = T)
+      tacsatpa_LE_MSZ <- trip_assign(tacsatp, eflalo, col = "LE_MSZ",  haul_logbook = F)
       tacsatp <- rbindlist(list(tacsatp[tacsatp$FT_REF %!in% tacsatpa_LE_MSZ$FT_REF,], tacsatpa_LE_MSZ), fill = T)
       
-      tacsatpa_LE_RECT <- trip_assign(tacsatp, eflalo, col = "LE_RECT", trust_logbook = T)
+      tacsatpa_LE_RECT <- trip_assign(tacsatp, eflalo, col = "LE_RECT",  haul_logbook = F)
       tacsatp <- rbindlist(list(tacsatp[tacsatp$FT_REF %!in% tacsatpa_LE_RECT$FT_REF,], tacsatpa_LE_RECT), fill = T)
       
-      tacsatpa_LE_MET <- trip_assign(tacsatp, eflalo, col = "LE_MET", trust_logbook = T)
+      tacsatpa_LE_MET <- trip_assign(tacsatp, eflalo, col = "LE_MET",  haul_logbook = F)
       tacsatp <- rbindlist(list(tacsatp[tacsatp$FT_REF %!in% tacsatpa_LE_MET$FT_REF,], tacsatpa_LE_MET), fill = T)
       
       if("LE_WIDTH" %in% names(eflalo)){
-        tacsatpa_LE_WIDTH <- trip_assign(tacsatp, eflalo, col = "LE_WIDTH", trust_logbook = T)
+        tacsatpa_LE_WIDTH <- trip_assign(tacsatp, eflalo, col = "LE_WIDTH",  haul_logbook = F)
         tacsatp <- rbindlist(list(tacsatp[tacsatp$FT_REF %!in% tacsatpa_LE_WIDTH$FT_REF,], tacsatpa_LE_WIDTH), fill = T)
       }
       
