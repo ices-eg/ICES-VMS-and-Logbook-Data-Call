@@ -14,12 +14,39 @@ The changes are listed by the R Workflow block files. [0.global, 1.Eflalo Tacsat
    - R CRAN Libraries : sf, data.table, raster, terra, mapview, Matrix, dplyr, doBy, mixtools, tidyr, glue, gt, progressr, geosphere, purrr,  tidyverse, units, tcltk, lubridate, here
 
 
+## 0_global.R
+
+### Changes
+
+- Add code to install of SFDSAR and ICESVMS Pacakges latest  versions from ICES R LIBRARIES ENVIROMENT instead the CRAN with obsolete versions. 
+- Updated  the  trip_assign function to use EFLALO haul details only if available in the countries data ( majority do not have haul level information) .
+- Removed "predict_gearwidthmod" function and restore the use of SFDSAR "predict_gearwidth"   latets version   in "add_gearwidth" function. "predict_gearwidthmod" errors provided only the default gearwidth average from BENTHSI table , instead the modelled gear width. 
+- Update "add_gearwidht" function:
+   - Use SFDSAR "predict_gearwidth" function instead  "predict_gearwidthmod"
+   - Outputs of model gear width from  "predict_gearwidth" are in meters. The function was updated to transform the width in meters to KKilometers to keep consistency.
+   - Change of the field name for the user supply their own gear width. Previous version use "avg_gearwidth" field , now replaced to "LE_GEARWIDTH" for clarity
+   - Documentation on the hierarchy of assign gear width in the function. 1) Check if there is width supplied by users in "LE_GEARWIDTH". 2) If not supplied by user, model the gear width 3) If not possible to model width takes the average gear width by metier form BENTHIS lookup table
+
+## 1_eflalo_preprocessing.R
+
+### Changes
+
+
 ## 2_eflalo_tacsat_analysis.R
 
-### Changed
+### Changes
 
 - Replace SplitAmongPings2 with the VMSTools - SplitAmongPings 0.77 function. 
 - Updated the the  sections headers  and numbering  to  align with the Workflows documentation in ICES SFD WG Report / Benchmark Document  [link]
+- Updated the calculate gear width functions call and the calculation of Swept Area to be all calcualted in KM and  area in KM2
+- Updated the call to trip_assign function parameters to align with change in the funciton in 0_global.R
+
+## 3_data_submission.R
+
+### Changes
+
+- Updated the aggregation code to call to the correct Swept Area in KM2 fields and aggregate them accordinly to DATSU requirements. 
+ 
 
 # [1.0.0] - 27-04-2024
 
