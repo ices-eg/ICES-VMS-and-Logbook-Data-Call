@@ -103,20 +103,20 @@ for(year in yearsToSubmit){
       #'        
       #' FUNCTION REQUIRED: global::trip_assign
     
-      tacsatpa_LE_GEAR <- trip_assign(tacsatp, eflalo, col = "LE_GEAR", trust_logbook = T)
+      tacsatpa_LE_GEAR <- trip_assign(tacsatp, eflalo, col = "LE_GEAR",  haul_logbook = F)
       tacsatp <- rbindlist(list(tacsatp[tacsatp$FT_REF %!in% tacsatpa_LE_GEAR$FT_REF,], tacsatpa_LE_GEAR), fill = T)
       
-      tacsatpa_LE_MSZ <- trip_assign(tacsatp, eflalo, col = "LE_MSZ", trust_logbook = T)
+      tacsatpa_LE_MSZ <- trip_assign(tacsatp, eflalo, col = "LE_MSZ",  haul_logbook = F)
       tacsatp <- rbindlist(list(tacsatp[tacsatp$FT_REF %!in% tacsatpa_LE_MSZ$FT_REF,], tacsatpa_LE_MSZ), fill = T)
       
-      tacsatpa_LE_RECT <- trip_assign(tacsatp, eflalo, col = "LE_RECT", trust_logbook = T)
+      tacsatpa_LE_RECT <- trip_assign(tacsatp, eflalo, col = "LE_RECT",  haul_logbook = F)
       tacsatp <- rbindlist(list(tacsatp[tacsatp$FT_REF %!in% tacsatpa_LE_RECT$FT_REF,], tacsatpa_LE_RECT), fill = T)
       
-      tacsatpa_LE_MET <- trip_assign(tacsatp, eflalo, col = "LE_MET", trust_logbook = T)
+      tacsatpa_LE_MET <- trip_assign(tacsatp, eflalo, col = "LE_MET",  haul_logbook = F)
       tacsatp <- rbindlist(list(tacsatp[tacsatp$FT_REF %!in% tacsatpa_LE_MET$FT_REF,], tacsatpa_LE_MET), fill = T)
       
       if("LE_WIDTH" %in% names(eflalo)){
-        tacsatpa_LE_WIDTH <- trip_assign(tacsatp, eflalo, col = "LE_WIDTH", trust_logbook = T)
+        tacsatpa_LE_WIDTH <- trip_assign(tacsatp, eflalo, col = "LE_WIDTH",  haul_logbook = F)
         tacsatp <- rbindlist(list(tacsatp[tacsatp$FT_REF %!in% tacsatpa_LE_WIDTH$FT_REF,], tacsatpa_LE_WIDTH), fill = T)
       }
       
@@ -627,8 +627,13 @@ for(year in yearsToSubmit){
   # 2.5.5  Calculated gear width to each fishing point
   #' Calculate the gear width using ICES R Package SFDSAR. Methods estimates the gear width based on the 
   #' vessel length or vessel engine power based on the metier used.
-  #' Attention: The output provides the gear width in METERS. If you get the GEAR WIDTH information 
-  #' using other methos, ensure the values are supplied in METERS before submission. 
+  #' Attention: The output provides the gear width in KILOMETERS If you get the GEAR WIDTH information 
+  #' using other method or you provide the gear width , ensure the values are supplied in KILOMETERS before submission. 
+  #' Attention: If user prefer to provide its own gear width it must be provided in a FIELD called LE_GEARWIDTH 
+  #' 1) The function will check if LE_GEARWIDTH field exists and has values , so will prioritise these values to be assigned 
+  #' 2) If LE_GEARWIDTH do not exist or is NA , will assign the modeled gear width using benthis methods in ICES  SFDSAR Package
+  #' 3) If not possible to obtain model gear widths , teh function assigns the default average gear width by metier provided in benthis
+  #' metier auxiliary lookup table available in ICESVMS R PAckage. 
   #'   
   #'FUNCTION REQUIRED: global::add_gearwidth()
 
