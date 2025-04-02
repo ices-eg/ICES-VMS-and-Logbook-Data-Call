@@ -64,9 +64,9 @@ The workflow script handles most library installation and loading. However, you'
    library(devtools)
    ```
 
-3. Install the VMStools package version 0.78:
+3. Install the VMStools package version 0.77:
    ```r
-   install_github("nielshintzen/vmstools@0.78")
+   install_github("nielshintzen/vmstools@0.77")
    ```
 
 4. Load VMStools:
