@@ -1247,8 +1247,8 @@ add_gearwidth <- function(x, met_name = "LE_MET", oal_name = "VE_LEN", kw_name =
   vms$gearWidth_model[valid_gear_models] <-
     predict_gear_width(vms$gearModel[valid_gear_models], vms$gearCoefficient[valid_gear_models], vms[valid_gear_models, ])
   
-  if("avg_gearWidth" %!in% names(vms))
-    vms[, avg_gearWidth := NA]
+  if("LE_GEARWIDTH" %!in% names(vms))
+    vms[, LE_GEARWIDTH := NA]
   
   
   ## THE MODEL GEAR WIDTH RESULT IS IN METERS , THE MODEL OUTPUT  DIVIDED BY 1000 to COVNERT IN KM 
@@ -1257,7 +1257,7 @@ add_gearwidth <- function(x, met_name = "LE_MET", oal_name = "VE_LEN", kw_name =
   
   gearWidth_filled <-
     with(vms,
-         ifelse( !is.na(avg_gearWidth), avg_gearWidth,  ### IF AVG_GEARWIDTH is not NA uses AVG_GEARWIDTH value provided by USER 
+         ifelse( !is.na(LE_GEARWIDTH), LE_GEARWIDTH,  ### IF LE_GEARWIDTH is not NA uses LE_GEARWIDTH value provided by USER 
                   ifelse(!is.na(gearWidth_model), gearWidth_model / 1000, ## ELSE WOULD CHECK IF gearwidth_model is not NA and will use model value and transform in KM 
                           gearWidth)  #ELSE   use gearWIDTH default in BENTHIS lookuptable 
          ))

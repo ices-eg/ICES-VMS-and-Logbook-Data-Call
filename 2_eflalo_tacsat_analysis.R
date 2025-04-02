@@ -627,8 +627,13 @@ for(year in yearsToSubmit){
   # 2.5.5  Calculated gear width to each fishing point
   #' Calculate the gear width using ICES R Package SFDSAR. Methods estimates the gear width based on the 
   #' vessel length or vessel engine power based on the metier used.
-  #' Attention: The output provides the gear width in METERS. If you get the GEAR WIDTH information 
-  #' using other methos, ensure the values are supplied in METERS before submission. 
+  #' Attention: The output provides the gear width in KILOMETERS If you get the GEAR WIDTH information 
+  #' using other method or you provide the gear width , ensure the values are supplied in KILOMETERS before submission. 
+  #' Attention: If user prefer to provide its own gear width it must be provided in a FIELD called LE_GEARWIDTH 
+  #' 1) The function will check if LE_GEARWIDTH field exists and has values , so will prioritise these values to be assigned 
+  #' 2) If LE_GEARWIDTH do not exist or is NA , will assign the modeled gear width using benthis methods in ICES  SFDSAR Package
+  #' 3) If not possible to obtain model gear widths , teh function assigns the default average gear width by metier provided in benthis
+  #' metier auxiliary lookup table available in ICESVMS R PAckage. 
   #'   
   #'FUNCTION REQUIRED: global::add_gearwidth()
 
