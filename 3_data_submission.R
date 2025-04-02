@@ -83,7 +83,7 @@ for(year in yearsToSubmit){
   cols <- c(
     "VE_REF", "VE_COU", "Year", "Month", "Csquare", "MSFD_BBHT", "depth", "LE_GEAR",
     "LE_MET", "SI_SP", "INTV", "VE_LEN", "kwHour", "VE_KW", "LE_KG_TOT", "LE_EURO_TOT",
-    "GEARWIDTH", "SA_M2")
+    "GEARWIDTHKM", "SA_KM2")
   
   
   # Create or append to table1 based on the year
@@ -187,12 +187,12 @@ table1Save <- table1 %>%
     AverageVesselLength = mean(VE_LEN, na.rm = TRUE),
     AveragekW = mean(VE_KW, na.rm = TRUE),
     kWFishingHour = sum(kwHour, na.rm = TRUE),
-    SweptArea = sum(SA_M2, na.rm = T),
+    SweptArea = sum(SA_KM2, na.rm = T),
     TotWeight = sum(LE_KG_TOT, na.rm = TRUE),
     TotValue = sum(LE_EURO_TOT, na.rm = TRUE),
     NoDistinctVessels = n_distinct(VE_ID, na.rm = TRUE),
     AnonymizedVesselID = ifelse(n_distinct(VE_ID) < 3, paste(unique(VE_ID), collapse = ";"), 'not_required'),
-    AverageGearWidth = mean(GEARWIDTH, na.rm = TRUE),
+    AverageGearWidth = mean(GEARWIDTHKM, na.rm = TRUE),
     .groups = "drop"
   ) %>%
   # Relocate NoDistinctVessels and AnonymizedVesselID before Csquare
