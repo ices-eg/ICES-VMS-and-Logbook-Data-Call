@@ -9,7 +9,7 @@
 for(year in yearsToSubmit){
   
   # load data
-  load(file = paste0(outPath,paste0("/cleanEflalo",year,".RData")))
+  load(file = paste0(outPath,paste0("/processedEflalo",year,".RData")))
   load(file = paste0(outPath,paste0("/tacsatEflalo",year,".RData")))  
   #'----------------------------------------------------------------------------
   # 3.1 Create table 2                                                    ----
