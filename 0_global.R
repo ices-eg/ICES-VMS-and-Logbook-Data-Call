@@ -1205,6 +1205,12 @@ trip_assign <- function(tacsatp, eflalo, col = "LE_GEAR", haul_logbook = F){
 }
 
 
+## add_gearwidth function calculates the gear width for each TACSAT record
+#' The calcualtion is benthis in BENTHIS model and it use the methods 
+#' included in ICES SFDSAR Package to predict the gear width from vessel length ( meters) or engine power (KW)
+#' add_gearwidth function also include a conditional statement to assign a default average gear width by metier
+#' from a auxiliary look up table.
+#' 
 
 add_gearwidth <- function(x, met_name = "LE_MET", oal_name = "VE_LEN", kw_name = "VE_KW"){
   
@@ -1213,7 +1219,7 @@ add_gearwidth <- function(x, met_name = "LE_MET", oal_name = "VE_LEN", kw_name =
   require(sfdSAR)
   require(icesVMS)
   
-  browser()
+ 
   
   setDT(x)
   
@@ -1226,11 +1232,7 @@ add_gearwidth <- function(x, met_name = "LE_MET", oal_name = "VE_LEN", kw_name =
   metier_lookup <- fread("https://raw.githubusercontent.com/ices-eg/RCGs/master/Metiers/Reference_lists/RDB_ISSG_Metier_list.csv")
   
   gear_widths <- get_benthis_parameters()
-  aux_lookup <- data.table(merge(gear_widths, metier_lookup, by.x = "benthisMet", by.y = "Benthis_metiers", all.y = T))
-  aux_lookup <- aux_lookup[,.(Metier_level6, benthisMet, avKw, avLoa, avFspeed, subsurfaceProp, gearWidth, firstFactor, secondFactor, gearModel,
-                              gearCoefficient, contactModel)]
-  aux_lookup <<- unique(aux_lookup)
-  
+ 
   aux_lookup <- data.table(merge(gear_widths, metier_lookup, by.x = "benthisMet", by.y = "Benthis_metiers", all.y = T))
   aux_lookup <- aux_lookup[,.(Metier_level6, benthisMet, avKw, avLoa, avFspeed, subsurfaceProp, gearWidth, firstFactor, secondFactor, gearModel,
                               gearCoefficient, contactModel)]
@@ -1238,8 +1240,7 @@ add_gearwidth <- function(x, met_name = "LE_MET", oal_name = "VE_LEN", kw_name =
   aux_lookup[gearCoefficient == "avg_oal", gearCoefficient := oal_name]
   aux_lookup <- unique(aux_lookup)
   
-  vms <- x |>
-    left_join(aux_lookup, by = "Metier_level6")
+  vms <- x |> left_join(aux_lookup, by = "Metier_level6")
   
   vms$gearWidth_model <- NA
   valid_gear_models <- !is.na(vms$gearModel) & !is.na(vms$gearCoefficient)
@@ -1250,11 +1251,15 @@ add_gearwidth <- function(x, met_name = "LE_MET", oal_name = "VE_LEN", kw_name =
     vms[, avg_gearWidth := NA]
   
   
+  ## THE MODEL GEAR WIDTH RESULT IS IN METERS , THE MODEL OUTPUT  DIVIDED BY 1000 to COVNERT IN KM 
+  ## This will match the default "gearwidth" value in BENTHIS Lookup table and also the rest 
+  ## of the workflow to calculate Swept Area in KM2
+  
   gearWidth_filled <-
     with(vms,
-         ifelse(!is.na(avg_gearWidth), avg_gearWidth,
-                ifelse(!is.na(gearWidth_model), gearWidth_model,
-                       gearWidth)
+         ifelse( !is.na(avg_gearWidth), avg_gearWidth,  ### IF AVG_GEARWIDTH is not NA uses AVG_GEARWIDTH value provided by USER 
+                  ifelse(!is.na(gearWidth_model), gearWidth_model / 1000, ## ELSE WOULD CHECK IF gearwidth_model is not NA and will use model value and transform in KM 
+                          gearWidth)  #ELSE   use gearWIDTH default in BENTHIS lookuptable 
          ))
   
   gearWidth_filled[is.na(gearWidth_filled)] <- NA
