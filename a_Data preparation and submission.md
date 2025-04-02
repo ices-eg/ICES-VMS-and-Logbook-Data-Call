@@ -161,7 +161,7 @@ Important sections:
 - **Data aggregation**: Summarises data at required resolutions
 - **Quality control**: Generates reports on data completeness and consistency
 
-## Supplementary Visualization Script
+## Supplementary Visualisation Script
 
 **File**: `resources/make_htm_sar_effort_and_landings.R`
 
