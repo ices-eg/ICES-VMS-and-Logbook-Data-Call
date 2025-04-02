@@ -4,7 +4,7 @@ All notable changes and version released to "VMS&LB Datacall R Workflow" are be 
 
 The CHANGELOG format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-# [Unreleased]
+# [2.1.0] - 02-04-2025
 
 The changes are listed by the R Workflow block files. [0.global, 1.Eflalo Tacsat Preprocessing, 2.Eflalo Tacsat Analysis , 3.Data Submissions ] 
 
