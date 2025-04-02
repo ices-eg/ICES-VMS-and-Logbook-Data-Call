@@ -554,7 +554,7 @@ for(year in yearsToSubmit){
 
       save(
         eflalo,
-        file = file.path(outPath, paste0("/cleanEflalo", year, ".RData"))
+        file = file.path(outPath, paste0("/processedEflalo", year, ".RData"))
       )
     
     
