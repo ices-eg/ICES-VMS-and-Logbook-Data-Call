@@ -227,8 +227,7 @@ for(year in yearsToSubmit){
             plot.title = element_text(hjust = 0.5, size = 20),
             strip.text.x = element_text(size = 12, face = "bold"),
             strip.background = element_rect(fill = "grey60", colour = "black", linewidth = 1),
-            panel.background = element_blank()
-          ) +
+            panel.background = element_blank()) +
           scale_fill_manual(values = c("#000000", "#FCCF3F", "#FF0000", "#00FF00", "#0000FF",
                                        "#FF00FF", "#808080", "#800000", "#808000",
                                        "#008000", "#800080", "#008080", "#000080", "#666699", "#808080",
@@ -309,7 +308,7 @@ for(year in yearsToSubmit){
           storeScheme <- storeScheme[,-(dim(storeScheme)[2])]
         }
         
-      #  acTa <- ac.tac.anal(subTacsat, units = "year", storeScheme = storeScheme, analyse.by = "LE_L5MET", identify = "peaks")
+      
         
         acTa <-
           act.tac(
@@ -530,7 +529,11 @@ for(year in yearsToSubmit){
     #' CONSERVE will retain the landings from ELALO records with not related VMS records. These VMS records could exists 
     #' with the original raw data but were lost due to Quality Control cleaning  or activity identification process.
     #' If you use CONSERVER and  want to use all EFLALO records use EFLALO instead EFLALOM. 
-      
+      if((sum(tacsatp$INTV == 0) > 0) || (sum(is.na(tacsatp$INTV)) > 0)){
+        message(sprintf("%.2f%% of the intervals in tacsatp contain NA's or zeros and these records have been discarded.\n", 
+                        (sum(tacsatp$INTV == 0) + sum(is.na(tacsatp$INTV))) / nrow(tacsatp) * 100))
+        tacsatp <- tacsatp %>% filter(!is.na(INTV) & INTV > 0)
+      }
       
       tacsatEflalo <-  splitAmongPings(
                           tacsat = tacsatp,
