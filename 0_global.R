@@ -22,6 +22,8 @@ install.packages("devtools")
 ## Download and install the library required to interact with the ICES SharePoint site
 library(devtools)
 install.packages("icesSharePoint", repos = c('https://ices-tools-prod.r-universe.dev', 'https://cloud.r-project.org'))
+install.packages("sfdSAR", repos = "https://ices-tools-prod.r-universe.dev") ## do not install sfdSAR CRAN version, is obsolete
+install.packages("icesVMS", repos = 'https://ices-tools-prod.r-universe.dev')
 
 ## set ICES sharepoint username
 options(icesSharePoint.username = "your ices login name")  ## replace this text with your ICES sharepoint login name
@@ -47,7 +49,8 @@ pacman::p_load(vmstools, sf, data.table, raster, terra, mapview, Matrix, dplyr,
                ggplot2, sfdSAR, icesVocab, generics, icesConnect, icesVMS, icesSharePoint,
                tidyverse, units, tcltk, lubridate, here)
 
-?icesVocab
+
+ 
 
 # Set paths
 path <- paste0(getwd(), "/") # Working directory
@@ -1076,7 +1079,7 @@ act.tac <- function (tacsat, units = "year", analyse.by = "LE_L5MET", storeSchem
 #' 3) If after step 1 and step2 still some remaining remaining TACSAT records with NULL values it choose
 #' the value with more related landings for that trip ( e.g. gear with more captures related)
 
-trip_assign <- function(tacsatp, eflalo, col = "LE_GEAR", haul_logbook = T){
+trip_assign <- function(tacsatp, eflalo, col = "LE_GEAR", haul_logbook = F){
   
   
   
@@ -1201,31 +1204,13 @@ trip_assign <- function(tacsatp, eflalo, col = "LE_GEAR", haul_logbook = T){
   
 }
 
-predict_gear_width_mod <- function(model, coefficient, data) {
-  coeffs <- unique(coefficient)
-  coeffs <- coeffs[!is.na(coeffs)]
-  gear_widths <- icesVMS::get_benthis_parameters()
-  x <- rep(NA, nrow(data))
-  for (coeff in coeffs) {
-    cwhich <- which(coefficient == coeff)
-    x[cwhich] <- as.numeric(data[[coeff]][cwhich])
-  }
-  mods <- unique(model)
-  mods <- mods[!is.na(mods)]
-  output <- rep(NA, nrow(data))
-  for (mod in mods) {
-    fun <- match.fun(mod)
-    mwhich <- which(model == mod)
-    a_b <- gear_widths[gear_widths$gearModel == mod & gear_widths$gearCoefficient == coefficient[mwhich][1], c("firstFactor", "secondFactor")]
-    if (nrow(a_b) > 0) {
-      a <- as.numeric(a_b$firstFactor)
-      b <- as.numeric(a_b$secondFactor)
-      x_subset <- as.numeric(x[mwhich])
-      output[mwhich] <- fun(a, b, x_subset)
-    }
-  }
-  output
-}
+
+## add_gearwidth function calculates the gear width for each TACSAT record
+#' The calcualtion is benthis in BENTHIS model and it use the methods 
+#' included in ICES SFDSAR Package to predict the gear width from vessel length ( meters) or engine power (KW)
+#' add_gearwidth function also include a conditional statement to assign a default average gear width by metier
+#' from a auxiliary look up table.
+#' 
 
 add_gearwidth <- function(x, met_name = "LE_MET", oal_name = "VE_LEN", kw_name = "VE_KW"){
   
@@ -1233,6 +1218,8 @@ add_gearwidth <- function(x, met_name = "LE_MET", oal_name = "VE_LEN", kw_name =
   require(dplyr)
   require(sfdSAR)
   require(icesVMS)
+  
+ 
   
   setDT(x)
   
@@ -1245,11 +1232,7 @@ add_gearwidth <- function(x, met_name = "LE_MET", oal_name = "VE_LEN", kw_name =
   metier_lookup <- fread("https://raw.githubusercontent.com/ices-eg/RCGs/master/Metiers/Reference_lists/RDB_ISSG_Metier_list.csv")
   
   gear_widths <- get_benthis_parameters()
-  aux_lookup <- data.table(merge(gear_widths, metier_lookup, by.x = "benthisMet", by.y = "Benthis_metiers", all.y = T))
-  aux_lookup <- aux_lookup[,.(Metier_level6, benthisMet, avKw, avLoa, avFspeed, subsurfaceProp, gearWidth, firstFactor, secondFactor, gearModel,
-                              gearCoefficient, contactModel)]
-  aux_lookup <<- unique(aux_lookup)
-  
+ 
   aux_lookup <- data.table(merge(gear_widths, metier_lookup, by.x = "benthisMet", by.y = "Benthis_metiers", all.y = T))
   aux_lookup <- aux_lookup[,.(Metier_level6, benthisMet, avKw, avLoa, avFspeed, subsurfaceProp, gearWidth, firstFactor, secondFactor, gearModel,
                               gearCoefficient, contactModel)]
@@ -1257,23 +1240,26 @@ add_gearwidth <- function(x, met_name = "LE_MET", oal_name = "VE_LEN", kw_name =
   aux_lookup[gearCoefficient == "avg_oal", gearCoefficient := oal_name]
   aux_lookup <- unique(aux_lookup)
   
-  vms <- x |>
-    left_join(aux_lookup, by = "Metier_level6")
+  vms <- x |> left_join(aux_lookup, by = "Metier_level6")
   
   vms$gearWidth_model <- NA
   valid_gear_models <- !is.na(vms$gearModel) & !is.na(vms$gearCoefficient)
   vms$gearWidth_model[valid_gear_models] <-
-    predict_gear_width_mod(vms$gearModel[valid_gear_models], vms$gearCoefficient[valid_gear_models], vms[valid_gear_models, ])
+    predict_gear_width(vms$gearModel[valid_gear_models], vms$gearCoefficient[valid_gear_models], vms[valid_gear_models, ])
   
-  if("avg_gearWidth" %!in% names(vms))
-    vms[, avg_gearWidth := NA]
+  if("LE_GEARWIDTH" %!in% names(vms))
+    vms[, LE_GEARWIDTH := NA]
   
+  
+  ## THE MODEL GEAR WIDTH RESULT IS IN METERS , THE MODEL OUTPUT  DIVIDED BY 1000 to COVNERT IN KM 
+  ## This will match the default "gearwidth" value in BENTHIS Lookup table and also the rest 
+  ## of the workflow to calculate Swept Area in KM2
   
   gearWidth_filled <-
     with(vms,
-         ifelse(!is.na(avg_gearWidth), avg_gearWidth,
-                ifelse(!is.na(gearWidth_model), gearWidth_model,
-                       gearWidth)
+         ifelse( !is.na(LE_GEARWIDTH), LE_GEARWIDTH,  ### IF LE_GEARWIDTH is not NA uses LE_GEARWIDTH value provided by USER 
+                  ifelse(!is.na(gearWidth_model), gearWidth_model / 1000, ## ELSE WOULD CHECK IF gearwidth_model is not NA and will use model value and transform in KM 
+                          gearWidth)  #ELSE   use gearWIDTH default in BENTHIS lookuptable 
          ))
   
   gearWidth_filled[is.na(gearWidth_filled)] <- NA
