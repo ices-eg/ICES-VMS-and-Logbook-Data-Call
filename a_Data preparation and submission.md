@@ -203,9 +203,9 @@ These visualisations help identify potential errors or anomalies before data sub
 - Always review the results carefully, especially the activity detection, which is a critical step.
 - Pay attention to units: swept area is calculated in square kilometres (km²). Submission of this field is optional - if
   you have better information on the width of gears used in your national fleets, use them here. If not, the workflow
-  uses the Benthis gear models to calulate width. If you leave this field blank, this will be done in the ICES database.
+  will use the Benthis gear models to calculate width. If you leave this field blank, this will be done in the ICES database.
 - Do not use dummy values (e.g. 999, -999999) for any field. Step 3.7 of the workflow specifies `na = ""` in the .csv
-  files exported for upload. The data submission process will not accept `"na"` entries in numeric data, but will accept
+  files exported for upload. The data submission process will not accept `"na"` entries in numeric fields, but will accept
   blanks. If you have issues, please contact the Secretariat for help. 
 
 # Contacts
@@ -226,7 +226,7 @@ For assistance with this workflow, please contact:
 | 22 February 2022  | Update                                    | Lara Salvany, ICES         |
 | 13 February 2023  | Update                                    | Cecilia Kvaavik, ICES      |
 | 24 February 2023  | Update                                    | Neil Campbell, ICES        |
-| April 2025        | Major revision with updated workflow      | Data products team, ICES   |
+| 2 April 2025      | Rewritten for updated workflow            | Neil Campbell, ICES        |
 
 # Annex 1. Format Specification for VMS Data (VE)
 
