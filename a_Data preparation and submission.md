@@ -63,17 +63,6 @@ The workflow script handles most library installation and loading. However, you'
    ```r
    library(devtools)
    ```
-
-3. Install the VMStools package version 0.77:
-   ```r
-   install_github("nielshintzen/vmstools@0.77")
-   ```
-
-4. Load VMStools:
-   ```r
-   library(vmstools)
-   ```
-
 Note: If you're behind a firewall that blocks GitHub connections, you may need to configure proxy settings or ask your IT department for assistance.
 
 ## Step 4: Installing ICES R Packages
