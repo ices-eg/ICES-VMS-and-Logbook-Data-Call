@@ -595,9 +595,9 @@ for(year in yearsToSubmit){
   # ------------------------------------------------------------------
   #' Habitat and depth values are extracted from EU Habitat Map and GEBCO Bathymetry sources
   #' The Habitat class and Depth ranges are used later as aggregation classes
-  #' 
+  #' Ensure the sf::sf_use_s2(FALSE) function in 0_global.R is run . More detail in 0_global.R
   #' GLOBAL VARIABLE REQUIRED: "eusm" and "bathy"  variables created in 0_global.R
-  
+ 
   tacsatEflalo <- tacsatEflalo |> 
     sf::st_as_sf(coords = c("SI_LONG", "SI_LATI"), remove = F) |> 
     sf::st_set_crs(4326) |> 
