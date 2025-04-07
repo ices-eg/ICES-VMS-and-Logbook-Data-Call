@@ -116,7 +116,10 @@ eusm <- eusm %>% st_transform(4326)
 bathy <- readRDS(paste0(dataPath, "ICES_GEBCO.rds"))
 bathy <- bathy %>% st_set_crs(4326)
 
-# Necessary setting for spatial operations
+# IMPORTANT: Necessary setting for spatial operations
+#' This function makes the st_intersect work properly. Otherwise the st_intersects function in BLOCK 2 would neve finish the task . 
+#' This function turns off the  spherical geometry , therefore the spatial function in SF are using the spatial layers projection instead
+
 sf::sf_use_s2(FALSE)
 
 
