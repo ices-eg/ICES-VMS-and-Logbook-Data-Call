@@ -10,7 +10,11 @@ for(year in yearsToSubmit){
   
   # load data
   load(file = paste0(outPath,paste0("/processedEflalo",year,".RData")))
-  load(file = paste0(outPath,paste0("/tacsatEflalo",year,".RData")))  
+  load(file = paste0(outPath,paste0("/tacsatEflalo",year,".RData"))) 
+  
+  eflalo$VE_COU <- "AD"
+  tacsatEflalo$VE_COU <- "AD"
+  
   #'----------------------------------------------------------------------------
   # 3.1 Create table 2                                                    ----
   #'----------------------------------------------------------------------------
@@ -576,24 +580,6 @@ table( table2$INTV > 0  )
 write.table(table1Save, file.path(outPath, "table1Save.csv"), na = "",row.names=FALSE,col.names=TRUE,sep=",",quote=FALSE)
 write.table(table2Save, file.path(outPath, "table2Save.csv"), na = "",row.names=FALSE,col.names=TRUE,sep=",",quote=FALSE)
 
-#'------------------------------------------------------------------------------
-# 3.8 Data call submission using ICESVMS package (OPTIONAL)                 ----
-#'------------------------------------------------------------------------------
-
-# R packages required to be installed:
-# install.packages(c("icesVMS", "icesConnect"), repos = "https://ices-tools-prod.r-universe.dev")  
-
-#library(icesVMS)
-
-# Replace with your ICES user name and you will be requested with your password
-#icesConnect::set_username('submitter_ices_user_id') # e.g., 'lastname' not 'ices\lastname'
-
-#icesConnect::ices_token(refresh = TRUE)
-#icesConnect::decode_token()$Email # Check the email associated to your ices user name is the correct one
-
-#screen_vms_file(file.path(outPath, "table1Save.csv"))  # Submit for screening Table 1
-#screen_vms_file(file.path(outPath, "table2Save.csv"))  # Submit for screening Table 2
-
 
 #'------------------------------------------------------------------------------
 # 3.8 Data call submission using ICESVMS package (OPTIONAL)                 ----
@@ -605,13 +591,13 @@ write.table(table2Save, file.path(outPath, "table2Save.csv"), na = "",row.names=
 library(icesVMS)
 
 # Replace with your ICES user name and you will be requested with your password
-#icesConnect::set_username('submitter_ices_user_id') # e.g., 'lastname' not 'ices\lastname'
+icesConnect::set_username('neil.campbell') # e.g., 'lastname' not 'ices\lastname'
 
-#icesConnect::ices_token(refresh = TRUE)
-#icesConnect::decode_token()$Email # Check the email associated to your ices user name is the correct one
+icesConnect::ices_token(refresh = TRUE)
+icesConnect::decode_token()$Email # Check the email associated to your ices user name is the correct one
 
-#screen_vms_file(file.path(outPath, "table1Save.csv"))  # Submit for screening Table 1
-#screen_vms_file(file.path(outPath, "table2Save.csv"))  # Submit for screening Table 2
+screen_vms_file(file.path(outPath, "table1Save.csv"))  # Submit for screening Table 1
+screen_vms_file(file.path(outPath, "table2Save.csv"))  # Submit for screening Table 2
 
 #'------------------------------------------------------------------------------
 # End of script                                                             
