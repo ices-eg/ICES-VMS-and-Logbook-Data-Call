@@ -239,6 +239,8 @@ for(year in yearsToSubmit){
         
         # start by correctly formatting the level 5 metier
         tacsatp$LE_L5MET <-  sapply(strsplit(tacsatp$LE_MET, "_"), function(x) paste(x[1:2], collapse = "_"))  
+        tacsatp$LE_L5MET2 <- gsub("^([A-Z]+_[A-Z]+)_.*$", "\\1", tacsatp$LE_MET)
+        
         
         # Create a data frame with minimum and maximum speed thresholds for each gear
         speedarr <- as.data.frame(
@@ -256,6 +258,21 @@ for(year in yearsToSubmit){
     
     
         # Analyse activity automated for common gears only. Use the speedarr for the other gears =============== 
+        # Extract the gear part from LE_MET
+        gear_from_met <- sapply(strsplit(tacsatp$LE_MET, "_"), `[`, 1)
+        
+        # Identify records where LE_GEAR matches the first part of LE_MET
+        matching_records <- tacsatp$LE_GEAR == gear_from_met
+        
+        # Print summary of records to be removed
+        removed_count <- sum(!matching_records)
+        total_count <- length(matching_records)
+        cat("Removing", removed_count, "out of", total_count, "records (", 
+            round(removed_count/total_count*100, 2), "%)\n")
+        
+        # Keep only the records where the gear codes match
+        tacsatp <- tacsatp[matching_records, ]
+        
         
         subTacsat <- subset(tacsatp, LE_GEAR %in% autoDetectionGears)
         nonsubTacsat <- subset(tacsatp, !LE_GEAR %in% autoDetectionGears)
