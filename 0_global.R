@@ -41,7 +41,7 @@ if (!require("pacman")) install.packages("pacman")
 pacman::p_load(vmstools, sf, data.table, raster, terra, mapview, Matrix, dplyr, 
                doBy, mixtools, tidyr, glue, gt, progressr, geosphere, purrr, 
                ggplot2, sfdSAR, icesVocab, generics, icesConnect, icesVMS, icesSharePoint,
-               tidyverse, units, tcltk, lubridate, here, httr)
+               tidyverse, units, tcltk, lubridate, here, googledrive)
 
 
  
@@ -84,6 +84,9 @@ linkEflaloTacsat <- c("trip")
 # Extract valid level 6 metiers 
 valid_metiers <- fread("https://raw.githubusercontent.com/ices-eg/RCGs/master/Metiers/Reference_lists/RDB_ISSG_Metier_list.csv")$Metier_level6
 
+
+
+
 #'------------------------------------------------------------------------------
 # Download the bathymetry and habitat files                                 ----
 #'------------------------------------------------------------------------------
@@ -92,31 +95,31 @@ valid_metiers <- fread("https://raw.githubusercontent.com/ices-eg/RCGs/master/Me
 #'containing both as sf objects in .rds formats. The script below should download and unzip the files into the
 #'correct directory. If you have problems downloading the files, contact neil.campbell@ices.dk 
 
-if(!file.exists(paste0(dataPath, "hab_and_bathy_layers.zip"))){
-
-  download_from_onedrive_httr <- function(share_url, destination) {
-    # Add download parameter
-    download_url <- paste0(share_url, "?download=1")
-    
-    # Get the file with proper redirect handling
-    response <- GET(download_url, write_disk(destination, overwrite = TRUE))
-    
-    # Check if download was successful
-    if (http_status(response)$category == "Success") {
-      return(TRUE)
-    } else {
-      return(FALSE)
-    }
-  }
+if(!file.exists(paste0(dataPath, "hab_and_bathy_layers.zip"))) {
   
-  onedrive_url <- "https://icesit-my.sharepoint.com/:u:/g/personal/neil_campbell_ices_dk/Ea9358dMUmpAsMO4tsGRRB0B6DlQJC7p6-8_wkGgMN0b6Q?e=fgbcZL"
-  download_from_onedrive_httr(onedrive_url, "hab_and_bathy_layers.zip")
+  file_id <- "1FRjZ8ByTlRZOJGDpMCjQDWMlrsqjqPfb"
+  zip_path <- paste0(dataPath, "hab_and_bathy_layers.zip")
   
-   
+  # No authentication needed for files with "Anyone with the link" permission
+  drive_deauth()
+  
+  # Download file
+  cat("Downloading file from Google Drive. This file is 1.1GB, so this may take some time...\n")
+  drive_download(as_id(file_id), path = zip_path, overwrite = TRUE)
+  
+  if(file.exists(zip_path) && file.size(zip_path) > 1000000) {
+    cat("Successfully downloaded file of size: ", file.size(zip_path)/1024/1024, " MB\n")
     # Extract the zip archive
-    unzip(paste0(dataPath, "hab_and_bathy_layers.zip"), exdir = dataPath, overwrite = TRUE, junkpaths = TRUE)
+    unzip_result <- try(unzip(zip_path, exdir = dataPath, overwrite = TRUE, junkpaths = TRUE))
+    if(inherits(unzip_result, "try-error")) {
+      cat("Failed to extract zip file. It may be corrupted or require a different extraction method.\n")
+    }
+  } else {
+    cat("Failed to download the complete file from Google Drive.\n")
   }
-  
+}
+
+
 # Load the bathymetry and habitat layers into R
 
 eusm <- readRDS(paste0(dataPath, "eusm.rds"))
