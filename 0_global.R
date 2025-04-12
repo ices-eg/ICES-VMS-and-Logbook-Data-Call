@@ -21,7 +21,6 @@ install.packages("devtools")
 
 ## Download and install the library required to interact with the ICES SharePoint site
 library(devtools)
-install.packages("icesSharePoint", repos = c('https://ices-tools-prod.r-universe.dev', 'https://cloud.r-project.org'))
 install.packages("sfdSAR", repos = "https://ices-tools-prod.r-universe.dev") ## do not install sfdSAR CRAN version, is obsolete
 install.packages("icesVMS", repos = 'https://ices-tools-prod.r-universe.dev')
 
