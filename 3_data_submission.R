@@ -12,9 +12,7 @@ for(year in yearsToSubmit){
   load(file = paste0(outPath,paste0("/processedEflalo",year,".RData")))
   load(file = paste0(outPath,paste0("/tacsatEflalo",year,".RData"))) 
   
-  eflalo$VE_COU <- "AD"
-  tacsatEflalo$VE_COU <- "AD"
-  
+
   #'----------------------------------------------------------------------------
   # 3.1 Create table 2                                                    ----
   #'----------------------------------------------------------------------------
