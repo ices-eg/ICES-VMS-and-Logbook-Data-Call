@@ -25,11 +25,6 @@ install.packages("icesSharePoint", repos = c('https://ices-tools-prod.r-universe
 install.packages("sfdSAR", repos = "https://ices-tools-prod.r-universe.dev") ## do not install sfdSAR CRAN version, is obsolete
 install.packages("icesVMS", repos = 'https://ices-tools-prod.r-universe.dev')
 
-## set ICES sharepoint username
-options(icesSharePoint.username = "your ices login name")  ## replace this text with your ICES sharepoint login name
-## check it has worked
-options("icesSharePoint.username")
-
 
 # Download the VMStools .tar.gz file from GitHub
 url <- "https://github.com/nielshintzen/vmstools/releases/download/0.77/vmstools_0.77.tar.gz"
@@ -47,7 +42,7 @@ if (!require("pacman")) install.packages("pacman")
 pacman::p_load(vmstools, sf, data.table, raster, terra, mapview, Matrix, dplyr, 
                doBy, mixtools, tidyr, glue, gt, progressr, geosphere, purrr, 
                ggplot2, sfdSAR, icesVocab, generics, icesConnect, icesVMS, icesSharePoint,
-               tidyverse, units, tcltk, lubridate, here)
+               tidyverse, units, tcltk, lubridate, here, httr)
 
 
  
@@ -100,9 +95,23 @@ valid_metiers <- fread("https://raw.githubusercontent.com/ices-eg/RCGs/master/Me
 
 if(!file.exists(paste0(dataPath, "hab_and_bathy_layers.zip"))){
 
-    # Download the zip file
-    icesSharePoint::spgetfile(file = "SEAwise Documents/hab_and_bathy_layers.zip", site = "/ExpertGroups/DataExpports/VMS_Data_call", destdir = dataPath)
-    ## The first time you run this code you will be prompted to enter your ICES Sharepoint password. Type it in the pop-up window to proceed with the download
+  download_from_onedrive_httr <- function(share_url, destination) {
+    # Add download parameter
+    download_url <- paste0(share_url, "?download=1")
+    
+    # Get the file with proper redirect handling
+    response <- GET(download_url, write_disk(destination, overwrite = TRUE))
+    
+    # Check if download was successful
+    if (http_status(response)$category == "Success") {
+      return(TRUE)
+    } else {
+      return(FALSE)
+    }
+  }
+  
+  onedrive_url <- "https://icesit-my.sharepoint.com/:u:/g/personal/neil_campbell_ices_dk/Ea9358dMUmpAsMO4tsGRRB0B6DlQJC7p6-8_wkGgMN0b6Q?e=fgbcZL"
+  download_from_onedrive_httr(onedrive_url, "hab_and_bathy_layers.zip")
   
    
     # Extract the zip archive
