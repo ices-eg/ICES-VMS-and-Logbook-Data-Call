@@ -23,6 +23,44 @@ install.packages("devtools")
 library(devtools)
 install.packages("sfdSAR", repos = "https://ices-tools-prod.r-universe.dev") ## do not install sfdSAR CRAN version, is obsolete
 install.packages("icesVMS", repos = 'https://ices-tools-prod.r-universe.dev')
+install.packages("icesConnect", repos = 'https://ices-tools-prod.r-universe.dev')
+
+# Load icesConnect
+library(icesConnect)
+
+# Check if the username is set
+username <- get_username()
+if (is.null(username)) {
+  username <- readline(prompt = "Enter your ICES username (without 'ICES\\'): ")
+  set_username(username)
+  message("Username set to: ", username)
+}
+
+# Get token for authentication specifically for VMS API
+message("Authenticating with ICES VMS API...")
+
+
+# First try with JWT approach
+tryCatch({
+  # Test connection to VMS API endpoint
+  response <- icesConnect::ices_get_jwt("https://taf.ices.dk/vms/api/gearwidths")
+  
+  if (httr::status_code(response) == 200) {
+    message("Successfully authenticated with ICES VMS API")
+    # Extract token from the response headers if available
+    token <- icesConnect::ices_token()
+    message("Authentication token obtained and stored")
+  } else {
+    stop("Failed to connect to ICES VMS API")
+  }
+}, error = function(e) {
+  message("Error connecting to ICES VMS API: ", e$message)
+  message("Attempting direct token authentication...")
+  token <- icesConnect::ices_token(refresh = TRUE)
+  if (is.null(token) || nchar(token) == 0) {
+    stop("Failed to get valid authentication token. Please check your ICES username and password.")
+  }
+})
 
 
 # Download the VMStools .tar.gz file from GitHub
@@ -44,8 +82,6 @@ pacman::p_load(vmstools, sf, data.table, raster, terra, mapview, Matrix, dplyr,
                tidyverse, units, tcltk, lubridate, here, googledrive)
 
 
- 
-
 # Set paths
 path <- paste0(getwd(), "/") # Working directory
 codePath  <- paste0(path, "Scripts/")   # Location to store R scripts
@@ -64,7 +100,7 @@ dir.create(plotPath, showWarnings = T)
 #'------------------------------------------------------------------------------
 
 # Setting thresholds
-spThres       <- 20   # Maximum speed threshold in analyses in nm
+spThres       <- 20   # Maximum speed threshold in analyses in knots
 intThres      <- 5    # Minimum difference in time interval in minutes to prevent pseudo duplicates
 intvThres     <- 240  # Maximum difference in time interval in minutes to prevent unrealistic intervals
 lanThres      <- 1.5  # Maximum difference in log10-transformed sorted weights
@@ -85,8 +121,6 @@ linkEflaloTacsat <- c("trip")
 valid_metiers <- fread("https://raw.githubusercontent.com/ices-eg/RCGs/master/Metiers/Reference_lists/RDB_ISSG_Metier_list.csv")$Metier_level6
 
 
-
-
 #'------------------------------------------------------------------------------
 # Download the bathymetry and habitat files                                 ----
 #'------------------------------------------------------------------------------
@@ -96,29 +130,23 @@ valid_metiers <- fread("https://raw.githubusercontent.com/ices-eg/RCGs/master/Me
 #'correct directory. If you have problems downloading the files, contact neil.campbell@ices.dk 
 
 if(!file.exists(paste0(dataPath, "hab_and_bathy_layers.zip"))) {
+ 
+  # First, make sure you have a valid token
+  icesConnect::ices_token()
   
-  file_id <- "1FRjZ8ByTlRZOJGDpMCjQDWMlrsqjqPfb"
-  zip_path <- paste0(dataPath, "hab_and_bathy_layers.zip")
+  # Download the file and save it to a local path
+  file_url <- "https://icesit.sharepoint.com/Shared%20Documents/hab_and_bathy_layers.zip"
+  local_path <- "hab_and_bathy_layers.zip"  # Change this to your desired path
   
-  # No authentication needed for files with "Anyone with the link" permission
-  drive_deauth()
+  # Get the file content
+  file_content <- icesConnect::ices_get(file_url)
   
-  # Download file
-  cat("Downloading file from Google Drive. This file is 1.1GB, so this may take some time...\n")
-  drive_download(as_id(file_id), path = zip_path, overwrite = TRUE)
+  # Save the content to a file
+  writeBin(file_content, local_path)
   
-  if(file.exists(zip_path) && file.size(zip_path) > 1000000) {
-    cat("Successfully downloaded file of size: ", file.size(zip_path)/1024/1024, " MB\n")
-    # Extract the zip archive
-    unzip_result <- try(unzip(zip_path, exdir = dataPath, overwrite = TRUE, junkpaths = TRUE))
-    if(inherits(unzip_result, "try-error")) {
-      cat("Failed to extract zip file. It may be corrupted or require a different extraction method.\n")
-    }
-  } else {
-    cat("Failed to download the complete file from Google Drive.\n")
-  }
+  cat("File downloaded successfully to:", local_path)
 }
-
+ 
 
 # Load the bathymetry and habitat layers into R
 
