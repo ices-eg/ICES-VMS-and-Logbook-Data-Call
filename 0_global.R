@@ -131,22 +131,100 @@ valid_metiers <- fread("https://raw.githubusercontent.com/ices-eg/RCGs/master/Me
 
 if(!file.exists(paste0(dataPath, "hab_and_bathy_layers.zip"))) {
  
-  # First, make sure you have a valid token
-  icesConnect::ices_token()
+  shared_link <- "https://icesit.sharepoint.com/:u:/g/Efh5rtBiIhFPsnFcWXH-khYBKRBEHkEDjLHh4OFrMX68Vw?e=cubybi&download=1"
+  local_path <- "data/hab_and_bathy_layers.zip"
   
-  # Download the file and save it to a local path
-  file_url <- "https://icesit.sharepoint.com/Shared%20Documents/hab_and_bathy_layers.zip"
-  local_path <- "hab_and_bathy_layers.zip"  # Change this to your desired path
+
+
+  download_large_file <- function(url, dest_file, file_size) {
+    # Create a simple text-based progress bar using Base R
+    progress_bar <- function(current, total, width = 60) {
+      percent <- current / total
+      filled <- round(width * percent)
+      bar <- paste0(
+        "[", 
+        paste0(rep("=", filled), collapse = ""),
+        paste0(rep(" ", width - filled), collapse = ""),
+        "]"
+      )
+      
+      # Calculate ETA
+      elapsed_time <- as.numeric(difftime(Sys.time(), start_time, units = "secs"))
+      eta <- if (percent > 0) {
+        round((elapsed_time / percent) - elapsed_time)
+      } else {
+        NA
+      }
+      
+      # Format ETA for display
+      eta_str <- if (is.na(eta)) {
+        "calculating..."
+      } else if (eta < 60) {
+        paste0(eta, "s")
+      } else if (eta < 3600) {
+        paste0(round(eta / 60), "m ", eta %% 60, "s")
+      } else {
+        paste0(round(eta / 3600), "h ", round((eta %% 3600) / 60), "m")
+      }
+      
+      # Create the full progress string
+      prog_str <- sprintf("  downloading %s %3d%% eta: %s", bar, round(percent * 100), eta_str)
+      
+      # Clear the line and write the progress
+      cat("\r", prog_str, sep = "")
+      if (current >= total) cat("\n")
+      utils::flush.console()
+    }
+    
+    # Store original timeout setting
+    original_timeout <- getOption("timeout")
+    
+    # Temporarily increase timeout just for this function's scope
+    options(timeout = 600)  
+    # This gives a 10-minute timeout - if you have a slow internet connection you might need to increase this
+    
+    # Use on.exit to ensure the original timeout value is restored even if the function errors
+    on.exit(options(timeout = original_timeout))
+    
+    # Record start time for ETA calculation
+    start_time <- Sys.time()
+    
+    # Open connections
+    con <- url(url, "rb")
+    output <- file(dest_file, "wb")
+    
+    # Read and write in chunks with progress
+    chunk_size <- 1024 * 1024  # 1MB chunks
+    total_read <- 0
+    
+    tryCatch({
+      repeat {
+        data <- readBin(con, "raw", n = chunk_size)
+        if (length(data) == 0) break
+        writeBin(data, output)
+        total_read <- total_read + length(data)
+        
+        # Update progress bar
+        progress_bar(total_read, file_size)
+      }
+      
+      message("Download complete!")
+    }, 
+    finally = {
+      # Always close connections, even on error
+      close(con)
+      close(output)
+    })
+    
+    return(invisible(dest_file))
+  }
   
-  # Get the file content
-  file_content <- icesConnect::ices_get(file_url)
   
-  # Save the content to a file
-  writeBin(file_content, local_path)
+  download_large_file(shared_link, local_path, 1227481372)
   
-  cat("File downloaded successfully to:", local_path)
 }
- 
+
+unzip(zipfile = paste0(dataPath, "hab_and_bathy_layers.zip"), overwrite = TRUE)
 
 # Load the bathymetry and habitat layers into R
 
