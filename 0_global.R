@@ -21,9 +21,12 @@ install.packages("devtools")
 
 ## Download and install the library required to interact with the ICES SharePoint site
 library(devtools)
-install.packages("sfdSAR", repos = "https://ices-tools-prod.r-universe.dev") ## do not install sfdSAR CRAN version, is obsolete
-install.packages("icesVMS", repos = 'https://ices-tools-prod.r-universe.dev')
-install.packages("icesConnect", repos = 'https://ices-tools-prod.r-universe.dev')
+
+# Install ICES packages from ICES R-universe
+# Force reinstallation to ensure we get the latest versions
+install.packages(c("sfdSAR", "icesVocab", "icesConnect", "icesVMS"), 
+                 repos = "https://ices-tools-prod.r-universe.dev",
+                 force = TRUE)
 
 # Load icesConnect
 library(icesConnect)
