@@ -580,27 +580,13 @@ colnames(table1Save)[which(colnames(table1Save) == "Habitat")] <- "HabitatType"
 colnames(table1Save)[which(colnames(table1Save) == "Depth")] <- "DepthRange"
 colnames(table1Save)[which(colnames(table1Save) == "No_Records")] <- "NumberOfRecords"
 
-
 # Headers and quotes have been removed to be compatible with required submission and ICES SQL DB format.
 write.table(table1Save, file.path(outPath, "table1Save.csv"), na = "",row.names=FALSE,col.names=TRUE,sep=",",quote=FALSE)
 write.table(table2Save, file.path(outPath, "table2Save.csv"), na = "",row.names=FALSE,col.names=TRUE,sep=",",quote=FALSE)
 
+## Congratulations - you made it.
 
-#'------------------------------------------------------------------------------
-# 3.8 Data call submission using ICESVMS package (OPTIONAL)                 ----
-#'------------------------------------------------------------------------------
-
-# R packages required to be installed:
-# install.packages(c("icesVMS", "icesConnect"), repos = "https://ices-tools-prod.r-universe.dev")  
-
-# library(icesVMS)
-
-# Replace with your ICES user name and you will be requested with your password
-
-# icesConnect::ices_token(refresh = TRUE)
-
-screen_vms_file(file.path(outPath, "table1Save.csv"))  # Submit for screening Table 1
-screen_vms_file(file.path(outPath, "table2Save.csv"))  # Submit for screening Table 2
+## Now visit https://data.ices.dk/vms/manage/ and log in with your ICES credentials to upload your table 1 and table 2 files
 
 #'------------------------------------------------------------------------------
 # End of script                                                             
