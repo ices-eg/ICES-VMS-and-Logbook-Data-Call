@@ -81,8 +81,8 @@ unlink("vmstools_0.77.tar.gz")
 if (!require("pacman")) install.packages("pacman")
 pacman::p_load(vmstools, sf, data.table, raster, terra, mapview, Matrix, dplyr, 
                doBy, mixtools, tidyr, glue, gt, progressr, geosphere, purrr, 
-               ggplot2, sfdSAR, icesVocab, generics, icesConnect, icesVMS, icesSharePoint,
-               tidyverse, units, tcltk, lubridate, here, googledrive)
+               ggplot2, sfdSAR, icesVocab, generics, icesConnect, icesVMS,
+               tidyverse, units, tcltk, lubridate, here)
 
 
 # Set paths
