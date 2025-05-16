@@ -28,42 +28,6 @@ install.packages(c("sfdSAR", "icesVocab", "icesConnect", "icesVMS"),
                  repos = "https://ices-tools-prod.r-universe.dev",
                  force = TRUE)
 
-# Load icesConnect
-library(icesConnect)
-
-# Check if the username is set
-username <- get_username()
-if (is.null(username)) {
-  username <- readline(prompt = "Enter your ICES username (without 'ICES\\'): ")
-  set_username(username)
-  message("Username set to: ", username)
-}
-
-# Get token for authentication specifically for VMS API
-message("Authenticating with ICES VMS API...")
-
-
-# First try with JWT approach
-tryCatch({
-  # Test connection to VMS API endpoint
-  response <- icesConnect::ices_get_jwt("https://taf.ices.dk/vms/api/gearwidths")
-  
-  if (httr::status_code(response) == 200) {
-    message("Successfully authenticated with ICES VMS API")
-    # Extract token from the response headers if available
-    token <- icesConnect::ices_token()
-    message("Authentication token obtained and stored")
-  } else {
-    stop("Failed to connect to ICES VMS API")
-  }
-}, error = function(e) {
-  message("Error connecting to ICES VMS API: ", e$message)
-  message("Attempting direct token authentication...")
-  token <- icesConnect::ices_token(refresh = TRUE)
-  if (is.null(token) || nchar(token) == 0) {
-    stop("Failed to get valid authentication token. Please check your ICES username and password.")
-  }
-})
 
 
 # Download the VMStools .tar.gz file from GitHub
