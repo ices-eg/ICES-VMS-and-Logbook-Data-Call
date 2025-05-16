@@ -21,8 +21,13 @@ install.packages("devtools")
 
 ## Download and install the library required to interact with the ICES SharePoint site
 library(devtools)
-install.packages("sfdSAR", repos = "https://ices-tools-prod.r-universe.dev") ## do not install sfdSAR CRAN version, is obsolete
-install.packages("icesVMS", repos = 'https://ices-tools-prod.r-universe.dev')
+
+# Install ICES packages from ICES R-universe
+# Force reinstallation to ensure we get the latest versions
+install.packages(c("sfdSAR", "icesVocab", "icesConnect", "icesVMS"), 
+                 repos = "https://ices-tools-prod.r-universe.dev",
+                 force = TRUE)
+
 
 
 # Download the VMStools .tar.gz file from GitHub
@@ -40,11 +45,9 @@ unlink("vmstools_0.77.tar.gz")
 if (!require("pacman")) install.packages("pacman")
 pacman::p_load(vmstools, sf, data.table, raster, terra, mapview, Matrix, dplyr, 
                doBy, mixtools, tidyr, glue, gt, progressr, geosphere, purrr, 
-               ggplot2, sfdSAR, icesVocab, generics, icesConnect, icesVMS, icesSharePoint,
-               tidyverse, units, tcltk, lubridate, here, googledrive)
+               ggplot2, sfdSAR, icesVocab, generics, icesConnect, icesVMS,
+               tidyverse, units, tcltk, lubridate, here)
 
-
- 
 
 # Set paths
 path <- paste0(getwd(), "/") # Working directory
@@ -64,7 +67,7 @@ dir.create(plotPath, showWarnings = T)
 #'------------------------------------------------------------------------------
 
 # Setting thresholds
-spThres       <- 20   # Maximum speed threshold in analyses in nm
+spThres       <- 20   # Maximum speed threshold in analyses in knots
 intThres      <- 5    # Minimum difference in time interval in minutes to prevent pseudo duplicates
 intvThres     <- 240  # Maximum difference in time interval in minutes to prevent unrealistic intervals
 lanThres      <- 1.5  # Maximum difference in log10-transformed sorted weights
@@ -85,8 +88,6 @@ linkEflaloTacsat <- c("trip")
 valid_metiers <- fread("https://raw.githubusercontent.com/ices-eg/RCGs/master/Metiers/Reference_lists/RDB_ISSG_Metier_list.csv")$Metier_level6
 
 
-
-
 #'------------------------------------------------------------------------------
 # Download the bathymetry and habitat files                                 ----
 #'------------------------------------------------------------------------------
@@ -96,29 +97,101 @@ valid_metiers <- fread("https://raw.githubusercontent.com/ices-eg/RCGs/master/Me
 #'correct directory. If you have problems downloading the files, contact neil.campbell@ices.dk 
 
 if(!file.exists(paste0(dataPath, "hab_and_bathy_layers.zip"))) {
+ 
+  shared_link <- "https://icesit.sharepoint.com/:u:/g/Efh5rtBiIhFPsnFcWXH-khYBKRBEHkEDjLHh4OFrMX68Vw?e=cubybi&download=1"
+  local_path <- "data/hab_and_bathy_layers.zip"
   
-  file_id <- "1FRjZ8ByTlRZOJGDpMCjQDWMlrsqjqPfb"
-  zip_path <- paste0(dataPath, "hab_and_bathy_layers.zip")
-  
-  # No authentication needed for files with "Anyone with the link" permission
-  drive_deauth()
-  
-  # Download file
-  cat("Downloading file from Google Drive. This file is 1.1GB, so this may take some time...\n")
-  drive_download(as_id(file_id), path = zip_path, overwrite = TRUE)
-  
-  if(file.exists(zip_path) && file.size(zip_path) > 1000000) {
-    cat("Successfully downloaded file of size: ", file.size(zip_path)/1024/1024, " MB\n")
-    # Extract the zip archive
-    unzip_result <- try(unzip(zip_path, exdir = dataPath, overwrite = TRUE, junkpaths = TRUE))
-    if(inherits(unzip_result, "try-error")) {
-      cat("Failed to extract zip file. It may be corrupted or require a different extraction method.\n")
+
+
+  download_large_file <- function(url, dest_file, file_size) {
+    # Create a simple text-based progress bar using Base R
+    progress_bar <- function(current, total, width = 60) {
+      percent <- current / total
+      filled <- round(width * percent)
+      bar <- paste0(
+        "[", 
+        paste0(rep("=", filled), collapse = ""),
+        paste0(rep(" ", width - filled), collapse = ""),
+        "]"
+      )
+      
+      # Calculate ETA
+      elapsed_time <- as.numeric(difftime(Sys.time(), start_time, units = "secs"))
+      eta <- if (percent > 0) {
+        round((elapsed_time / percent) - elapsed_time)
+      } else {
+        NA
+      }
+      
+      # Format ETA for display
+      eta_str <- if (is.na(eta)) {
+        "calculating..."
+      } else if (eta < 60) {
+        paste0(eta, "s")
+      } else if (eta < 3600) {
+        paste0(round(eta / 60), "m ", eta %% 60, "s")
+      } else {
+        paste0(round(eta / 3600), "h ", round((eta %% 3600) / 60), "m")
+      }
+      
+      # Create the full progress string
+      prog_str <- sprintf("  downloading %s %3d%% eta: %s", bar, round(percent * 100), eta_str)
+      
+      # Clear the line and write the progress
+      cat("\r", prog_str, sep = "")
+      if (current >= total) cat("\n")
+      utils::flush.console()
     }
-  } else {
-    cat("Failed to download the complete file from Google Drive.\n")
+    
+    # Store original timeout setting
+    original_timeout <- getOption("timeout")
+    
+    # Temporarily increase timeout just for this function's scope
+    options(timeout = 600)  
+    # This gives a 10-minute timeout - if you have a slow internet connection you might need to increase this
+    
+    # Use on.exit to ensure the original timeout value is restored even if the function errors
+    on.exit(options(timeout = original_timeout))
+    
+    # Record start time for ETA calculation
+    start_time <- Sys.time()
+    
+    # Open connections
+    con <- url(url, "rb")
+    output <- file(dest_file, "wb")
+    
+    # Read and write in chunks with progress
+    chunk_size <- 1024 * 1024  # 1MB chunks
+    total_read <- 0
+    
+    tryCatch({
+      repeat {
+        data <- readBin(con, "raw", n = chunk_size)
+        if (length(data) == 0) break
+        writeBin(data, output)
+        total_read <- total_read + length(data)
+        
+        # Update progress bar
+        progress_bar(total_read, file_size)
+      }
+      
+      message("Download complete!")
+    }, 
+    finally = {
+      # Always close connections, even on error
+      close(con)
+      close(output)
+    })
+    
+    return(invisible(dest_file))
   }
+  
+  
+  download_large_file(shared_link, local_path, 1227481372)
+  
 }
 
+unzip(zipfile = paste0(dataPath, "hab_and_bathy_layers.zip"), overwrite = TRUE)
 
 # Load the bathymetry and habitat layers into R
 
