@@ -11,7 +11,7 @@
    - [Block 1: Data preprocessing](#block-1-data-preprocessing)
    - [Block 2: Data analysis](#block-2-data-analysis)
    - [Block 3: Data submission](#block-3-data-submission)
-   - [Block 4: Data visualization](#block-4-data-visualization)
+   - [Supplementary visualization script](#supplementary-visualization-script)
 3. [Contacts](#contacts)
 4. [Changelog](#changelog)
 
@@ -22,7 +22,7 @@
 
 # Part 1. Installation of Required Software
 
-This document provides guidance for processing VMS (Vessel Monitoring System) and logbook data according to the ICES data call requirements. The workflow uses freely available software (R and RStudio) and several specialized R packages.
+This document provides guidance for processing VMS (Vessel Monitoring System) and logbook data according to the ICES data call requirements. The workflow uses freely available software (R and RStudio) and several specialised R packages.
 
 ## Step 1: Installation of R
 
@@ -63,17 +63,6 @@ The workflow script handles most library installation and loading. However, you'
    ```r
    library(devtools)
    ```
-
-3. Install the VMStools package version 0.78:
-   ```r
-   install_github("nielshintzen/vmstools@0.78")
-   ```
-
-4. Load VMStools:
-   ```r
-   library(vmstools)
-   ```
-
 Note: If you're behind a firewall that blocks GitHub connections, you may need to configure proxy settings or ask your IT department for assistance.
 
 ## Step 4: Installing ICES R Packages
@@ -88,7 +77,7 @@ install.packages(c("icesVMS", "icesVocab", "icesConnect", "icesSharePoint", "sfd
 
 # Part 2. Workflow Overview
 
-The workflow consists of five R script blocks, each handling different aspects of the data processing pipeline:
+The workflow consists of four main R script blocks, each handling different aspects of the data processing pipeline:
 
 ## Block 0: Global Settings and Functions
 
@@ -98,13 +87,13 @@ This script sets up the environment by:
 - Installing and loading required packages
 - Setting paths for data storage
 - Defining thresholds for analysis (fishing speeds, time intervals, etc.)
-- Loading support data (harbor locations, ICES areas)
+- Loading support data (harbour locations, ICES areas)
 - Defining utility functions used throughout the workflow
 
 Important parameters to review:
 - `yearsToSubmit`: Years for which data will be processed
 - `autoDetectionGears`: Gear types for which automatic fishing activity detection will be used
-- `visualInspection`: Whether to visually analyze speed histograms (TRUE/FALSE)
+- `visualInspection`: Whether to visually analyse speed histograms (TRUE/FALSE)
 
 ## Block 1: Data Preprocessing
 
@@ -117,7 +106,7 @@ This script cleans both VMS (TACSAT) and logbook (EFLALO) data. For each dataset
 - Removes duplicate records
 - Removes impossible coordinates
 - Removes pseudo-duplicates (pings too close in time)
-- Removes points in harbors
+- Removes points in harbours
 
 **EFLALO cleaning**:
 - Identifies and handles outlier catch records
@@ -143,7 +132,7 @@ Key sections:
 - **Speed thresholds**: Defines vessel speed ranges associated with fishing for different gear types
 - **Activity detection**: Determines if a vessel is fishing or steaming based on speed and patterns
 - **Data merging**: Links VMS positions with logbook catch data
-- **Spatial assignment**: Allocates fishing activity to habitat & bathymetry layers
+- **Spatial assignment**: Allocates fishing activity to standardised spatial grid cells
 
 ## Block 3: Data Submission
 
@@ -152,25 +141,25 @@ Key sections:
 This script:
 1. Creates Table 1 (VMS data) and Table 2 (logbook data) according to ICES requirements
 2. Performs validation checks against ICES vocabularies
-3. Anonymizes vessel identifiers
+3. Anonymises vessel identifiers
 4. Aggregates data as required by the submission format
 5. Saves the final output files in the correct format for submission
 
 Important sections:
 - **ICES vocabulary checks**: Validates data against required code lists (gear types, metiers, etc.)
-- **Data aggregation**: Summarizes data at required resolutions
+- **Data aggregation**: Summarises data at required resolutions
 - **Quality control**: Generates reports on data completeness and consistency
 
-## Block 4: Data Visualization
+## Supplementary Visualisation Script
 
-**File**: `4_plot_data.R`
+**File**: `resources/make_htm_sar_effort_and_landings.R`
 
-This optional script creates interactive maps to visualize:
+This supplementary script creates interactive HTML maps to visualise:
 - Fishing effort distribution
 - Catch value distribution
 - Swept area ratio (SAR)
 
-These visualizations help identify potential errors or anomalies before data submission.
+These visualisations help identify potential errors or anomalies before data submission.
 
 # Using the Workflow
 
@@ -189,19 +178,24 @@ These visualizations help identify potential errors or anomalies before data sub
    - Run `1_eflalo_tacsat_preprocessing.R` to clean the data
    - Run `2_eflalo_tacsat_analysis.R` to process and merge the data
    - Run `3_data_submission.R` to prepare the final submission files
-   - Optionally run `4_plot_data.R` to visualize results
+   - Optionally run the visualisation script in the resources folder to create interactive maps
 
 4. **Validation and Submission**:
    - Review the quality control reports
-   - Check the interactive maps for anomalies
+   - Check the interactive HTML maps for anomalies
    - Submit the final tables to ICES
 
 # Important Notes
 
 - The workflow scripts contain numerous parameters that may need adjustment based on your specific data characteristics.
-- Understanding fishing behavior for different gears in your fleet is crucial for accurate activity determination.
+- Understanding fishing behaviour for different gears in your fleet is crucial for accurate activity determination.
 - Always review the results carefully, especially the activity detection, which is a critical step.
-- Pay attention to units: swept area is calculated in square kilometers (km²).
+- Pay attention to units: swept area is calculated in square kilometres (km²). Submission of this field is optional - if
+  you have better information on the width of gears used in your national fleets, use them here. If not, the workflow
+  will use the Benthis gear models to calculate width. If you leave this field blank, this will be done in the ICES database.
+- Do not use dummy values (e.g. 999, -999999) for any field. Step 3.7 of the workflow specifies `na = ""` in the .csv
+  files exported for upload. The data submission process will not accept `"na"` entries in numeric fields, but will accept
+  blanks. If you have issues, please contact the Secretariat for help. 
 
 # Contacts
 
@@ -221,7 +215,7 @@ For assistance with this workflow, please contact:
 | 22 February 2022  | Update                                    | Lara Salvany, ICES         |
 | 13 February 2023  | Update                                    | Cecilia Kvaavik, ICES      |
 | 24 February 2023  | Update                                    | Neil Campbell, ICES        |
-| 1 April 2025      | Major revision with updated workflow      | Neil Campbell, ICES   |
+| 2 April 2025      | Rewritten for updated workflow            | Neil Campbell, ICES        |
 
 # Annex 1. Format Specification for VMS Data (VE)
 
@@ -234,14 +228,14 @@ The VMS data should be submitted as a table with the following fields:
 | Year                 | char(4)      | Yes      | Year of data                                               |
 | Month                | int(2)       | Yes      | Month of data                                              |
 | NoDistinctVessels    | int(5)       | Yes      | Number of distinct vessels                                 |
-| AnonymizedVesselID   | nvarchar(500)| Yes      | Anonymized vessel IDs (e.g., "ESP001;ESP003")             |
+| AnonymizedVesselID   | nvarchar(500)| Yes      | Anonymised vessel IDs (e.g., "ESP001;ESP003")             |
 | Csquare              | nvarchar(15) | Yes      | C-square reference (0.05° × 0.05°)                         |
 | MetierL4             | char(25)     | Yes      | Gear type level 4                                          |
 | MetierL5             | char(50)     | Yes      | Target assemblage                                          |
 | MetierL6             | char(40)     | Yes      | Metier level 6                                             |
 | VesselLengthRange    | char(20)     | Yes      | Vessel length class                                        |
 | Habitat              | nvarchar     | No       | MSFD Habitat type                                          |
-| Depth                | nvarchar     | No       | Depth range (200m intervals)                               |
+| Depth                | nvarchar     | No       | Depth range                                                |
 | No_Records           | int          | Yes      | Number of VMS records                                      |
 | AverageFishingSpeed  | float(15)    | Yes      | Average speed during fishing (knots)                       |
 | FishingHour          | float(15)    | Yes      | Fishing hours                                              |
@@ -265,7 +259,7 @@ The logbook data should be submitted as a table with the following fields:
 | Year                | char(4)      | Yes      | Year of data                                               |
 | Month               | int(2)       | Yes      | Month of data                                              |
 | NoDistinctVessels   | int(5)       | Yes      | Number of distinct vessels                                 |
-| AnonymizedVesselID  | nvarchar(500)| Yes      | Anonymized vessel IDs (e.g., "ESP001;ESP003")             |
+| AnonymizedVesselID  | nvarchar(500)| Yes      | Anonymised vessel IDs (e.g., "ESP001;ESP003")             |
 | ICESrectangle       | char(4)      | Yes      | ICES statistical rectangle                                 |
 | MetierL4            | char(25)     | Yes      | Gear type level 4                                          |
 | MetierL5            | char(50)     | Yes      | Target assemblage                                          |
