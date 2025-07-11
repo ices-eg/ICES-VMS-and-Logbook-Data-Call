@@ -1083,11 +1083,9 @@ trip_assign <- function(tacsatp, eflalo, col = "LE_GEAR", haul_logbook = F){
   
   
   
-  if(col == "LE_MET"){
-    tst <- data.table(eflalo)[get(col) %in% valid_metiers & !is.na(get(col)) ,.(uniqueN(get(col))), by=.(FT_REF)]
-  }else{
-    tst <- data.table(eflalo)[!is.na(get(col)),.(uniqueN(get(col))), by=.(FT_REF)]
-  }
+ 
+  tst <- data.table(eflalo)[!is.na(get(col)),.(uniqueN(get(col))), by=.(FT_REF)]
+  
   
   
   if(nrow(tst[V1>1])==0){
@@ -1095,7 +1093,7 @@ trip_assign <- function(tacsatp, eflalo, col = "LE_GEAR", haul_logbook = F){
     return(data.frame())
   }
   
-  e <- data.table(eflalo)[FT_REF %in% tst[V1>1]$FT_REF]
+ e  <- data.table(eflalo)[FT_REF %in% tst[V1>1]$FT_REF]
   
   tz <- data.table(tacsatp)[FT_REF  %in% tst[V1>1]$FT_REF]
   suppressWarnings(tz[, (col) := NULL])  
@@ -1196,11 +1194,11 @@ trip_assign <- function(tacsatp, eflalo, col = "LE_GEAR", haul_logbook = F){
     
   }
       
-   tz =   tz %>%  filter(  !is.na ( get(col)))   
-   tz_all =  rbind (tz , tz2 )  
-   tz_all = tz_all |>  as.data.frame()
+   tz =   tz %>%  filter(  !is.na ( get(col)))  
+   if ( exists( "tz2"))  {  tz =  rbind (tz , tz2 )  }  
+   tz  = tz  |>  as.data.frame()
    
-   return(tz_all) 
+   return(tz ) 
   
 }
 
