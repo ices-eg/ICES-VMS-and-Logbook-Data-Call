@@ -4,6 +4,14 @@ All notable changes and version released to "VMS&LB Datacall R Workflow" are be 
 
 The CHANGELOG format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+# [2.2.0] - CANDIDATE VERSION
+
+- Tripassign: Review the functions involved in assign logbook information to VMS records  [issue reference]
+- SplitAmongPings: Review and aprove proposed update on SAP 0.88   [issue reference]
+- SAR Calculation of seiners: Change code for SA calculation seiners using the code in SFDSAR package [ issue reference ]  
+- Speed profiles code: Transfer the speed profile calculation 
+- Update ports dataset in workflow: Update the ports list in workflow currently obtained from VMSTools and replace with udpated versions collected by SFD Group [issue reference]
+
 # [2.1.0] - 02-04-2025
 
 The changes are listed by the R Workflow block files. [0.global, 1.Eflalo Tacsat Preprocessing, 2.Eflalo Tacsat Analysis , 3.Data Submissions ] 
