@@ -73,13 +73,13 @@ intvThres     <- 240  # Maximum difference in time interval in minutes to preven
 lanThres      <- 1.5  # Maximum difference in log10-transformed sorted weights
 
 # Set the years to submit
-yearsToSubmit <- c(2009:2023)
+yearsToSubmit <- c(2009:2025)
 
 # Set the gear names for which automatic fishing activity is wanted
 autoDetectionGears <- c("TBB","OTB","OTT", "OTM","SSC","SDN","DRB","PTB","HMD", "MIS")
 
 # Decide if you want to visually analyze speed-histograms to identify fishing activity peaks
-visualInspection <- TRUE
+visualInspection <- FALSE
 
 # Specify how landings should be distributed over the VMS pings
 linkEflaloTacsat <- c("trip")
@@ -198,7 +198,7 @@ if(!file.exists(paste0(dataPath, "hab_and_bathy_layers.zip"))) {
   
 }
 
-unzip(zipfile = paste0(dataPath, "hab_and_bathy_layers.zip"), overwrite = TRUE, exdir = dataPath))
+unzip(zipfile = paste0(dataPath, "hab_and_bathy_layers.zip"), overwrite = TRUE, exdir = dataPath)
 
 # Load the bathymetry and habitat layers into R
 
