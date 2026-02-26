@@ -84,9 +84,16 @@ visualInspection <- TRUE
 # Specify how landings should be distributed over the VMS pings
 linkEflaloTacsat <- c("trip")
 
-# Extract valid level 6 metiers 
-valid_metiers <- fread("https://raw.githubusercontent.com/ices-eg/RCGs/master/Metiers/Reference_lists/RDB_ISSG_Metier_list.csv")$Metier_level6
+metier_url <- "https://raw.githubusercontent.com/ices-eg/ICES-VMS-and-Logbook-Data-Call/dev_2026/resources/RDB_ISSG_Metier_list.csv"
+## replace dev_2026 with main when pushing the live version
 
+metier_table <- tryCatch(
+  fread(metier_url),
+  error = function(e) stop("Failed to fetch metier reference list: ", e$message)
+)
+
+stopifnot("Metier_level6" %in% names(metier_table))
+valid_metiers <- metier_table$Metier_level6
 
 #'------------------------------------------------------------------------------
 # Download the bathymetry and habitat files                                 ----
