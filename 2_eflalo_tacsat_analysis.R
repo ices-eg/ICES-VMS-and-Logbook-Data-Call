@@ -659,14 +659,40 @@ for(year in yearsToSubmit){
 
   tacsatEflalo$GEARWIDTHKM <- add_gearwidth(tacsatEflalo)
   
-  # 2.5.6  Calculates Swept Area (Km2) for each record in the TACSATEFLALO
-  #' Calculate the area swept by mobile bottom contact gears in Km2. 
-  #' Attention: To calcualte the Swept Area using code line below: 
-  #' the  GEARDWIDTH must be in KILOMETERS , INTV in HOURS and SPEED in Knots
-  #' The knots are transformed into KILOMETERS per hour ( knots *1.852)
-  
-  tacsatEflalo$SA_KM2 <- tacsatEflalo$GEARWIDTHKM * tacsatEflalo$INTV * tacsatEflalo$SI_SP * 1.852
-  
+# 2.5.6  Calculates Swept Area (Km2) for each record in the TACSATEFLALO
+#' Calculate the area swept by mobile bottom contact gears in Km2. 
+#' 
+#' Different gear types require different swept area calculations:
+#' - Trawls: SA = gear_width * time * speed * 1.852 (standard towing calculation)
+#' - Danish seine (SDN): Uses rope loop geometry, SA = (time / 2.591234) * gear_width^2 / pi / 4
+#' - Scottish seine (SSC): Uses rope loop geometry with 1.5 multiplier for the "splitting" phase
+#' 
+#' For seines, GEARWIDTHKM represents total rope length (may exceed 6 km), not net width.
+#' In case of emergency, use standard haul durations from Eigaard et al. (2016): Danish seine 2.59h, Scottish seine 1.91h.
+#' 
+#' Attention: Remember that GEARWIDTH must be in KILOMETRES, INTV in HOURS, and SI_SP in KNOTS.
+#' See WGSFD 2025 Report for full discussion of this change. ICES Scientific Reports https://doi.org/10.17895/ices.pub.3073475
+
+tacsatEflalo$SA_KM2 <- case_when(
+  # Danish seine - rope loop geometry
+  tacsatEflalo$LE_GEAR == "SDN" ~ danish_seine_contact(
+    fishing_hours = tacsatEflalo$INTV,
+    gear_width = tacsatEflalo$GEARWIDTHKM,
+    fishing_speed = tacsatEflalo$SI_SP
+  ),
+  # Scottish seine - rope loop geometry with splitting multiplier
+  tacsatEflalo$LE_GEAR == "SSC" ~ scottish_seine_contact(
+    fishing_hours = tacsatEflalo$INTV,
+    gear_width = tacsatEflalo$GEARWIDTHKM,
+    fishing_speed = tacsatEflalo$SI_SP
+  ),
+  # All other gears - standard trawl calculation
+  TRUE ~ trawl_contact(
+    fishing_hours = tacsatEflalo$INTV,
+    gear_width = tacsatEflalo$GEARWIDTHKM,
+    fishing_speed = tacsatEflalo$SI_SP
+  )
+)
   # Check if the minimum and maximum gear width are reasonable size by METIER
   
   tacsatEflalo[,.(min = min(GEARWIDTHKM), max = max(GEARWIDTHKM)), by = .(LE_MET)]
