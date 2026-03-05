@@ -84,8 +84,8 @@ visualInspection <- FALSE
 # Specify how landings should be distributed over the VMS pings
 linkEflaloTacsat <- c("trip")
 
-metier_url <- "https://raw.githubusercontent.com/ices-eg/ICES-VMS-and-Logbook-Data-Call/dev_2026/resources/RDB_ISSG_Metier_list.csv"
-## replace dev_2026 with main when pushing the live version
+metier_url <- "https://raw.githubusercontent.com/ices-eg/ICES-VMS-and-Logbook-Data-Call/main/resources/RDB_ISSG_Metier_list.csv"
+## we have moved the metier list to the VMS data call github, to avoid the risk of changes
 
 metier_table <- tryCatch(
   fread(metier_url),
