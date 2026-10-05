@@ -4,7 +4,9 @@ All notable changes and version released to "VMS&LB Datacall R Workflow" are be 
 
 The CHANGELOG format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-# [2.2.0] - CANDIDATE VERSION
+# [2.X.0] - CANDIDATE VERSION
+
+# [2.2.0] - 02-03-2026
 
 - Tripassign: Review the functions involved in assign logbook information to VMS records  [issue reference]
 - SplitAmongPings: Review and aprove proposed update on SAP 0.88   [issue reference]
