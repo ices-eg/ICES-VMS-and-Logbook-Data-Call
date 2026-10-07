@@ -127,7 +127,7 @@ load(file = paste0(outPath, "/table2.RData"))
 # 3.2.2 Replace vessel ID by an anonymized ID column                        ----
 #'------------------------------------------------------------------------------
 # New field added for the 2020 data call including unique vessels id's  
-# This vessel id is used to calculate unique vessels in a c-square and 
+# This vessel id is used to calculate unique vessels in a Csquare and 
 VE_lut <- data.frame(VE_REF = unique(c(table1$VE_REF, table2$VE_REF)))
 fmt <- paste0("%0", floor(log10(nrow(VE_lut))) + 1, "d")
 VE_lut$VE_ID <- paste0(table1$VE_COU[1], sprintf(fmt, 1:nrow(VE_lut))) # use relevant country code!
@@ -175,14 +175,19 @@ table2$LENGTHCAT <-  table2$VE_LEN%>%cut(   breaks=c(0, 6, 8, 10, 12, 15, 18, 24
 ## Save Table 1
 ##--------------
 
+
+
+ 
+ 
+ 
 table1Save <- table1 %>%
   # Separate LE_MET into met4 and met5, dropping extra pieces
   separate(col = LE_MET, c("MetierL4", "MetierL5"), sep = '_', extra = "drop", remove = FALSE) %>%
   # Group by several variables
-  group_by(RecordType = RT, CountryCode = VE_COU, Year, Month, Csquare, MetierL4, MetierL5, MetierL6 = LE_MET, VesselLengthRange = LENGTHCAT, Habitat = MSFD_BBHT, Depth = depth) %>%
+  group_by(RecordType = RT, CountryCode = VE_COU, Year, Month,  Csquare, MetierL4, MetierL5, MetierL6 = LE_MET, VesselLengthRange = LENGTHCAT, HabitatType = MSFD_BBHT, DepthRange = depth) %>%
   # Summarise the grouped data
   summarise(
-    No_Records = n(),
+    NumberOfRecords = n(),
     AverageFishingSpeed = mean(SI_SP),
     FishingHour = sum(INTV, na.rm = TRUE),
     AverageInterval = mean(INTV, na.rm = TRUE),
@@ -265,7 +270,7 @@ remrecsTable2["Total",] <- c(as.numeric(nrow(table2Save)), 100)
 
 # TABLE 1 ======================================================================
 
-### 3.5.1 Check if C-Squares are within ICES Ecoregions ------------------------
+### 3.5.1 Check if Csquares are within ICES Ecoregions ------------------------
 csquares_d      <-  table1Save%>%
   dplyr::select('Csquare')%>%
   dplyr::distinct( )
@@ -525,7 +530,7 @@ gt(
   ) %>%
   tab_footnote(
     footnote = md('Non mandatory fields can include null values if not available'),
-    locations = cells_stub( rows = c( 'TotValue', 'AverageGearWidth', 'Habitat'))
+    locations = cells_stub( rows = c( 'TotValue', 'AverageGearWidth', 'HabitatType', 'DepthRange', 'SweptArea'))
   )
 
 
@@ -576,9 +581,6 @@ table( table2$INTV > 0  )
 
 # Rename columns to match expected field names
 colnames(table1Save)[which(colnames(table1Save) == "Csquare")] <- "C-square"
-colnames(table1Save)[which(colnames(table1Save) == "Habitat")] <- "HabitatType"  
-colnames(table1Save)[which(colnames(table1Save) == "Depth")] <- "DepthRange"
-colnames(table1Save)[which(colnames(table1Save) == "No_Records")] <- "NumberOfRecords"
 
 # Headers and quotes have been removed to be compatible with required submission and ICES SQL DB format.
 write.table(table1Save, file.path(outPath, "table1Save.csv"), na = "",row.names=FALSE,col.names=TRUE,sep=",",quote=FALSE)
